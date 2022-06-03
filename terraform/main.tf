@@ -76,12 +76,22 @@ resource "openstack_networking_port_v2" "cage_sub3_port1" {
 }
 
 ######### Setup Compute #########
+# resource "openstack_compute_instance_v2" "gateway" {
+#   name            = "cage_gateway"
+#   image_name      = "Ubuntu18"
+#   flavor_name     = "m1.small"
+#   security_groups = ["ssh_group"]
+
+#   network {
+#     name = "${openstack_networking_network_v2.cage_network.name}"
+#   }
+# }
 
 #### Setup Hosts in Subnet 1 ###
-resource "openstack_compute_instance_v2" "test" {
-  name            = "test-vm"
-  image_name      = "cirros"
-  flavor_name     = "m1.tiny"
+resource "openstack_compute_instance_v2" "sub1_host1" {
+  name            = "cage_sub1_host1"
+  image_name      = "Ubuntu18"
+  flavor_name     = "m1.small"
   security_groups = ["ssh_group"]
 
   network {
