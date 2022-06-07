@@ -4,7 +4,7 @@ data "openstack_networking_network_v2" "external_network" {
   name = "external"
 }
 
-resource "openstack_networking_network_v2" "cage_network" {
+resource "openstack_networking_network_v2" "internal_network" {
   name           = "internal_network"
   admin_state_up = "true"
 }
@@ -12,7 +12,7 @@ resource "openstack_networking_network_v2" "cage_network" {
 ### Subnets ###
 resource "openstack_networking_subnet_v2" "subnet_manage" {
   name       = "subnet_manage"
-  network_id = "${openstack_networking_network_v2.cage_network.id}"
+  network_id = "${openstack_networking_network_v2.internal_network.id}"
   cidr       = "192.168.198.0/24"
   ip_version = 4
 }
@@ -74,7 +74,7 @@ resource "openstack_networking_router_interface_v2" "router_interface_manage_ext
 ### Ports ###
 resource "openstack_networking_port_v2" "manage_port_host" {
   name               = "manage_port_host"
-  network_id         = "${openstack_networking_network_v2.cage_network.id}"
+  network_id         = "${openstack_networking_network_v2.internal_network.id}"
   admin_state_up     = "true"
   security_group_ids = ["${openstack_networking_secgroup_v2.simple.id}"]
 
@@ -88,7 +88,7 @@ resource "openstack_networking_port_v2" "manage_port_host" {
 
 ### Management Host ###
 resource "openstack_compute_instance_v2" "manage_host" {
-  name            = "cage_manage"
+  name            = "manage_host"
   image_name      = "cirros"
   flavor_name     = "m1.small"
   security_groups = ["${openstack_networking_secgroup_v2.simple.id}"]
