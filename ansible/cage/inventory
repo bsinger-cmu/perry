@@ -1,0 +1,6 @@
+[nodes]
+192.168.199.3 ansible_user=ubuntu
+192.168.199.4 ansible_user=ubuntu
+
+[nodes:vars]
+ansible_ssh_common_args='-i /home/brian/snap/microstack/common/.ssh/id_microstack -o ProxyCommand="ssh -i /home/brian/snap/microstack/common/.ssh/id_microstack -W %h:%p -q ubuntu@10.20.20.33"'
