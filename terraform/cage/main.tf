@@ -99,18 +99,6 @@ resource "openstack_networking_port_v2" "manage_port_host" {
   }
 }
 
-resource "openstack_networking_port_v2" "test_port" {
-  name               = "test_port"
-  network_id         = "${openstack_networking_network_v2.manage_network.id}"
-  admin_state_up     = "true"
-  security_group_ids = ["${openstack_networking_secgroup_v2.simple.id}"]
-
-  fixed_ip {
-    subnet_id  = "${openstack_networking_subnet_v2.manage.id}"
-    ip_address = "192.168.198.4"
-  }
-}
-
 resource "openstack_networking_port_v2" "port_sub1_host1" {
   name               = "port_sub1_host1"
   network_id         = "${openstack_networking_network_v2.internal_network.id}"
@@ -123,15 +111,27 @@ resource "openstack_networking_port_v2" "port_sub1_host1" {
   }
 }
 
-resource "openstack_networking_port_v2" "port_sub1_host2" {
-  name               = "port_sub1_host2"
+resource "openstack_networking_port_v2" "port_sub2_host1" {
+  name               = "port_sub2_host1"
   network_id         = "${openstack_networking_network_v2.internal_network.id}"
   admin_state_up     = "true"
   security_group_ids = ["${openstack_networking_secgroup_v2.simple.id}"]
 
   fixed_ip {
-    subnet_id  = "${openstack_networking_subnet_v2.internal_subnet1.id}"
-    ip_address = "192.168.199.4"
+    subnet_id  = "${openstack_networking_subnet_v2.internal_subnet2.id}"
+    ip_address = "192.168.200.3"
+  }
+}
+
+resource "openstack_networking_port_v2" "port_sub3_host1" {
+  name               = "port_sub3_host1"
+  network_id         = "${openstack_networking_network_v2.internal_network.id}"
+  admin_state_up     = "true"
+  security_group_ids = ["${openstack_networking_secgroup_v2.simple.id}"]
+
+  fixed_ip {
+    subnet_id  = "${openstack_networking_subnet_v2.internal_subnet3.id}"
+    ip_address = "192.168.201.3"
   }
 }
 
@@ -167,25 +167,13 @@ resource "openstack_compute_instance_v2" "manage_host" {
   }
 }
 
-resource "openstack_compute_floatingip_v2" "manage_floating_ip" {
+resource "openstack_networking_floatingip_v2" "manage_floating_ip" {
   pool = "external"
 }
 
-resource "openstack_compute_floatingip_associate_v2" "fip_manage" {
-  floating_ip = "${openstack_compute_floatingip_v2.manage_floating_ip.address}"
-  instance_id = "${openstack_compute_instance_v2.manage_host.id}"
-}
-
-resource "openstack_compute_instance_v2" "test_host" {
-  name            = "test_host"
-  image_name      = "Ubuntu18"
-  flavor_name     = "m1.small"
-  security_groups = ["${openstack_networking_secgroup_v2.simple.id}"]
-  key_pair        = "microstack"
-
-  network {
-    port = "${openstack_networking_port_v2.test_port.id}"
-  }
+resource "openstack_networking_floatingip_associate_v2" "fip_manage" {
+  floating_ip = "${openstack_networking_floatingip_v2.manage_floating_ip.address}"
+  port_id = "${openstack_networking_port_v2.manage_port_host.id}"
 }
 
 ### Subnet 1 Hosts ###
@@ -201,14 +189,26 @@ resource "openstack_compute_instance_v2" "sub1_host1" {
   }
 }
 
-resource "openstack_compute_instance_v2" "sub1_host2" {
-  name            = "sub1_host2"
+resource "openstack_compute_instance_v2" "sub2_host1" {
+  name            = "sub2_host1"
   image_name      = "Ubuntu18"
   flavor_name     = "m1.small"
   security_groups = ["${openstack_networking_secgroup_v2.simple.id}"]
   key_pair        = "microstack"
 
   network {
-    port = "${openstack_networking_port_v2.port_sub1_host2.id}"
+    port = "${openstack_networking_port_v2.port_sub2_host1.id}"
+  }
+}
+
+resource "openstack_compute_instance_v2" "sub3_host1" {
+  name            = "sub3_host1"
+  image_name      = "Ubuntu18"
+  flavor_name     = "m1.small"
+  security_groups = ["${openstack_networking_secgroup_v2.simple.id}"]
+  key_pair        = "microstack"
+
+  network {
+    port = "${openstack_networking_port_v2.port_sub3_host1.id}"
   }
 }

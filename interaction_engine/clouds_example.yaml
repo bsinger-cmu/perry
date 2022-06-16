@@ -1,0 +1,12 @@
+clouds:
+  default:
+    region_name: microstack
+    auth:
+      username: 'XXXXXXX'
+      user_domain_id: default
+      project_domain_id: default
+      password: XXXXXXXXX
+      project_name: 'Cage'
+      auth_url: 'https://128.237.154.129:5000/v3/'
+    verify: False
+      
