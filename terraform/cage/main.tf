@@ -147,9 +147,18 @@ resource "openstack_networking_router_interface_v2" "router_interface_manage_ext
   subnet_id = "${openstack_networking_subnet_v2.manage.id}"
 }
 
+# Connect subnets
 resource "openstack_networking_router_interface_v2" "router_interface_manage_sub1" {
   router_id = "${openstack_networking_router_v2.router_external.id}"
   subnet_id = "${openstack_networking_subnet_v2.internal_subnet1.id}"
+}
+resource "openstack_networking_router_interface_v2" "router_interface_manage_sub2" {
+  router_id = "${openstack_networking_router_v2.router_external.id}"
+  subnet_id = "${openstack_networking_subnet_v2.internal_subnet2.id}"
+}
+resource "openstack_networking_router_interface_v2" "router_interface_manage_sub3" {
+  router_id = "${openstack_networking_router_v2.router_external.id}"
+  subnet_id = "${openstack_networking_subnet_v2.internal_subnet3.id}"
 }
 
 ######### Setup Compute #########

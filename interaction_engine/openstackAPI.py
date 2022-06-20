@@ -14,11 +14,12 @@ def find_manage_server(conn):
             ip_addresses = [x['addr'] for x in network_attrs]
             for ip in ip_addresses:
                 if public_ip in ip:
-                    return server
+                    return server, ip
 
 def main():
     conn = initialize()
-    find_manage_server(conn)
+    manage_server, manage_ip = find_manage_server(conn)
+    print(f'Management IP address: {manage_ip}')
 
 if __name__=="__main__":
     main()

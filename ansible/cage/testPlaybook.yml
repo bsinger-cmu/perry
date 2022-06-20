@@ -1,0 +1,12 @@
+---
+- name: Test Playbook
+  hosts: nodes
+  remote_user: root
+
+  tasks:
+  - name: Ensure the httpd service is running
+    service:
+      name: httpd
+      state: started
+    become: yes
+
