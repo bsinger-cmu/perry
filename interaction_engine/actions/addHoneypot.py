@@ -4,7 +4,7 @@ class AddHoneypot:
     def __init__(self, conn):
         self.conn = conn
 
-    def create_keypair(keypair_name, ssh_dir, private_keypair_file):
+    def create_keypair(self, keypair_name, ssh_dir='', private_keypair_file=''):
         keypair = self.conn.compute.find_keypair(keypair_name)
 
         if not keypair:
@@ -27,12 +27,12 @@ class AddHoneypot:
 
         return keypair
 
-    def run(self, subnet, honeyname, private_keypair_file):
+    def run(self, subnet, honeyname, private_keypair_file=''):
         print("Create Server:")
         image = self.conn.compute.find_image('cirros')#IMAGE_NAME
         flavor = self.conn.compute.find_flavor('m1.tiny')#FLAVOR_NAME
         network = self.conn.network.find_network('yn-flat')#FLAVOR_NAME
-        keypair = self.create_keypair()
+        keypair = self.create_keypair('microstack')
 
         # TODO: quota issue
         server = self.conn.compute.create_server(
