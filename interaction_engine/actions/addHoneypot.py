@@ -27,17 +27,21 @@ class AddHoneypot:
 
         return keypair
 
-    def run(self, subnet, honeyname, private_keypair_file=''):
+    def run(self, subnet, honeyname, port_name='eport2', private_keypair_file=''):
         print("Create Server:")
         image = self.conn.compute.find_image('cirros')#IMAGE_NAME
         flavor = self.conn.compute.find_flavor('m1.tiny')#FLAVOR_NAME
         network = self.conn.network.find_network('yn-flat')#FLAVOR_NAME
         keypair = self.create_keypair('microstack')
 
-        # TODO: quota issue
+        #   Port 
+        port = self.conn.network.find_port(port_name)
+        print(port)
+
         server = self.conn.compute.create_server(
             name=honeyname, image_id=image.id, flavor_id=flavor.id,
-            networks=[{"uuid": network.id}], key_name=keypair.name)
+            networks=[{"uuid": network.id}], key_name=keypair.name,
+            port=port.id)
 
         server = self.conn.compute.wait_for_server(server)
 
@@ -46,6 +50,6 @@ class AddHoneypot:
             ip=server.access_ipv4))
 
         # TODO: 
-        #   Port 
+        
         #   Security group
         #   Install honeypot, etc
