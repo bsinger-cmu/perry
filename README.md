@@ -1,17 +1,6 @@
 # Terraform
 
-## Setup simple network
+Used to deploy the networks. `./terraform` contains a README.md detailing how to use.
 
-Setup environment variables: `source ./PROJECT_RC.sh`
-
-Go into terraform directory: `cd terraform/simple_network`
-
-If first time, init terraform: `terraform init`
-
-Then check it is working through: `terraform plan`
-
-Now deploy the network: `terraform apply`
-
-Ping the machine: `ping EXTERNAL_IP_ADDR` or ssh `ssh cirros@EXTERNAL_IP_ADDR`
-
-To destroy: `terraform destroy`
+# Interaction Engine
+Interaction engine for agents to run actions on networks. `./interaction_engine` contains a README.md detailing how to use.
