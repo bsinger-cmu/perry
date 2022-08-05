@@ -169,7 +169,7 @@ resource "openstack_compute_instance_v2" "manage_host" {
   image_name      = "Ubuntu18"
   flavor_name     = "m1.small"
   security_groups = ["${openstack_networking_secgroup_v2.simple.id}"]
-  key_pair        = "microstack"
+  key_pair        = "cage"
 
   network {
     port = "${openstack_networking_port_v2.manage_port_host.id}"
@@ -191,7 +191,7 @@ resource "openstack_compute_instance_v2" "sub1_host1" {
   image_name      = "Ubuntu18"
   flavor_name     = "m1.small"
   security_groups = ["${openstack_networking_secgroup_v2.simple.id}"]
-  key_pair        = "microstack"
+  key_pair        = "cage"
 
   network {
     port = "${openstack_networking_port_v2.port_sub1_host1.id}"
@@ -203,7 +203,7 @@ resource "openstack_compute_instance_v2" "sub2_host1" {
   image_name      = "Ubuntu18"
   flavor_name     = "m1.small"
   security_groups = ["${openstack_networking_secgroup_v2.simple.id}"]
-  key_pair        = "microstack"
+  key_pair        = "cage"
 
   network {
     port = "${openstack_networking_port_v2.port_sub2_host1.id}"
@@ -215,7 +215,7 @@ resource "openstack_compute_instance_v2" "sub3_host1" {
   image_name      = "Ubuntu18"
   flavor_name     = "m1.small"
   security_groups = ["${openstack_networking_secgroup_v2.simple.id}"]
-  key_pair        = "microstack"
+  key_pair        = "cage"
 
   network {
     port = "${openstack_networking_port_v2.port_sub3_host1.id}"
