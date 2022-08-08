@@ -8,7 +8,9 @@
 
 # Running openstack
 
-`python openstackAPI.py`
+1. Create a `clouds.yaml` file for your configuration (look at `clouds_example.yaml` for a reference)
+
+2. Run `python openstackAPI.py`
 
 # Running ansible runner
 
