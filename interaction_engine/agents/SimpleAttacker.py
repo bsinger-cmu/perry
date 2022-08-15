@@ -1,4 +1,4 @@
-from agents.agent import Agent
+from .Agent import Agent
 
 class SimpleAttacker(Agent):
     def __init__(self):
@@ -6,7 +6,7 @@ class SimpleAttacker(Agent):
 
     def step(self):
         # Get observations
-        
+
         # Run action?
 
         return

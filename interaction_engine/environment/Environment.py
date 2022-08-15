@@ -2,6 +2,8 @@ class Environment:
     attackers = []
     defenders = []
 
+    attacker_hosts = {}
+
     def __init__(self):
         return
 
