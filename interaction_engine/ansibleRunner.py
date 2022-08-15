@@ -5,9 +5,11 @@ from rich import print
 
 
 def run_bash_command(ansible_def_vars, data_dir, command):
+    print(data_dir)
+    print(command)
     ansible_def_vars['command'] = command
     r = ansible_runner.run(extravars=ansible_def_vars, private_data_dir=data_dir, playbook='generic_commands.yml')
-
+    print(r)
     output = []
 
     for event in r.events:

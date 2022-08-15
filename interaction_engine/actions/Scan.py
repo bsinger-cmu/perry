@@ -6,3 +6,6 @@ class SimpleScan:
 
     def run(self, subnet):
         return servers_ips_on_subnet(self.conn, subnet)
+
+class Nmap(SimpleScan):
+    pass
