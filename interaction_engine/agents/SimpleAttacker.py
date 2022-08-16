@@ -1,12 +1,25 @@
 from .Agent import Agent
+from rich import print
+from actions.Scan import SimpleScan
 
 class SimpleAttacker(Agent):
-    def __init__(self):
+    def __init__(self, conn):
+        self.scanner = SimpleScan(conn)
         return
 
-    def step(self):
-        # Get observations
+    def step(self, env):
+        # What servers do I have access to?
+        compromised_servers = env.attacker_hosts[self]
 
-        # Run action?
+        if len(compromised_servers) > 0:
+            # What subnet is first server on?
+            for network, network_attrs in compromised_servers[0].addresses.items():
+                ip_addresses = [x['addr'] for x in network_attrs]
+
+        # TODO automate this, many research ?? around this tho
+        # Ip address of compromised host: 192.168.199.3
+        # Subnet: 192.168.199.0/24
+        servers_on_subnet = self.scanner.run('192.168.199.0/24')
+        print(len(servers_on_subnet))
 
         return

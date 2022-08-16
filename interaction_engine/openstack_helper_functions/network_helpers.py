@@ -1,7 +1,7 @@
 import ipaddress
 
 def addr_in_subnet(subnet, addr):
-    return ipaddress.ip_address(addr) in ipaddress.ip_network(subnet.cidr)
+    return ipaddress.ip_address(addr) in ipaddress.ip_network(subnet)
 
 
 def server_is_on_subnet(subnet, server):
