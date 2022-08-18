@@ -1,10 +1,11 @@
 from .Agent import Agent
 from rich import print
-from actions.Scan import SimpleScan
+from actions.HostEnumeration import HostEnumeration
 
+# TODO Attacker agents shouldn't have access to openstack connections
 class SimpleAttacker(Agent):
     def __init__(self, conn):
-        self.scanner = SimpleScan(conn)
+        self.scanner = HostEnumeration(conn)
         return
 
     def step(self, env):
@@ -20,6 +21,6 @@ class SimpleAttacker(Agent):
         # Ip address of compromised host: 192.168.199.3
         # Subnet: 192.168.199.0/24
         servers_on_subnet = self.scanner.run('192.168.199.0/24')
-        print(len(servers_on_subnet))
+        print(servers_on_subnet)
 
         return
