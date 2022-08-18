@@ -32,10 +32,10 @@ def main():
     manage_server, manage_ip = find_manage_server(conn)
 
     # Setup attacker
-    attacker = SimpleAttacker(conn)
+    attacker = SimpleAttacker()
 
     # Setup environment
-    env = Environment()
+    env = Environment(conn)
     env.attackers.append(attacker)
     env.attacker_hosts[attacker] = []
     

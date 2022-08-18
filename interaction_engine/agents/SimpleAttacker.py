@@ -4,8 +4,8 @@ from actions.HostEnumeration import HostEnumeration
 
 # TODO Attacker agents shouldn't have access to openstack connections
 class SimpleAttacker(Agent):
-    def __init__(self, conn):
-        self.scanner = HostEnumeration(conn)
+    def __init__(self):
+        self.host_enumeration = HostEnumeration()
         return
 
     def step(self, env):
@@ -20,7 +20,12 @@ class SimpleAttacker(Agent):
         # TODO automate this, many research ?? around this tho
         # Ip address of compromised host: 192.168.199.3
         # Subnet: 192.168.199.0/24
-        servers_on_subnet = self.scanner.run('192.168.199.0/24')
-        print(servers_on_subnet)
+
+        # Set subnet to scan
+        servers_on_subnet = self.host_enumeration.set_subnet_to_scan('192.168.199.0/24')
+        # Tell environment to run action
+        # Passing around self like this seems odd to me, not sure of better way tho
+        res = env.run_action(self, self.host_enumeration)
+        print(res)
 
         return

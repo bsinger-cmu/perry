@@ -1,11 +1,18 @@
+from .Action import Action
 from openstack_helper_functions.network_helpers import servers_ips_on_subnet
 
-class HostEnumeration:
-    def __init__(self, conn):
-        self.conn = conn
+class HostEnumeration(Action):
+    def __init__(self):
+        self.subnet = None
 
-    def run(self, subnet):
-        return servers_ips_on_subnet(self.conn, subnet)
+    def set_subnet_to_scan(self, subnet):
+        self.subnet = subnet
 
-class Nmap:
+    def run(self, env):
+        if self.subnet is not None:
+            return servers_ips_on_subnet(env.conn, self.subnet)
+        else:
+            raise Exception('No subnet is set to scan')
+
+class Nmap(Action):
     pass
