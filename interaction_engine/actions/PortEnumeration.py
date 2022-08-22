@@ -6,7 +6,8 @@ class PortEnumeration(Action):
         self.foothold = None
         self.target_host = None
 
-    def set_host_to_scan(self, foothold, target_host):
+    # TODO: set default management host ip_address
+    def set_host_to_scan(self, target_host, foothold="management_host"):
         self.foothold = foothold
         self.target_host = target_host
 
@@ -20,4 +21,9 @@ class PortEnumeration(Action):
 
 class NmapPortEnumeration(PortEnumeration):
     def run(self, env):
+        # TODO: 
+        # 1. check attacker's access to the foothold host
+        # 2. connect to foothold host
+        # 3. execute "nmap host_ip" on foothold
+        # 4. return output
         pass
