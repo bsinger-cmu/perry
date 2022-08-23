@@ -1,8 +1,8 @@
 from .Action import Action
 from ansibleRunner import run_bash_command
 
-class Remove:
+class Remove(Action):
     pass
 
-class RestartRemove(Remove):
+class RestartServiceRemove(Remove):
     pass

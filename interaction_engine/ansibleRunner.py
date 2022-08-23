@@ -26,12 +26,6 @@ def main(args):
     manage_server, manage_ip = openstackAPI.find_manage_server(conn)
     ansible_data_dir = '../ansible/cage/'
     ansible_vars_default = {'manage_ip': manage_ip, 'ssh_key_path': args.ssh_key_path}
-
-    # r = ansible_runner.run(extravars=ansible_vars, private_data_dir='../ansible/cage/', playbook='testPlaybook.yml')
-    # r = ansible_runner.run(extravars=ansible_vars, private_data_dir='../ansible/cage/', playbook='generic_commands.yml')
-
-    # print("{}: {}".format(r.status, r.rc))
-    # data = r.stdout.read()
     output = run_bash_command(ansible_vars_default, ansible_data_dir, 'pwd')
     print(output)
 

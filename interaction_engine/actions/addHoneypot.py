@@ -1,7 +1,9 @@
+from .Action import Action
 from openstack_helper_functions.network_helpers import servers_ips_on_subnet
 
-class AddHoneypot:
+class AddHoneypot(Action):
     def __init__(self, conn):
+        super().__init__()
         self.conn = conn
 
     def create_keypair(self, keypair_name, ssh_dir='', private_keypair_file=''):

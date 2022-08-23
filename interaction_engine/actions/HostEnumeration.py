@@ -3,6 +3,7 @@ from openstack_helper_functions.network_helpers import servers_ips_on_subnet
 
 class HostEnumeration(Action):
     def __init__(self):
+        super().__init__()
         self.subnet = None
 
     def set_subnet_to_scan(self, subnet):
