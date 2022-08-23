@@ -13,6 +13,3 @@ class HostEnumeration(Action):
             return servers_ips_on_subnet(env.conn, self.subnet)
         else:
             raise Exception('No subnet is set to scan')
-
-class Nmap(Action):
-    pass
