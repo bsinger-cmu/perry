@@ -39,9 +39,11 @@ def main(args):
     manage_server, manage_ip = find_manage_server(conn)
     ansible_data_dir = '../ansible/cage/'
     ansible_vars_default = {'manage_ip': manage_ip, 'ssh_key_path': args.ssh_key_path}
-    output = run_bash_command(ansible_vars_default, ansible_data_dir, 'ping 192.168.200.3')
-    # output = run_bash_command(ansible_vars_default, ansible_data_dir, 'sudo pip install nmap')
-    # output = run_bash_command(ansible_vars_default, ansible_data_dir, 'nmap')
+    # output = run_bash_command(ansible_vars_default, ansible_data_dir, 'ping 192.168.200.3')
+    # output = run_bash_command(ansible_vars_default, ansible_data_dir, 'wget https://bootstrap.pypa.io/pip/3.6/get-pip.py')
+    # output = run_bash_command(ansible_vars_default, ansible_data_dir, 'ls')
+    # output = run_bash_command(ansible_vars_default, ansible_data_dir, 'python3 get-pip.py')
+    output = run_bash_command(ansible_vars_default, ansible_data_dir, 'pwd')
     print(output)
 
 
