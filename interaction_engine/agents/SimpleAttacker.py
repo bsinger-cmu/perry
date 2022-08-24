@@ -1,6 +1,8 @@
 from .Agent import Agent
 from rich import print
 from actions.HostEnumeration import HostEnumeration
+from actions.PortEnumeration import PortEnumeration
+from actions.Exploit import MetasploitExploit
 
 # TODO Attacker agents shouldn't have access to openstack connections
 class SimpleAttacker(Agent):

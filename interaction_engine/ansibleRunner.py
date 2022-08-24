@@ -1,8 +1,21 @@
 import ansible_runner
+import openstack
 import argparse
-import openstackAPI
 from rich import print
 
+def initialize():
+    # Initialize connection
+    conn = openstack.connect(cloud='default')
+    return conn
+
+public_ip = '10.20.20'
+def find_manage_server(conn):
+    for server in conn.compute.servers():
+        for network, network_attrs in server.addresses.items():
+            ip_addresses = [x['addr'] for x in network_attrs]
+            for ip in ip_addresses:
+                if public_ip in ip:
+                    return server, ip
 
 def run_bash_command(ansible_def_vars, data_dir, command):
     print(data_dir)
@@ -22,8 +35,8 @@ def run_bash_command(ansible_def_vars, data_dir, command):
     return output
 
 def main(args):
-    conn = openstackAPI.initialize()
-    manage_server, manage_ip = openstackAPI.find_manage_server(conn)
+    conn = initialize()
+    manage_server, manage_ip = find_manage_server(conn)
     ansible_data_dir = '../ansible/cage/'
     ansible_vars_default = {'manage_ip': manage_ip, 'ssh_key_path': args.ssh_key_path}
     output = run_bash_command(ansible_vars_default, ansible_data_dir, 'pwd')

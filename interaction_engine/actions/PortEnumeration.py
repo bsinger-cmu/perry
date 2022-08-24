@@ -1,7 +1,6 @@
 from .Action import Action
 from ansibleRunner import run_bash_command
 import argparse
-import openstackAPI
 from rich import print
 
 class PortEnumeration(Action):
@@ -16,14 +15,13 @@ class PortEnumeration(Action):
             return []
         elif self.foothold is None:
             raise Exception('Please specify foothold')
-        else
+        else:
             raise Exception('Please specify target')
 
 class NmapPortEnumeration(PortEnumeration):
     def run(self, env):
         # TODO: 1. connect to foothold host
-        conn = openstackAPI.initialize()
-        manage_server, manage_ip = openstackAPI.find_manage_server(conn)
+        manage_server, manage_ip = openstackAPI.find_manage_server(env.conn)
         # TODO: 2. execute "nmap host_ip" on foothold
         ansible_data_dir = '../ansible/cage/'
         ansible_vars_default = {'manage_ip': manage_ip, 'ssh_key_path': args.ssh_key_path}
