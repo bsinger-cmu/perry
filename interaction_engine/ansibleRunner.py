@@ -29,7 +29,7 @@ def run_bash_command(ansible_def_vars, data_dir, command):
         if 'event_data' in event:
             if 'res' in event['event_data']:
                 if 'cmd' in event['event_data']['res'] and len(event['event_data']['res']['cmd']) > 0:
-                    if event['event_data']['res']['cmd'][0] == 'pwd':
+                    if event['event_data']['res']['cmd'][0] == command:
                         output.append(event['event_data']['res']['stdout_lines'])
     
     return output
@@ -39,7 +39,9 @@ def main(args):
     manage_server, manage_ip = find_manage_server(conn)
     ansible_data_dir = '../ansible/cage/'
     ansible_vars_default = {'manage_ip': manage_ip, 'ssh_key_path': args.ssh_key_path}
-    output = run_bash_command(ansible_vars_default, ansible_data_dir, 'pwd')
+    output = run_bash_command(ansible_vars_default, ansible_data_dir, 'ping 192.168.200.3')
+    # output = run_bash_command(ansible_vars_default, ansible_data_dir, 'sudo pip install nmap')
+    # output = run_bash_command(ansible_vars_default, ansible_data_dir, 'nmap')
     print(output)
 
 
