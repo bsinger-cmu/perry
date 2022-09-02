@@ -1,10 +1,6 @@
-import ansible_runner
+import argparse
 
-from agents.SimpleAttacker import SimpleAttacker
-from environment.Environment import Environment
-from environment.Host import Host
-
-from openstack_helper_functions.server_helpers import find_server_by_name
+from AnsibleRunner import AnsibleRunner
 
 import openstack
 
@@ -28,27 +24,22 @@ def find_manage_server(conn):
                 if public_ip in ip:
                     return server, ip
 
-def main():
+def main(ssh_key_path, ansible_dir):
     # Setup connection to openstack
     conn = initialize()
     manage_server, manage_ip = find_manage_server(conn)
 
-    # Setup attacker
-    attacker = SimpleAttacker()
+    # Initialize ansible
+    ansible_runner = AnsibleRunner(ssh_key_path, manage_ip, ansible_dir)
 
-    # Setup environment
-    env = Environment(conn)
-    env.attackers.append(attacker)
-    env.attacker_hosts[attacker] = []
-    
-    # Create host for attacker to have initial access to
-    compromised_host = find_server_by_name(conn, 'sub1_host1')
-    # Find host by name
-    env.attacker_hosts[attacker].append(compromised_host)
-
-    attacker.step(env)
+    ansible_runner.run_playbook('testPlaybook.yml')
 
     
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-s', '--ssh_key_path', help='The path to your openstack ssh key')
+    parser.add_argument('-a', '--ansible_dir', help='The path the ansible directory')
+    args = parser.parse_args()
+
+    main(args.ssh_key_path, args.ansible_dir)
