@@ -11,7 +11,8 @@ class PortEnumeration(Action):
 
     def run(self, env):
         if (self.target_host is not None) and (self.foothold is not None):
-            return []
+            # TODO check if attacker can actually run this
+            return self.target_host.network_services
         elif self.foothold is None:
             raise Exception('Please specify foothold')
         else:

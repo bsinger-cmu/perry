@@ -3,12 +3,16 @@ import openstack
 import argparse
 from rich import print
 
+
 def initialize():
     # Initialize connection
     conn = openstack.connect(cloud='default')
     return conn
 
+
 public_ip = '10.20.20'
+
+
 def find_manage_server(conn):
     for server in conn.compute.servers():
         for network, network_attrs in server.addresses.items():
@@ -16,6 +20,7 @@ def find_manage_server(conn):
             for ip in ip_addresses:
                 if public_ip in ip:
                     return server, ip
+
 
 def run_bash_command(ansible_def_vars, data_dir, command):
     print(data_dir)
@@ -31,8 +36,9 @@ def run_bash_command(ansible_def_vars, data_dir, command):
                 if 'cmd' in event['event_data']['res'] and len(event['event_data']['res']['cmd']) > 0:
                     if event['event_data']['res']['cmd'][0] == command:
                         output.append(event['event_data']['res']['stdout_lines'])
-    
+
     return output
+
 
 def main(args):
     conn = initialize()
@@ -45,7 +51,6 @@ def main(args):
     # output = run_bash_command(ansible_vars_default, ansible_data_dir, 'python3 get-pip.py')
     output = run_bash_command(ansible_vars_default, ansible_data_dir, 'pwd')
     print(output)
-
 
 
 if __name__ == "__main__":

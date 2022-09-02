@@ -1,3 +1,5 @@
+import ansible_runner
+
 from agents.SimpleAttacker import SimpleAttacker
 from environment.Environment import Environment
 from environment.Host import Host
