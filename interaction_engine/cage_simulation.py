@@ -1,6 +1,7 @@
 import argparse
 
 from AnsibleRunner import AnsibleRunner
+from environment import CageEnvironment
 
 import openstack
 
@@ -32,9 +33,19 @@ def main(ssh_key_path, ansible_dir):
     # Initialize ansible
     ansible_runner = AnsibleRunner(ssh_key_path, manage_ip, ansible_dir)
 
-    params = {'host': '192.168.200.3', 'user': 'ubuntu', 'ssh_key_path': '../../attacker.pub'}
-    r = ansible_runner.run_playbook('addSSHKey.yml', playbook_params=params)
-    #r = ansible_runner.run_playbook('testPlaybook.yml')
+    # Setup cage environment
+    # TODO Brian: In the future we probably want to have this redeploy the entire terraform environment
+    cage_env = CageEnvironment(ansible_runner, conn)
+    cage_env.setup('192.168.200.3')
+
+
+    # params = {'host': '192.168.200.3', 'user': 'ubuntu', 'ssh_key_path': '../../attacker.pub'}
+    # r = ansible_runner.run_playbook('addSSHKey.yml', playbook_params=params)
+    # r = ansible_runner.run_playbook('testPlaybook.yml')
+
+    # Setup attacker and defender
+
+
     
 
 if __name__ == "__main__":

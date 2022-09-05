@@ -8,9 +8,11 @@ We use terraform to create a cloud environment in openstack. `./terraform` conta
 
 1. Install conda (if not already installed)
 
-2. Create environment: `conda env create -f environment.yml`
+2. `cd interaction_engine`
 
-3. Activate environment: `conda activate openstack`
+3. Create environment: `conda env create -f conda_environment.yml`
+
+4. Activate environment: `conda activate openstack`
 
 ## Running demo code
 

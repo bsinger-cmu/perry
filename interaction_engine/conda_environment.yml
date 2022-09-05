@@ -1,6 +1,7 @@
 name: openstack
 channels:
   - defaults
+  - conda-forge
 dependencies:
   - _libgcc_mutex=0.1=main
   - _openmp_mutex=4.5=1_gnu
@@ -24,6 +25,7 @@ dependencies:
   - wheel=0.37.1=pyhd3eb1b0_0
   - xz=5.2.5=h7b6447c_0
   - zlib=1.2.11=h7f8727e_4
+  - pycryptodome
   - pip:
     - ansible-runner==2.2.1
     - appdirs==1.4.4
