@@ -32,8 +32,9 @@ def main(ssh_key_path, ansible_dir):
     # Initialize ansible
     ansible_runner = AnsibleRunner(ssh_key_path, manage_ip, ansible_dir)
 
-    ansible_runner.run_playbook('testPlaybook.yml')
-
+    params = {'host': '192.168.200.3', 'user': 'ubuntu', 'ssh_key_path': '../../attacker.pub'}
+    r = ansible_runner.run_playbook('addSSHKey.yml', playbook_params=params)
+    #r = ansible_runner.run_playbook('testPlaybook.yml')
     
 
 if __name__ == "__main__":
