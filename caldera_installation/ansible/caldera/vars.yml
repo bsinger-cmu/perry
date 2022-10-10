@@ -1,0 +1,3 @@
+target_ip: "10.20.20.208"
+ssh_key_path: "~/cage_priv.pem"
+command: "ls"
