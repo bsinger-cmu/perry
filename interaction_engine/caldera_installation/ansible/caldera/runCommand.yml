@@ -1,7 +1,0 @@
----
-- hosts: nodes
-  remote_user: root
-
-  tasks:
-  - name: Run bash command
-    command: "{{ command }}"
