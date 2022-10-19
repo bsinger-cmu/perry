@@ -1,6 +1,6 @@
 ---
 - hosts: "{{ manage_ip }}"
-  remote_user: ubuntu
+  remote_user: "{{ username }}"
   vars:
           ansible_ssh_private_key_file: "{{ ssh_key_path }}"
 
