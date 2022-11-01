@@ -4,11 +4,10 @@ from rich import print
 
 
 class AnsibleRunner:
-    def __init__(self, ssh_key_path, management_ip, ansible_dir, inventory):
+    def __init__(self, ssh_key_path, management_ip, ansible_dir):
         self.ssh_key_path = ssh_key_path
         self.management_ip = management_ip
         self.ansible_dir = ansible_dir
-        self.inventory = 'inventories/' + inventory
 
         self.ansible_vars_default = {'manage_ip': self.management_ip, 'ssh_key_path': self.ssh_key_path}
 

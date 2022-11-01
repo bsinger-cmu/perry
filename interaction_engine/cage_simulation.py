@@ -35,13 +35,13 @@ def main(ssh_key_path, ansible_dir):
 
     # Setup cage environment
     # TODO Brian: In the future we probably want to have this redeploy the entire terraform environment
-    cage_env = CageEnvironment(ansible_runner, conn)
-    cage_env.setup('192.168.200.3')
+    # cage_env = CageEnvironment(ansible_runner, conn)
+    # cage_env.setup('192.168.200.3')
 
 
     # params = {'host': '192.168.200.3', 'user': 'ubuntu', 'ssh_key_path': '../../attacker.pub'}
     # r = ansible_runner.run_playbook('addSSHKey.yml', playbook_params=params)
-    # r = ansible_runner.run_playbook('testPlaybook.yml')
+    r = ansible_runner.run_playbook('common/testPlaybook.yml')
 
     # Setup attacker and defender
 
@@ -51,7 +51,8 @@ def main(ssh_key_path, ansible_dir):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('-s', '--ssh_key_path', help='The path to your openstack ssh key')
-    parser.add_argument('-a', '--ansible_dir', help='The path the ansible directory')
+    # TODO dymnamic inventory
+    # parser.add_argument('-i', '--inventory', help='The path the ansible inventory')
     args = parser.parse_args()
 
-    main(args.ssh_key_path, args.ansible_dir)
+    main(args.ssh_key_path, './ansible/')
