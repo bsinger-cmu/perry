@@ -25,7 +25,7 @@ def find_manage_server(conn):
                 if public_ip in ip:
                     return server, ip
 
-def main(ssh_key_path, ansible_dir):
+def main(ssh_key_path, ansible_dir, caldera_ip):
     # Setup connection to openstack
     conn = initialize()
     manage_server, manage_ip = find_manage_server(conn)
@@ -41,7 +41,10 @@ def main(ssh_key_path, ansible_dir):
 
     # params = {'host': '192.168.200.3', 'user': 'ubuntu', 'ssh_key_path': '../../attacker.pub'}
     # r = ansible_runner.run_playbook('addSSHKey.yml', playbook_params=params)
-    r = ansible_runner.run_playbook('common/testPlaybook.yml')
+
+    # r = ansible_runner.run_playbook('common/testPlaybook.yml')
+    params = {'host': '192.168.199.3', 'user': 'ubuntu', 'caldera_ip': caldera_ip}
+    r = ansible_runner.run_playbook('caldera/install_attacker.yml', playbook_params=params)
 
     # Setup attacker and defender
 
@@ -51,8 +54,9 @@ def main(ssh_key_path, ansible_dir):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('-s', '--ssh_key_path', help='The path to your openstack ssh key')
+    parser.add_argument('-c', '--caldera_ip', help = 'IP address of caldera machine', required=True)
     # TODO dymnamic inventory
     # parser.add_argument('-i', '--inventory', help='The path the ansible inventory')
     args = parser.parse_args()
 
-    main(args.ssh_key_path, './ansible/')
+    main(args.ssh_key_path, './ansible/', args.caldera_ip)
