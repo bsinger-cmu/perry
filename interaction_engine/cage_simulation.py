@@ -35,16 +35,19 @@ def main(ssh_key_path, ansible_dir, caldera_ip):
 
     # Setup cage environment
     # TODO Brian: In the future we probably want to have this redeploy the entire terraform environment
-    # cage_env = CageEnvironment(ansible_runner, conn)
-    # cage_env.setup('192.168.200.3')
+    cage_env = CageEnvironment(ansible_runner, conn)
+    cage_env.setup()
 
 
     # params = {'host': '192.168.200.3', 'user': 'ubuntu', 'ssh_key_path': '../../attacker.pub'}
     # r = ansible_runner.run_playbook('addSSHKey.yml', playbook_params=params)
 
     # r = ansible_runner.run_playbook('common/testPlaybook.yml')
-    params = {'host': '192.168.199.3', 'user': 'ubuntu', 'caldera_ip': caldera_ip}
-    r = ansible_runner.run_playbook('caldera/install_attacker.yml', playbook_params=params)
+    # params = {'host': '192.168.199.3', 'user': 'ubuntu', 'caldera_ip': caldera_ip}
+    # r = ansible_runner.run_playbook('caldera/install_attacker.yml', playbook_params=params)
+
+    # params = {'host': '192.168.199.3', 'user': 'ubuntu'}
+    # r = ansible_runner.run_playbook('vulnerabilities/weakUserPassword.yml', playbook_params=params)
 
     # Setup attacker and defender
 
