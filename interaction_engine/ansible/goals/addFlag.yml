@@ -1,0 +1,9 @@
+---
+- hosts: "{{ host }}"
+  remote_user: root
+
+  tasks:
+  - name: Creating flag
+    copy:
+      dest: "{{ flag_path }}"
+      content: "{{ flag_contents }}"
