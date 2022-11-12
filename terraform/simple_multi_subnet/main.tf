@@ -66,22 +66,42 @@ resource "openstack_networking_secgroup_rule_v2" "icmp_out" {
   security_group_id = "${openstack_networking_secgroup_v2.simple.id}"
 }
 
-resource "openstack_networking_secgroup_rule_v2" "ssh_in" {
+resource "openstack_networking_secgroup_rule_v2" "tcp_all_in" {
   direction         = "ingress"
   ethertype         = "IPv4"
   protocol          = "tcp"
-  port_range_min    = 22
-  port_range_max    = 22
+  port_range_min    = 1
+  port_range_max    = 65535
   remote_ip_prefix  = "0.0.0.0/0"
   security_group_id = "${openstack_networking_secgroup_v2.simple.id}"
 }
 
-resource "openstack_networking_secgroup_rule_v2" "ssh_out" {
+resource "openstack_networking_secgroup_rule_v2" "tcp_all_out" {
   direction         = "egress"
   ethertype         = "IPv4"
   protocol          = "tcp"
-  port_range_min    = 22
-  port_range_max    = 22
+  port_range_min    = 1
+  port_range_max    = 65535
+  remote_ip_prefix  = "0.0.0.0/0"
+  security_group_id = "${openstack_networking_secgroup_v2.simple.id}"
+}
+
+resource "openstack_networking_secgroup_rule_v2" "udp_all_in" {
+  direction         = "ingress"
+  ethertype         = "IPv4"
+  protocol          = "udp"
+  port_range_min    = 1
+  port_range_max    = 65535
+  remote_ip_prefix  = "0.0.0.0/0"
+  security_group_id = "${openstack_networking_secgroup_v2.simple.id}"
+}
+
+resource "openstack_networking_secgroup_rule_v2" "udp_all_out" {
+  direction         = "egress"
+  ethertype         = "IPv4"
+  protocol          = "udp"
+  port_range_min    = 1
+  port_range_max    = 65535
   remote_ip_prefix  = "0.0.0.0/0"
   security_group_id = "${openstack_networking_secgroup_v2.simple.id}"
 }
@@ -166,7 +186,7 @@ resource "openstack_networking_router_interface_v2" "router_interface_manage_sub
 ### Management Host ###
 resource "openstack_compute_instance_v2" "manage_host" {
   name            = "manage_host"
-  image_name      = "Ubuntu18"
+  image_name      = "Ubuntu20"
   flavor_name     = "m1.small"
   security_groups = ["${openstack_networking_secgroup_v2.simple.id}"]
   key_pair        = "cage"
@@ -188,7 +208,7 @@ resource "openstack_networking_floatingip_associate_v2" "fip_manage" {
 ### Subnet 1 Hosts ###
 resource "openstack_compute_instance_v2" "sub1_host1" {
   name            = "sub1_host1"
-  image_name      = "Ubuntu18"
+  image_name      = "Ubuntu20"
   flavor_name     = "m1.small"
   security_groups = ["${openstack_networking_secgroup_v2.simple.id}"]
   key_pair        = "cage"
@@ -200,7 +220,7 @@ resource "openstack_compute_instance_v2" "sub1_host1" {
 
 resource "openstack_compute_instance_v2" "sub2_host1" {
   name            = "sub2_host1"
-  image_name      = "Ubuntu18"
+  image_name      = "Ubuntu20"
   flavor_name     = "m1.small"
   security_groups = ["${openstack_networking_secgroup_v2.simple.id}"]
   key_pair        = "cage"
@@ -212,7 +232,7 @@ resource "openstack_compute_instance_v2" "sub2_host1" {
 
 resource "openstack_compute_instance_v2" "sub3_host1" {
   name            = "sub3_host1"
-  image_name      = "Ubuntu18"
+  image_name      = "Ubuntu20"
   flavor_name     = "m1.small"
   security_groups = ["${openstack_networking_secgroup_v2.simple.id}"]
   key_pair        = "cage"
