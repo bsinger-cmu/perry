@@ -10,7 +10,7 @@ class CageEnvironment(Environment):
 
 
     def setup_ssh_key(self, host):
-                # Generate attacker key
+        # Generate attacker key
         attacker_key = RSA.generate(2048)
         attacker_private_key_name = self.ssh_key_path + 'attacker.pem'
         attacker_public_key_name = self.ssh_key_path + 'attacker.pub'
@@ -32,5 +32,5 @@ class CageEnvironment(Environment):
         # self.setup_ssh_key('192.168.200.3')
 
         # Setup flag
-        flag = setup_flag(self.ansible_runner, '192.168.199.3', '~/flag.txt')
+        flag = setup_flag(self.ansible_runner, '192.168.199.3', '/root/flag.txt', 'root', 'root')
         self.flags[flag] = 1
