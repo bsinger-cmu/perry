@@ -31,6 +31,11 @@ class CageEnvironment(Environment):
     def setup(self):
         # self.setup_ssh_key('192.168.200.3')
 
+        # Setup user
+        params = {'host': '192.168.199.3', 'user': 'ubuntu'}
+        r = self.ansible_runner.run_playbook('common/createUser.yml', playbook_params=params)
+
         # Setup flag
-        flag = setup_flag(self.ansible_runner, '192.168.199.3', '/root/flag.txt', 'root', 'root')
+        flag = setup_flag(self.ansible_runner, '192.168.199.3', '/home/ubuntu/flag.txt', 'root', 'root')
+
         self.flags[flag] = 1
