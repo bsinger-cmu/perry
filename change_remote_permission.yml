@@ -1,7 +1,7 @@
 ---
 - name: change folder permission
-  user: yinuo
-  hosts: peilin.wifi.local.cmu.edu
+  user: "{{ username }}"
+  hosts: "{{ hostname }}"
   vars:
     myfile: "/etc/passwd"
   become: false
@@ -9,6 +9,6 @@
     - name: check permission
       ansible.builtin.file:
         path: "{{ myfile }}"
-        owner: "yinuo"
-        group: "staff"
+        owner: "{{ owner }}"
+        group: "{{ group }}"
         mode: "0777"
