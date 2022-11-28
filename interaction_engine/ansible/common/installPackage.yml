@@ -1,0 +1,9 @@
+---
+- hosts: "{{ host }}"
+  remote_user: root
+
+  tasks:
+  - name: Install Package
+    ansible.builtin.package:
+      name: "{{ package }}"
+      state: present

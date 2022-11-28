@@ -1,0 +1,16 @@
+[defaults]
+host_key_checking=False
+
+[manageHost]
+'{{manage_ip}}' ansible_user=root
+
+[manageHost:vars]
+ansible_ssh_common_args='-i {{ ssh_key_path }}'
+
+[nodes]
+192.168.199.3 ansible_user=root
+192.168.200.3 ansible_user=root
+192.168.201.3 ansible_user=root
+
+[nodes:vars]
+ansible_ssh_common_args='-i {{ ssh_key_path }} -o ProxyCommand="ssh -i {{ ssh_key_path }} -o StrictHostKeyChecking=no -W %h:%p -q root@{{ manage_ip }}"'

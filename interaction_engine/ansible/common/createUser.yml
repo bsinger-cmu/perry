@@ -1,0 +1,10 @@
+---
+- hosts: "{{ host }}"
+  remote_user: root
+
+  tasks:
+  - name: Add user
+    ansible.builtin.user:
+      name: "{{ user }}"
+      shell: /bin/bash
+      group: admin

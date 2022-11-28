@@ -71,6 +71,9 @@ instance/
 # Sphinx documentation
 docs/_build/
 
+# Ansible
+artifacts/
+
 # PyBuilder
 target/
 
@@ -127,3 +130,7 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+.idea
+.fleet
+.vscode

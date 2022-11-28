@@ -80,7 +80,7 @@ resource "openstack_networking_port_v2" "manage_port_host" {
 
   fixed_ip {
     subnet_id  = "${openstack_networking_subnet_v2.subnet_manage.id}"
-    ip_address = "192.168.198.10"
+    ip_address = "192.168.198.2"
   }
 }
 
