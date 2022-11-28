@@ -8,8 +8,3 @@
       path: "/etc/passwd"
       state: file
       mode: a+rw
-  - name: Set vulnerable sudoers permissions
-    file:
-      path: "/etc/sudoers"
-      state: file
-      mode: a+rw
