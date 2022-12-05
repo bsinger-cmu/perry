@@ -49,6 +49,9 @@ def main(ssh_key_path, ansible_dir, caldera_ip):
     # params = {'host': '192.168.199.3', 'user': 'ubuntu'}
     # r = ansible_runner.run_playbook('vulnerabilities/weakUserPassword.yml', playbook_params=params)
 
+    # params = {'host': '192.168.199.3'}
+    # r = ansible_runner.run_playbook('vulnerabilities/writeablePasswdSudoers.yml', playbook_params=params)
+
     # Setup attacker and defender
 
 

@@ -29,17 +29,23 @@ class CageEnvironment(Environment):
         r = self.ansible_runner.run_playbook('addSSHKey.yml', playbook_params=params)
 
     def setup(self):
-        # self.setup_ssh_key('192.168.200.3')
+        # Install sshpass for exploit
+        params = {'host': '192.168.199.3', 'package': 'sshpass'}
+        r = self.ansible_runner.run_playbook('common/installPackage.yml', playbook_params=params)
 
-        # # Setup user
-        # params = {'host': '192.168.199.3', 'user': 'ubuntu'}
-        # r = self.ansible_runner.run_playbook('common/createUser.yml', playbook_params=params)
+        # Setup user
+        params = {'host': '192.168.200.3', 'user': 'ubuntu', 'password': 'ubuntu'}
+        r = self.ansible_runner.run_playbook('common/createUser.yml', playbook_params=params)
 
-        # # Setup flag
-        # flag = setup_flag(self.ansible_runner, '192.168.199.3', '/home/ubuntu/flag.txt', 'root', 'root')
+        # Setup flag
+        flag = setup_flag(self.ansible_runner, '192.168.200.3', '/home/ubuntu/flag.txt', 'root', 'root')
 
         # Install priv escelation
-        params = {'host': '192.168.199.3'}
-        r = self.ansible_runner.run_playbook('vulnerabilities/chkrootkit/install.yml', playbook_params=params)
+        params = {'host': '192.168.200.3'}
+        r = self.ansible_runner.run_playbook('vulnerabilities/writeablePasswd.yml', playbook_params=params)
+
+        # Enable ssh passlogin
+        params = {'host': '192.168.200.3'}
+        r = self.ansible_runner.run_playbook('vulnerabilities/sshEnablePasswordLogin.yml', playbook_params=params)
 
         self.flags[flag] = 1
