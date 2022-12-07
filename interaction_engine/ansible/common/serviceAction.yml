@@ -7,3 +7,4 @@
     ansible.builtin.service:
       name: "{{ service_name }}"
       state: "{{ state_name }}"
+      enabled: yes
