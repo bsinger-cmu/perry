@@ -34,18 +34,18 @@ class CageEnvironment(Environment):
         r = self.ansible_runner.run_playbook('common/installPackage.yml', playbook_params=params)
 
         # Setup user
-        params = {'host': '192.168.200.3', 'user': 'ubuntu', 'password': 'ubuntu'}
+        params = {'host': '192.168.201.3', 'user': 'ubuntu', 'password': 'ubuntu'}
         r = self.ansible_runner.run_playbook('common/createUser.yml', playbook_params=params)
 
         # Setup flag
-        flag = setup_flag(self.ansible_runner, '192.168.200.3', '/home/ubuntu/flag.txt', 'root', 'root')
+        flag = setup_flag(self.ansible_runner, '192.168.201.3', '/home/ubuntu/flag.txt', 'root', 'root')
 
         # Install priv escelation
-        params = {'host': '192.168.200.3'}
+        params = {'host': '192.168.201.3'}
         r = self.ansible_runner.run_playbook('vulnerabilities/writeablePasswd.yml', playbook_params=params)
 
         # Enable ssh passlogin
-        params = {'host': '192.168.200.3'}
+        params = {'host': '192.168.201.3'}
         r = self.ansible_runner.run_playbook('vulnerabilities/sshEnablePasswordLogin.yml', playbook_params=params)
 
         self.flags[flag] = 1
