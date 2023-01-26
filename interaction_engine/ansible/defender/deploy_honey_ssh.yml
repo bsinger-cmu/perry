@@ -1,0 +1,18 @@
+---
+- hosts: "{{ host }}"
+  remote_user: root
+
+  tasks:
+
+  - name: Install pip
+    ansible.builtin.apt:
+      name: python3-pip
+      state: present
+      update_cache: yes
+
+  - name: Install honeyservice package
+    ansible.builtin.pip:
+      name: git+https://github.com/DeceptionProjects/FakeNetworkServices.git
+
+  - name: Run honey ssh server
+    shell: "python3 -m fake_network_services.FakeNetworkService -p 8000 -s ssh &"
