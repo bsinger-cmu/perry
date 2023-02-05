@@ -5,6 +5,11 @@ import threading
 host_name = "localhost"
 port = 8001
 
+class Event(object):
+    def __init__(self, honey_type, service_type):
+        self.honey_type = honey_type
+        self.service_type = service_type
+
 
 class EndpointAction(object):
 
@@ -17,26 +22,26 @@ class EndpointAction(object):
         return self.response
 
 
-class FlaskAppWrapper(object):
+class TelemetryServer(object):
     app = None
 
-    def __init__(self, name):
+    def __init__(self, name, defender_cb):
         self.app = Flask(name)
+        self.defender_cb = defender_cb
+        self.app.add_url_rule('/alert', 'alert', EndpointAction(self.handle_alert), methods=['POST', 'GET'])
+    
+    def start(self):
+        threading.Thread(target=lambda: self.app.run(host=host_name, port=port, debug=True, use_reloader=False)).start()
 
-    def add_endpoint(self, endpoint=None, endpoint_name=None, handler=None, methods=None):
-        self.app.add_url_rule(endpoint, endpoint_name, EndpointAction(handler), methods=methods)
+    def handle_alert(self):
+        data = request.form
+        honey_type = data['type']
+        service_type = data['protocol']
 
-def handle_alert():
-    data = request.form
-    honey_type = data['type']
-    service_type = data['protocol']
+        event = Event(honey_type, service_type)
 
-    # ToDo send this to defender
-    return "Received!"
+        # Send this to defender
+        print('Calling defender callback')
+        self.defender_cb(event)
 
-
-if __name__ == '__main__':
-    server = FlaskAppWrapper('TelemetryServer')
-    server.add_endpoint(endpoint='/alert', endpoint_name='ad', handler=handle_alert, methods=['POST', 'GET'])
-
-    threading.Thread(target=lambda: server.app.run(host=host_name, port=port, debug=True, use_reloader=False)).start()
+        return "Received!"
