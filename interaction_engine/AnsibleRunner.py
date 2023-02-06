@@ -18,7 +18,8 @@ class AnsibleRunner:
         # Merge default params with playbook specific params
         playbook_full_params = self.ansible_vars_default | playbook_params
         ansible_result = ansible_runner.run(extravars=playbook_full_params, private_data_dir=self.ansible_dir,
-                                            playbook=playbook_name)
+                                            playbook=playbook_name,
+                                            cancel_callback=lambda: None)
         return ansible_result
 
 # def run_bash_command(ansible_def_vars, data_dir, command):
