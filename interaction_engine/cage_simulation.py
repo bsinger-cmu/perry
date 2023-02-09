@@ -5,6 +5,12 @@ from environment import CageEnvironment
 
 import openstack
 
+import time
+
+from defender import WaitAndSpotDefender
+
+from openstack_helper_functions.server_helpers import shutdown_server_by_name
+
 from rich import print
 
 
@@ -42,6 +48,21 @@ def main(ssh_key_path, ansible_dir, caldera_ip):
     params = {'host': '192.168.199.3', 'user': 'ubuntu', 'caldera_ip': caldera_ip}
     r = ansible_runner.run_playbook('caldera/install_attacker.yml', playbook_params=params)
 
+    # Use Caldera API to start an operation
+
+    # Setup initial defender
+    defender = WaitAndSpotDefender(ansible_runner, conn)
+    defender.start()
+
+    # shutdown_server_by_name(conn, 'sub1_host1')
+    print('Defender loop starting!')
+    try:
+        while True:
+            defender.run()
+            time.sleep(.1)
+    
+    except KeyboardInterrupt:
+        pass
 
     ### EXAMPLES ###
     # params = {'host': '192.168.200.3', 'user': 'ubuntu', 'ssh_key_path': '../../attacker.pub'}
