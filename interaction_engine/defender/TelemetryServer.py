@@ -2,13 +2,14 @@
 from flask import Flask, Response, request
 import threading
 
-host_name = "localhost"
-port = 8001
+host_name = "0.0.0.0"
+port = 8887
 
 class Event(object):
-    def __init__(self, honey_type, service_type):
+    def __init__(self, honey_type, service_type, attacker_host):
         self.honey_type = honey_type
         self.service_type = service_type
+        self.attacker_host = attacker_host
 
 
 class EndpointAction(object):
@@ -37,11 +38,11 @@ class TelemetryServer(object):
         data = request.form
         honey_type = data['type']
         service_type = data['protocol']
+        from_host = data['from_host']
 
-        event = Event(honey_type, service_type)
+        event = Event(honey_type, service_type, from_host)
 
         # Send this to defender
-        print('Calling defender callback')
         self.defender_cb(event)
 
         return "Received!"
