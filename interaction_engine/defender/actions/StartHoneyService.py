@@ -2,8 +2,8 @@ from defender.actions import DefenderAction
 
 class StartHoneyService(DefenderAction):
 
-    def __init__(self, ansible_runner):
-        super().__init__(ansible_runner)
+    def __init__(self, ansible_runner, openstack_conn):
+        super().__init__(ansible_runner, openstack_conn)
 
     def run(self, host):
         params = {'host': host}
