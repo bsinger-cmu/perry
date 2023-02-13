@@ -6,6 +6,9 @@ import numpy as np
 class ToyEnv(gym.Env):
     metadata = {"render_modes": ["human", "rgb_array"], "render_fps": 4}
 
+    """
+    Core functions
+    """
     def __init__(self, 
                  render_mode=None, 
                  network="cage",
@@ -14,11 +17,19 @@ class ToyEnv(gym.Env):
                  telemetry="sysflow",
                  techniques="all",
                  goal="CTF"):
+        self.render_mode = render_mode
+        self.network = network
+        self.adversary_type = adversary
+        self.control_level = control
+        self.telemetry = telemetry
+        self.techniques = techniques
+        self.goal = goal
+
         # TODO: fix imports
-        self.conn = initialize()
-        self.manage_server, manage_ip = find_manage_server(conn)
+        self.openstack_conn = initialize()
+        self.manage_server, manage_ip = find_manage_server(self.openstack_conn)
         self.ansible_runner = AnsibleRunner(ssh_key_path, manage_ip, ansible_dir)
-        self.cage_env = CageEnvironment(ansible_runner, conn)
+        self.cage_env = CageEnvironment(ansible_runner, self.openstack_conn)
         self.cage_env.setup()
 
         # Setup initial attacker
@@ -46,7 +57,7 @@ class ToyEnv(gym.Env):
         }
 
     def _get_obs(self):
-        # TODO: convert telemetry events to observation matrix
+        # TODO: convert telemetry events to observation matrix 
         return {"alerts": []}
     
     def _get_info(self):
@@ -57,12 +68,14 @@ class ToyEnv(gym.Env):
             return self._render_frame()
         
     def step(self, action):
-        # Map the action (element of {0,1,2,3}) to an actual action
-        target = self.actuators[action]["target"]
-        self.actuators[action].run(target)
+        if self._check_precondition(action):
+            target = self.actuators[action]["target"]
+            self.actuators[action].run(target)
         
         terminated = False
-        reward = 0
+
+        reward = self._get_reward()
+
         observation = self._get_obs()
         info = self._get_info()
 
@@ -70,3 +83,18 @@ class ToyEnv(gym.Env):
             self._render_frame()
 
         return observation, reward, terminated, False, info    
+
+    """
+    Customized functions
+    """
+    def _check_precondition(self, action):
+        # TODO: check if the action is ready to be executed 
+        return True
+    
+    def _check_termination(self):
+        # TODO: define a termination condition
+        return False
+
+    def _get_reward(self):
+        # TODO: reward shaping based on goals
+        return 0
