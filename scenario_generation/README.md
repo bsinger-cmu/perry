@@ -1,33 +1,11 @@
 # Terraform
 
-## Setup simple network
+## Manually setup simple network
 
-Setup environment variables: `source ./PROJECT_RC.sh`
+Setup credentials in `crenditals.tfvars`
 
-Go into terraform directory: `cd terraform/simple_network`
+`cd` into the deployment directory
 
-If first time, init terraform: `terraform init`
+Deploy network `terraform apply -var-file=../credentials.tfvars`
 
-Then check it is working through: `terraform plan`
-
-Now deploy the network: `terraform apply`
-
-Ping the machine (Find external IP address from floating IPs in dashboard): `ping EXTERNAL_IP_ADDR` or ssh `ssh -i KEY_PATH cirros@EXTERNAL_IP_ADDR`
-
-To destroy: `terraform destroy`
-
-## Setup cage network
-
-Setup environment variables: `source ./PROJECT_RC.sh`
-
-Go into terraform directory: `cd terraform/cage`
-
-If first time, init terraform: `terraform init`
-
-Then check it is working through: `terraform plan`
-
-Now deploy the network: `terraform apply`
-
-Ping the machine (Find external IP address from floating IPs in dashboard): `ping EXTERNAL_IP_ADDR` or ssh `ssh -i KEY_PATH ubuntu@EXTERNAL_IP_ADDR`
-
-To destroy: `terraform destroy`
+Destroy network `terraform destroy -var-file=../credentials.tfvars`
