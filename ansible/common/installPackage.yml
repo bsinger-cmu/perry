@@ -4,6 +4,7 @@
 
   tasks:
   - name: Install Package
-    ansible.builtin.package:
+    ansible.builtin.apt:
       name: "{{ package }}"
       state: present
+      update_cache: yes
