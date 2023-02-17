@@ -10,8 +10,6 @@ import time
 from attacker import Attacker
 from defender import WaitAndSpotDefender
 
-from openstack_helper_functions.server_helpers import shutdown_server_by_name
-
 from rich import print
 
 
@@ -45,32 +43,32 @@ def main(ssh_key_path, ansible_dir, caldera_ip, caldera_api_key):
     cage_env = CageEnvironment(ansible_runner, conn)
     cage_env.setup()
 
-    # # Setup initial attacker
-    # params = {'host': '192.168.199.3', 'user': 'ubuntu', 'caldera_ip': caldera_ip}
-    # r = ansible_runner.run_playbook('caldera/install_attacker.yml', playbook_params=params)
+    # Setup initial attacker
+    params = {'host': '192.168.199.3', 'user': 'ubuntu', 'caldera_ip': caldera_ip}
+    r = ansible_runner.run_playbook('caldera/install_attacker.yml', playbook_params=params)
     
-    # # Setup attacker
-    # attacker = Attacker(caldera_api_key)
+    # Setup attacker
+    attacker = Attacker(caldera_api_key)
 
-    # # Setup initial defender
-    # defender = WaitAndSpotDefender(ansible_runner, conn)
-    # defender.start()
+    # Setup initial defender
+    defender = WaitAndSpotDefender(ansible_runner, conn)
+    defender.start()
 
-    # # Start attacker
-    # attacker.start_operation()
+    # Start attacker
+    attacker.start_operation()
 
-    # # shutdown_server_by_name(conn, 'sub1_host1')
-    # print('Defender loop starting!')
-    # try:
-    #     while True:
-    #         defender.run()
-    #         time.sleep(.1)
+    # shutdown_server_by_name(conn, 'sub1_host1')
+    print('Defender loop starting!')
+    try:
+        while True:
+            defender.run()
+            time.sleep(.1)
 
-    #         # Use Caldera API to start an operation
-    #         attacker.start_operation()
+            # Use Caldera API to start an operation
+            attacker.start_operation()
     
-    # except KeyboardInterrupt:
-    #     pass
+    except KeyboardInterrupt:
+        pass
 
     ### EXAMPLES ###
     # params = {'host': '192.168.200.3', 'user': 'ubuntu', 'ssh_key_path': '../../attacker.pub'}
