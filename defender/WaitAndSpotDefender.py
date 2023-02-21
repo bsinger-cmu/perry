@@ -24,7 +24,7 @@ class WaitAndSpotDefender(Defender):
     
     def deploy_telemetry(self):
         # Deploy honey service
-        self.honey_service_action.run('192.168.200.3')
+        self.honey_service_action.run('192.168.199.4')
 
         return
 

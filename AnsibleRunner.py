@@ -21,6 +21,10 @@ class AnsibleRunner:
                                             playbook=playbook_name,
                                             cancel_callback=lambda: None)
         return ansible_result
+    
+    def update_management_ip(self, new_ip):
+        self.management_ip = new_ip
+        self.ansible_vars_default['manage_ip'] = new_ip
 
 # def run_bash_command(ansible_def_vars, data_dir, command):
 #     print(data_dir)

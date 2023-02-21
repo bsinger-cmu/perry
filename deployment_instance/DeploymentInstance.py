@@ -1,6 +1,6 @@
-from environment.SetupFlag import setup_flag
+from deployment_instance.SetupFlag import setup_flag
 
-class Environment:
+class DeploymentInstance:
     def __init__(self, ansible_runner, openstack_conn):
         self.ansible_runner = ansible_runner
         self.openstack_conn = openstack_conn

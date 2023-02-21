@@ -1,7 +1,7 @@
 import argparse
 
 from AnsibleRunner import AnsibleRunner
-from environment import CageEnvironment
+from deployment_instance import SimpleInstanceV1
 
 import openstack
 
@@ -18,30 +18,16 @@ def initialize():
     conn = openstack.connect(cloud='default')
     return conn
 
-
-public_ip = '10.20.20'
-# Finds management server that can be used to talk to other servers
-# Assumes only one server has floating ip and it is the management server
-def find_manage_server(conn):
-    for server in conn.compute.servers():
-        for network, network_attrs in server.addresses.items():
-            ip_addresses = [x['addr'] for x in network_attrs]
-            for ip in ip_addresses:
-                if public_ip in ip:
-                    return server, ip
-
 def main(ssh_key_path, ansible_dir, caldera_ip, caldera_api_key):
     # Setup connection to openstack
     conn = initialize()
-    manage_server, manage_ip = find_manage_server(conn)
 
     # Initialize ansible
-    ansible_runner = AnsibleRunner(ssh_key_path, manage_ip, ansible_dir)
+    ansible_runner = AnsibleRunner(ssh_key_path, None, ansible_dir)
 
-    # Setup cage environment
-    # TODO Brian: In the future we probably want to have this redeploy the entire terraform environment
-    cage_env = CageEnvironment(ansible_runner, conn)
-    cage_env.setup()
+    # Deploy deployment instance
+    simple_instance = SimpleInstanceV1(ansible_runner, conn)
+    simple_instance.setup()
 
     # Setup initial attacker
     params = {'host': '192.168.199.3', 'user': 'ubuntu', 'caldera_ip': caldera_ip}
@@ -69,18 +55,6 @@ def main(ssh_key_path, ansible_dir, caldera_ip, caldera_api_key):
     
     except KeyboardInterrupt:
         pass
-
-    ### EXAMPLES ###
-    # params = {'host': '192.168.200.3', 'user': 'ubuntu', 'ssh_key_path': '../../attacker.pub'}
-    # r = ansible_runner.run_playbook('addSSHKey.yml', playbook_params=params)
-
-    # params = {'host': '192.168.199.3', 'user': 'ubuntu'}
-    # r = ansible_runner.run_playbook('vulnerabilities/weakUserPassword.yml', playbook_params=params)
-
-    # params = {'host': '192.168.199.3'}
-    # r = ansible_runner.run_playbook('vulnerabilities/writeablePasswdSudoers.yml', playbook_params=params)
-
-    # r = ansible_runner.run_playbook('common/testPlaybook.yml')
 
     
 

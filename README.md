@@ -19,6 +19,6 @@ We use terraform to create a cloud environment in openstack. `./terraform` conta
 
 1. Create a `clouds.yaml` file for your configuration (look at `clouds_example.yaml` for a reference)
 
-2. In `scenario_generation` create a `credentials.tfvars` (an example is in `credentials_example.tfvars`)
+2. In `deployment_instance` create a `credentials.tfvars` (an example is in `credentials_example.tfvars`)
 
-3. Run `python cage_simulation -s SSH_KEY_PATH -a ./ansible/cage`
+3. Run `python3 main.py -s SSH_KEY_PATH -c 10.20.20.1 -a CALDERA_API_KEY`
