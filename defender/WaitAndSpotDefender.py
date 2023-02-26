@@ -1,8 +1,8 @@
 from enum import Enum
 
 from .Defender import Defender
-from .actions.StartHoneyService import StartHoneyService
-from .actions.ShutdownServer import ShutdownServer
+from .capabilities.StartHoneyService import StartHoneyService
+from .capabilities.ShutdownServer import ShutdownServer
 
 
 class WaitAndSpotDefender(Defender):
@@ -12,19 +12,21 @@ class WaitAndSpotDefender(Defender):
         
         # Initialize actions
         # TODO set all of this in a config file
-        self.honey_service_action = StartHoneyService(self.ansible_runner, self.openstack_conn)
-        self.shutdown_server_action = ShutdownServer(self.ansible_runner, self.openstack_conn)
+        # self.honey_service_action = StartHoneyService(self.ansible_runner, self.openstack_conn)
 
     def start(self):
         super().start()
         self.deploy_telemetry()
     
     def run(self):
-        self.wait_for_event()
+        #self.wait_for_event()
+        return
     
     def deploy_telemetry(self):
         # Deploy honey service
-        self.honey_service_action.run('192.168.199.4')
+        # self.honey_service_action.run('192.168.199.4')
+        honey_service_action = ShutdownServer('192.168.199.3')
+        self.orchestrator.run([honey_service_action])
 
         return
 

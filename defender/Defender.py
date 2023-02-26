@@ -1,4 +1,5 @@
 from .TelemetryServer import TelemetryServer
+from .orchestrator import OpenstackOrchestrator
 
 from flask import request
 
@@ -8,8 +9,7 @@ class Defender:
 
     def __init__(self, ansible_runner, openstack_conn):
         self.telemetry_queue = Queue()
-        self.ansible_runner = ansible_runner
-        self.openstack_conn = openstack_conn
+        self.orchestrator = OpenstackOrchestrator(openstack_conn, ansible_runner)
 
     def start(self):
         # Start the telemetry server
