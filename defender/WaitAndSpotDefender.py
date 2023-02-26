@@ -9,25 +9,20 @@ class WaitAndSpotDefender(Defender):
 
     def __init__(self, ansible_runner, openstack_conn):
         super().__init__(ansible_runner, openstack_conn)
-        
-        # Initialize actions
-        # TODO set all of this in a config file
-        # self.honey_service_action = StartHoneyService(self.ansible_runner, self.openstack_conn)
 
     def start(self):
         super().start()
         self.deploy_telemetry()
     
     def run(self):
-        #self.wait_for_event()
+        self.wait_for_event()
         return
     
     def deploy_telemetry(self):
         # Deploy honey service
-        # self.honey_service_action.run('192.168.199.4')
-        honey_service_action = ShutdownServer('192.168.199.3')
+        honey_service_action = StartHoneyService('192.168.199.4')
+        
         self.orchestrator.run([honey_service_action])
-
         return
 
     def wait_for_event(self):
@@ -39,7 +34,9 @@ class WaitAndSpotDefender(Defender):
         attacker_host = event.attacker_host
 
         print(f'Attacker found on {attacker_host}, turning off host.')
-        self.shutdown_server_action.run(attacker_host)
+        
+        shutdown_server_action = ShutdownServer(attacker_host)
 
+        self.orchestrator.run([shutdown_server_action])
         return
     
