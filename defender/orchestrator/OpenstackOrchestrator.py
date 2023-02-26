@@ -1,5 +1,5 @@
 from .Orchestrator import Orchestrator
-from .openstack_actuators import ShutdownServer, StartHoneyService
+from .openstack_actuators import ShutdownServer, StartHoneyService, DeployDecoy
 from defender import capabilities
 
 class OpenstackOrchestrator(Orchestrator):
@@ -10,7 +10,8 @@ class OpenstackOrchestrator(Orchestrator):
     
         actuators = {
             capabilities.ShutdownServer.name: ShutdownServer(self.openstack_conn, self.ansible_runner),
-            capabilities.StartHoneyService.name: StartHoneyService(self.openstack_conn, self.ansible_runner)
+            capabilities.StartHoneyService.name: StartHoneyService(self.openstack_conn, self.ansible_runner),
+            capabilities.DeployDecoy.name: DeployDecoy(self.openstack_conn, self.ansible_runner)
         }
                 
         super().__init__(actuators)

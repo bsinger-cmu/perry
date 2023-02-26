@@ -1,8 +1,7 @@
 from enum import Enum
 
 from .Defender import Defender
-from .capabilities.StartHoneyService import StartHoneyService
-from .capabilities.ShutdownServer import ShutdownServer
+from .capabilities import StartHoneyService, ShutdownServer, DeployDecoy
 
 
 class WaitAndSpotDefender(Defender):
@@ -12,10 +11,15 @@ class WaitAndSpotDefender(Defender):
 
     def start(self):
         super().start()
-        self.deploy_telemetry()
+        #self.deploy_telemetry()
     
     def run(self):
-        self.wait_for_event()
+        #self.wait_for_event()
+
+        print('Deploying decoy')
+        test = DeployDecoy('internal_network')
+        self.orchestrator.run([test])
+
         return
     
     def deploy_telemetry(self):
