@@ -1,20 +1,23 @@
 from .TelemetryServer import TelemetryServer
 from .orchestrator import OpenstackOrchestrator
 
-from flask import request
-
 from queue import Queue
 
 class Defender:
 
-    def __init__(self, ansible_runner, openstack_conn):
+    def __init__(self, ansible_runner, openstack_conn, elasticsearch_conn, external_ip, elasticsearch_port, elasticsearch_api_key):
         self.telemetry_queue = Queue()
-        self.orchestrator = OpenstackOrchestrator(openstack_conn, ansible_runner)
+        
+        self.elasticsearch_conn = elasticsearch_conn
+        self.external_ip = external_ip
+        self.elasticsearch_port = elasticsearch_port
+        self.elasticsearch_api_key = elasticsearch_api_key
+        self.external_elasticsearch_server = f"https://{self.external_ip}:{self.elasticsearch_port}"
+
+        self.orchestrator = OpenstackOrchestrator(openstack_conn, ansible_runner, self.external_elasticsearch_server, self.elasticsearch_api_key)
 
     def start(self):
-        # Start the telemetry server
-        self.telemetry_server = TelemetryServer('TelemetryServer', self.handle_telemetry_event)
-        self.telemetry_server.start()
+        return
 
     def handle_telemetry_event(self, event):
         self.telemetry_queue.put(event)

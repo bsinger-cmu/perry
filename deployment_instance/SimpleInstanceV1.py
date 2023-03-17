@@ -20,15 +20,19 @@ class SimpleInstanceV1(DeploymentInstance):
     def __init__(self, ansible_runner, openstack_conn):
         super().__init__(ansible_runner, openstack_conn)
 
+        # Try to find management server early (for debugging)
+        self.find_management_server()
+
     def find_management_server(self):
         manage_server, manage_ip = find_manage_server(self.openstack_conn)
         self.ansible_runner.update_management_ip(manage_ip)
 
 
-    def setup(self):
+    def setup(self, already_deployed=False):
         # Setup topology
-        destroy_network('simple_multi_subnet')
-        deploy_network('simple_multi_subnet')
+        if not already_deployed:
+            destroy_network('simple_multi_subnet')
+            deploy_network('simple_multi_subnet')
 
         # Update management ip for new network
         # TODO have management server be fixed, and only deploy instance servers

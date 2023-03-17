@@ -2,24 +2,17 @@ from enum import Enum
 
 from .Defender import Defender
 from .capabilities import StartHoneyService, ShutdownServer, DeployDecoy
-
+from .telemetry import SimpleTelemetryAnalysis
 
 class WaitAndSpotDefender(Defender):
 
-    def __init__(self, ansible_runner, openstack_conn):
-        super().__init__(ansible_runner, openstack_conn)
+    def __init__(self, ansible_runner, openstack_conn, elasticsearch_conn, external_ip, elasticsearch_port, elasticsearch_api_key):
+        super().__init__(ansible_runner, openstack_conn, elasticsearch_conn, external_ip, elasticsearch_port, elasticsearch_api_key)
+        
+        self.telemetry_analysis = SimpleTelemetryAnalysis(self.elasticsearch_conn)
 
     def start(self):
-        super().start()
-        #self.deploy_telemetry()
-    
-    def run(self):
-        #self.wait_for_event()
-
-        print('Deploying decoy')
-        test = DeployDecoy('internal_network')
-        self.orchestrator.run([test])
-
+        self.deploy_telemetry()
         return
     
     def deploy_telemetry(self):
@@ -28,19 +21,16 @@ class WaitAndSpotDefender(Defender):
         
         self.orchestrator.run([honey_service_action])
         return
-
-    def wait_for_event(self):
-        if self.telemetry_queue.empty():
-            return
-
-        # If honeyservice event, shutdown server
-        event = self.telemetry_queue.get()
-        attacker_host = event.attacker_host
-
-        print(f'Attacker found on {attacker_host}, turning off host.')
-        
-        shutdown_server_action = ShutdownServer(attacker_host)
-
-        self.orchestrator.run([shutdown_server_action])
-        return
     
+    def run(self):
+        new_events = self.telemetry_analysis.process_low_level_events()
+        actions_to_execute = []
+
+        for event in new_events:
+            attacker_ip = event.attacker_ip
+            print(f'Attacker found on {attacker_ip}, turning off host.')
+            actions_to_execute.append(ShutdownServer(attacker_ip))
+
+        self.orchestrator.run(actions_to_execute)
+
+        return

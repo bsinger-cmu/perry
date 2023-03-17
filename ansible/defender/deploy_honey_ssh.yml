@@ -15,6 +15,6 @@
       name: git+https://github.com/DeceptionProjects/FakeNetworkServices.git
 
   - name: Run honey ssh server
-    command: python3 -m fake_network_services.FakeNetworkService -p 8000 -s ssh -l http://10.20.20.1:8887/alert
+    command: python3 -m fake_network_services.FakeNetworkService -p 8000 -s ssh -l {{ elasticsearch_server }} --api-key="{{ elasticsearch_api_key }}"
     async: 1000
     poll: 0

@@ -41,7 +41,7 @@ def main(config):
     ansible_runner = AnsibleRunner(ssh_key_path, None, ansible_dir)
 
     # # Deploy deployment instance
-    # simple_instance = SimpleInstanceV1(ansible_runner, conn)
+    simple_instance = SimpleInstanceV1(ansible_runner, conn)
     # simple_instance.setup()
 
     # # Setup initial attacker
