@@ -59,10 +59,7 @@ class Emulator:
     def start_attacker(self):
         self.attacker.start_operation()
 
-    def start(self):
-        # Start attacker
-        self.start_attacker()
-
+    def start_defender_loop(self):
         print('Defender loop starting!')
         try:
             while True:
@@ -71,6 +68,15 @@ class Emulator:
         
         except KeyboardInterrupt:
             pass
+
+    def start(self):
+        self.start_attacker()
+        self.start_defender_loop()
+
+    # Call if using an external stepper for the defender
+    # Example: You want OpenAI gym to control the defender for learning a new policy
+    def external_defender_steps(self, actions):
+        return self.defender.run(actions)
     
 
 if __name__ == "__main__":
