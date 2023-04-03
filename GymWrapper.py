@@ -1,4 +1,6 @@
 import gymnasium as gym
+import time
+
 from .emulator import Emulator
 
 class GridWorldEnv(gym.Env):
@@ -17,8 +19,11 @@ class GridWorldEnv(gym.Env):
             self.emulator.start_attacker()
 
         # Run defender
-        self.emulator.external_defender_steps(action)
-        
+        new_obs = self.emulator.external_defender_steps(action)
+
+        # Wait 500ms
+        time.sleep(.5)
+
         return
 
     def reset(self):
