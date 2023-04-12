@@ -2,7 +2,7 @@ import uuid
 import requests
 
 
-class Attacker:
+class TwoPathAttacker:
 
     def __init__(self, caldera_api_key):
         self.caldera_api_key = caldera_api_key
@@ -17,13 +17,13 @@ class Attacker:
         self.operation_id = str(uuid.uuid4())
         
         json_data = {
-            'name': 'Test Operation',
+            'name': 'Two Path Operation',
             'id': self.operation_id,
             'adversary': {
-                'adversary_id': 'deception_simple_adv',
+                'adversary_id': 'deception_two_path',
             },
             'planner': {
-                'id': 'deception_simple',
+                'id': 'deception_random',
             },
             'source': {
                 'id': 'ed32b9c3-9593-4c33-b0db-e2007315096b',
@@ -32,8 +32,23 @@ class Attacker:
 
         response = requests.post('http://localhost:8888/api/v2/operations', headers=self.api_headers, json=json_data)
 
-    def get_operation_status(self):
+    def still_running(self):
         response = requests.get(f'http://localhost:8888/api/v2/operations/{self.operation_id}', headers=self.api_headers)
-        response_json = response.json()
-        print(response_json['state'])
-        return
+        operation_details = response.json()
+
+        if operation_details['state'] == 'running':
+            return True
+        
+        return False
+    
+    def get_facts(self):
+        response = requests.get(f'http://localhost:8888/api/v2/facts/{self.operation_id}', headers=self.api_headers)
+        raw_json = response.json()
+
+        return raw_json['found']
+    
+    def get_relationships(self):
+        response = requests.get(f'http://localhost:8888/api/v2/relationships/{self.operation_id}', headers=self.api_headers)
+        raw_json = response.json()
+
+        return raw_json['found']

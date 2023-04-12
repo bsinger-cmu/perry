@@ -1,0 +1,3 @@
+defender: WaitAndSpotDefender
+attacker: TwoPathAttacker
+deployment_instance: SimpleInstanceV1

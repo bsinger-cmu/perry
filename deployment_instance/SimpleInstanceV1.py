@@ -4,50 +4,51 @@ from deployment_instance import DeploymentInstance
 from deployment_instance.SetupFlag import setup_flag
 from deployment_instance.topology_orchestrator import deploy_network, destroy_network
 import time
-
-public_ip = '10.20.20'
-# Finds management server that can be used to talk to other servers
-# Assumes only one server has floating ip and it is the management server
-def find_manage_server(conn):
-    for server in conn.compute.servers():
-        for network, network_attrs in server.addresses.items():
-            ip_addresses = [x['addr'] for x in network_attrs]
-            for ip in ip_addresses:
-                if public_ip in ip:
-                    return server, ip
                 
 class SimpleInstanceV1(DeploymentInstance):
-    def __init__(self, ansible_runner, openstack_conn):
-        super().__init__(ansible_runner, openstack_conn)
 
-        # Try to find management server early (for debugging)
-        self.find_management_server()
-
-    def find_management_server(self):
-        manage_server, manage_ip = find_manage_server(self.openstack_conn)
-        self.ansible_runner.update_management_ip(manage_ip)
+    def setup_attacker(self):
+        # Setup initial attacker
+        params = {'host': '192.168.199.3', 'user': 'ubuntu', 'caldera_ip': self.caldera_ip}
+        self.ansible_runner.run_playbook('caldera/install_attacker.yml', playbook_params=params)
 
 
     def setup(self, already_deployed=False):
+        # Start timer
+        self.start_setup_time = time.time()
+
         # Setup topology
         if not already_deployed:
             destroy_network('simple_multi_subnet')
             deploy_network('simple_multi_subnet')
+            time.sleep(5)
 
         # Update management ip for new network
         # TODO have management server be fixed, and only deploy instance servers
         self.find_management_server()
 
-        # Install sshpass for exploit
-        params = {'host': '192.168.199.3', 'package': 'sshpass'}
-        r = self.ansible_runner.run_playbook('common/installPackage.yml', playbook_params=params)
+        # Check if host is up
+        params = {'host': '192.168.199.3'}
+        r = self.ansible_runner.run_playbook('deployment_instance/check_if_host_up.yml', playbook_params=params)
+
+        time.sleep(3)
+
+        # Install base dependencies
+        params = {'host': '192.168.199.3'}
+        r = self.ansible_runner.run_playbook('deployment_instance/install_base_packages.yml', playbook_params=params)
+        params = {'host': '192.168.199.4'}
+        r = self.ansible_runner.run_playbook('deployment_instance/install_base_packages.yml', playbook_params=params)
+
+        # Setup attacker
+        self.setup_attacker()
 
         # Setup user
         params = {'host': '192.168.199.4', 'user': 'ubuntu', 'password': 'ubuntu'}
         r = self.ansible_runner.run_playbook('common/createUser.yml', playbook_params=params)
 
         # Setup flag
-        flag = setup_flag(self.ansible_runner, '192.168.199.4', '/home/ubuntu/flag.txt', 'root', 'root')
+        self.flags['192.168.199.3'] = setup_flag(self.ansible_runner, '192.168.199.3', '/root/flag.txt', 'root', 'root')
+        self.flags['192.168.199.4'] = setup_flag(self.ansible_runner, '192.168.199.4', '/home/ubuntu/flag.txt', 'ubuntu', 'admin')
 
         # Install priv escelation
         params = {'host': '192.168.199.4'}
@@ -57,4 +58,10 @@ class SimpleInstanceV1(DeploymentInstance):
         params = {'host': '192.168.199.4'}
         r = self.ansible_runner.run_playbook('vulnerabilities/sshEnablePasswordLogin.yml', playbook_params=params)
 
-        self.flags[flag] = 1
+
+        # Kickoff goal keeper
+        self.goalkeeper.setup(self.flags)
+
+        # End timer
+        self.end_setup_time = time.time()
+        self.setup_time = self.end_setup_time - self.start_setup_time

@@ -1,0 +1,12 @@
+---
+- hosts: "{{ host }}"
+  remote_user: root
+
+  tasks:
+  - name: Base dependencies
+    apt:
+      pkg:
+        - sshpass
+        - nmap
+      state: present
+      update_cache: yes

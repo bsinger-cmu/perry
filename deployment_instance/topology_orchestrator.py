@@ -14,7 +14,7 @@ def deploy_network(name):
     stdout, stderr = process.communicate()
 
     # Wait a few seconds for the network to be deployed
-    time.sleep(3)
+    # TODO ping server to see if it is up
     print('Finished!')
 
 def destroy_network(name):
