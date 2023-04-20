@@ -14,9 +14,6 @@ class SimpleInstanceV1(DeploymentInstance):
 
 
     def setup(self, already_deployed=False):
-        # Start timer
-        self.start_setup_time = time.time()
-
         # Setup topology
         if not already_deployed:
             destroy_network('simple_multi_subnet')
@@ -57,11 +54,3 @@ class SimpleInstanceV1(DeploymentInstance):
         # Enable ssh passlogin
         params = {'host': '192.168.199.4'}
         r = self.ansible_runner.run_playbook('vulnerabilities/sshEnablePasswordLogin.yml', playbook_params=params)
-
-
-        # Kickoff goal keeper
-        self.goalkeeper.setup(self.flags)
-
-        # End timer
-        self.end_setup_time = time.time()
-        self.setup_time = self.end_setup_time - self.start_setup_time

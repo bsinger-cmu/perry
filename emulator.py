@@ -1,7 +1,7 @@
 import argparse
 
 from AnsibleRunner import AnsibleRunner
-from deployment_instance import SimpleInstanceV1, GoalKeeeper
+from deployment_instance import SimpleInstanceV1, GoalKeeper
 
 import openstack
 
@@ -49,10 +49,16 @@ class Emulator:
         attacker_ = getattr(attacker_module, scenario['attacker'])
         self.attacker = attacker_(caldera_api_key)
 
+        # Setup GoalKeeper
+        self.goalkeeper = GoalKeeper(self.attacker)
+        self.goalkeeper.start_setup_timer()
+
         # Deploy deployment instance
         deployment_instance_ = getattr(deployment_instance_module, scenario['deployment_instance'])
-        self.simple_instance = deployment_instance_(ansible_runner, self.openstack_conn, config['external_ip'], self.attacker)
-        self.simple_instance.setup()
+        self.deployment_instance = deployment_instance_(ansible_runner, self.openstack_conn, config['external_ip'])
+        self.deployment_instance.setup(already_deployed=True)
+
+        self.goalkeeper.set_flags(self.deployment_instance.flags)
         
         # Setup initial defender
         defender_ = getattr(defender_module, scenario['defender'])
@@ -87,11 +93,17 @@ class Emulator:
             pass
 
     def run(self):
+        self.goalkeeper.start_execution_timer()
+
         self.start_attacker()
         # Runs loop until emulation finishes
         self.start_main_loop()
         # Once finished calculate have goalkeeper measure final success metrics
-        return self.simple_instance.goalkeeper.calculate_metrics()
+        metrics = self.goalkeeper.calculate_metrics()
+        # Cleanup
+        self.attacker.cleanup()
+
+        return metrics
 
     # Call if using an external stepper for the defender
     # Example: You want OpenAI gym to control the defender for learning a new policy
@@ -118,5 +130,5 @@ if __name__ == "__main__":
     emulator.run()
 
     # Print metrics
-    print(f'Setup time: {emulator.simple_instance.setup_time}')
-    print(emulator.simple_instance.goalkeeper.metrics)
+    print(emulator.goalkeeper.metrics)
+    emulator.goalkeeper.save_metrics('metrics.json')

@@ -1,8 +1,10 @@
 import uuid
 import requests
 
+from .Attacker import Attacker
 
-class TwoPathAttacker:
+
+class TwoPathAttacker(Attacker):
 
     def __init__(self, caldera_api_key):
         self.caldera_api_key = caldera_api_key
@@ -31,24 +33,3 @@ class TwoPathAttacker:
         }
 
         response = requests.post('http://localhost:8888/api/v2/operations', headers=self.api_headers, json=json_data)
-
-    def still_running(self):
-        response = requests.get(f'http://localhost:8888/api/v2/operations/{self.operation_id}', headers=self.api_headers)
-        operation_details = response.json()
-
-        if operation_details['state'] == 'running':
-            return True
-        
-        return False
-    
-    def get_facts(self):
-        response = requests.get(f'http://localhost:8888/api/v2/facts/{self.operation_id}', headers=self.api_headers)
-        raw_json = response.json()
-
-        return raw_json['found']
-    
-    def get_relationships(self):
-        response = requests.get(f'http://localhost:8888/api/v2/relationships/{self.operation_id}', headers=self.api_headers)
-        raw_json = response.json()
-
-        return raw_json['found']

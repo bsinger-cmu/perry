@@ -158,7 +158,7 @@ resource "openstack_networking_router_interface_v2" "router_interface_manage_sub
 ### Management Host ###
 resource "openstack_compute_instance_v2" "manage_host" {
   name            = "manage_host"
-  image_name      = "Ubuntu20"
+  image_name      = "ubuntu20_pip"
   flavor_name     = "m1.small"
   key_pair        = "cage"
 
@@ -179,7 +179,7 @@ resource "openstack_networking_floatingip_associate_v2" "fip_manage" {
 ### Subnet 1 Hosts ###
 resource "openstack_compute_instance_v2" "attacker_host" {
   name            = "attacker_host"
-  image_name      = "Ubuntu20"
+  image_name      = "ubuntu20_pip"
   flavor_name     = "m1.small"
   key_pair        = "cage"
   
@@ -190,7 +190,7 @@ resource "openstack_compute_instance_v2" "attacker_host" {
 
 resource "openstack_compute_instance_v2" "hostA" {
   name            = "hostA"
-  image_name      = "Ubuntu20"
+  image_name      = "ubuntu20_pip"
   flavor_name     = "m1.small"
   key_pair        = "cage"
 
@@ -201,7 +201,7 @@ resource "openstack_compute_instance_v2" "hostA" {
 
 resource "openstack_compute_instance_v2" "hostB" {
   name            = "hostB"
-  image_name      = "Ubuntu20"
+  image_name      = "ubuntu20_pip"
   flavor_name     = "m1.small"
   key_pair        = "cage"
 
@@ -212,7 +212,7 @@ resource "openstack_compute_instance_v2" "hostB" {
 
 resource "openstack_compute_instance_v2" "hostC" {
   name            = "hostC"
-  image_name      = "Ubuntu20"
+  image_name      = "ubuntu20_pip"
   flavor_name     = "m1.small"
   key_pair        = "cage"
 

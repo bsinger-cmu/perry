@@ -1,5 +1,4 @@
 from deployment_instance.SetupFlag import setup_flag
-from .GoalKeeper import GoalKeeeper
 
 public_ip = '10.20.20'
 # Finds management server that can be used to talk to other servers
@@ -14,15 +13,11 @@ def find_manage_server(conn):
     return None, None
                 
 class DeploymentInstance:
-    def __init__(self, ansible_runner, openstack_conn, caldera_ip, attacker):
+    def __init__(self, ansible_runner, openstack_conn, caldera_ip):
         self.ansible_runner = ansible_runner
         self.openstack_conn = openstack_conn
         self.ssh_key_path = './environment/ssh_keys/'
         self.caldera_ip = caldera_ip
-        
-        # Setup a goalkeeper
-        self.attacker = attacker
-        self.goalkeeper = GoalKeeeper(self.attacker)
 
         self.flags = {}
 

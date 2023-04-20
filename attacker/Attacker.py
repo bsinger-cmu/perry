@@ -31,9 +31,39 @@ class Attacker:
         }
 
         response = requests.post('http://localhost:8888/api/v2/operations', headers=self.api_headers, json=json_data)
-
-    def get_operation_status(self):
+    
+    def get_operation_details(self):
         response = requests.get(f'http://localhost:8888/api/v2/operations/{self.operation_id}', headers=self.api_headers)
+        operation_details = response.json()
+
+        return operation_details
+    
+    def still_running(self):
+        operation_details = self.get_operation_details()
+        if operation_details['state'] == 'running':
+            return True
+        
+        return False
+    
+    def get_facts(self):
+        response = requests.get(f'http://localhost:8888/api/v2/facts/{self.operation_id}', headers=self.api_headers)
+        raw_json = response.json()
+
+        return raw_json['found']
+    
+    def get_relationships(self):
+        response = requests.get(f'http://localhost:8888/api/v2/relationships/{self.operation_id}', headers=self.api_headers)
+        raw_json = response.json()
+
+        return raw_json['found']
+    
+    def delete_agents(self):
+        response = requests.get(f'http://localhost:8888/api/v2/agents', headers=self.api_headers)
         response_json = response.json()
-        print(response_json['state'])
+        for agent in response_json:
+            requests.delete(f'http://localhost:8888/api/v2/agents/{agent["paw"]}', headers=self.api_headers)
+        return
+    
+    def cleanup(self):
+        self.delete_agents()
         return

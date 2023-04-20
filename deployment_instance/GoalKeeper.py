@@ -1,19 +1,21 @@
 import time
+import json
+import os
 
-class GoalKeeeper:
+class GoalKeeper:
 
     def __init__(self, attacker):
         self.attacker = attacker
-
-        return
+        self.flags = {}
     
-    def setup(self, flags):
-        # Save flags
+    def start_setup_timer(self):
+        self.setup_start_time = time.time()
+    
+    def start_execution_timer(self):
+        self.execution_start_time = time.time()
+    
+    def set_flags(self, flags):
         self.flags = flags
-
-        # Start a timer
-        self.start_time = time.time()
-        return
     
     def check_flag(self, flag):
         for host, flag_value in self.flags.items():
@@ -27,8 +29,13 @@ class GoalKeeeper:
         self.metrics = {}
 
         # Calculate time elapsed
-        elapsed_time = time.time() - self.start_time
-        self.metrics['time_elapsed'] = elapsed_time
+        experiment_time = time.time() - self.setup_start_time
+        execution_time = time.time() - experiment_time
+        setup_time = self.execution_start_time - self.setup_start_time
+        
+        self.metrics['experiment_time'] = experiment_time
+        self.metrics['execution_time'] = execution_time
+        self.metrics['setup_time'] = setup_time
 
         # Record flags captured
         flags_captured = []
@@ -38,6 +45,18 @@ class GoalKeeeper:
                 host_flag_captured = self.check_flag(relationship['target']['value'])
                 if host_flag_captured is not None:
                     flags_captured.append(host_flag_captured)
-
         self.metrics['flags_captured'] = flags_captured
+
+        # Record hosts infected
+        hosts_infected = []
+        operation_report = self.attacker.get_operation_details()
+        for action in operation_report['chain']:
+            if action['host'] not in hosts_infected:
+                hosts_infected.append(action['host'])
+        self.metrics['hosts_infected'] = hosts_infected
+
         return self.metrics
+    
+    def save_metrics(self, file_name):
+        with open(os.path.join('results', file_name), 'w') as f:
+            json.dump(self.metrics, f)
