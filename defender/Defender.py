@@ -1,4 +1,3 @@
-from .TelemetryServer import TelemetryServer
 from .orchestrator import OpenstackOrchestrator
 
 from queue import Queue
@@ -21,7 +20,7 @@ class Defender:
 
     def handle_telemetry_event(self, event):
         self.telemetry_queue.put(event)
-
+    
     def run(self):
         if not self.telemetry_queue.empty():
             event = self.telemetry_queue.get()

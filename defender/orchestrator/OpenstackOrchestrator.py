@@ -1,5 +1,5 @@
 from .Orchestrator import Orchestrator
-from .openstack_actuators import ShutdownServer, StartHoneyService, DeployDecoy
+from .openstack_actuators import ShutdownServer, StartHoneyService, DeployDecoy, RestoreServer
 from defender import capabilities
 
 class OpenstackOrchestrator(Orchestrator):
@@ -11,13 +11,18 @@ class OpenstackOrchestrator(Orchestrator):
         self.external_elasticsearch_server = external_elasticsearch_server
         self.elasticsearch_api_key = elasticsearch_api_key
     
+        actuator_args = {
+            'openstack_conn': self.openstack_conn,
+            'ansible_runner': self.ansible_runner,
+            'external_elasticsearch_server': self.external_elasticsearch_server,
+            'elasticsearch_api_key': self.elasticsearch_api_key
+        }
+
         actuators = {
-            capabilities.ShutdownServer.name: ShutdownServer(self.openstack_conn, self.ansible_runner,
-                                                             self.external_elasticsearch_server, self.elasticsearch_api_key),
-            capabilities.StartHoneyService.name: StartHoneyService(self.openstack_conn, self.ansible_runner, 
-                                                                   self.external_elasticsearch_server, self.elasticsearch_api_key),
-            capabilities.DeployDecoy.name: DeployDecoy(self.openstack_conn, self.ansible_runner, 
-                                                       self.external_elasticsearch_server, self.elasticsearch_api_key)
+            capabilities.ShutdownServer.name: ShutdownServer(**actuator_args),
+            capabilities.StartHoneyService.name: StartHoneyService(**actuator_args),
+            capabilities.DeployDecoy.name: DeployDecoy(**actuator_args),
+            capabilities.RestoreServer.name: RestoreServer(**actuator_args),
         }
                 
         super().__init__(actuators)
