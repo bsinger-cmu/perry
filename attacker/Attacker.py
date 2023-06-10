@@ -14,6 +14,9 @@ class Attacker:
         return
     
     def start_operation(self):
+        # Clear old agents if they exist
+        self.delete_agents()
+
         self.operation_id = str(uuid.uuid4())
         
         json_data = {

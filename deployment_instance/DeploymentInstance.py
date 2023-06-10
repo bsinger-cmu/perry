@@ -1,4 +1,4 @@
-from deployment_instance.SetupFlag import setup_flag
+from deployment_instance.topology_orchestrator import deploy_network, destroy_network
 
 public_ip = '10.20.20'
 # Finds management server that can be used to talk to other servers
@@ -31,3 +31,15 @@ class DeploymentInstance:
         if flag in self.flags:
             return self.flags[flag]
         return 0
+    
+    def deploy_topology(self):
+        destroy_network(self.topology)
+        deploy_network(self.topology)
+
+    def setup_instance(self, already_deployed=False):
+        if not already_deployed:
+            self.deploy_topology()
+        self.setup()
+    
+    def setup(self):
+        return

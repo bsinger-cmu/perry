@@ -7,7 +7,7 @@ import openstack
 
 import time
 
-from attacker import Attacker
+from attacker import Attacker, TwoPathAttacker
 from defender import WaitAndSpotDefender
 
 from rich import print
@@ -41,7 +41,7 @@ def main(config):
     ansible_runner = AnsibleRunner(ssh_key_path, None, ansible_dir)
 
     # # Deploy deployment instance
-    simple_instance = SimpleInstanceV1(ansible_runner, conn)
+    # simple_instance = SimpleInstanceV1(ansible_runner, conn)
     # simple_instance.setup()
 
     # # Setup initial attacker
@@ -50,28 +50,35 @@ def main(config):
     # r = ansible_runner.run_playbook('caldera/install_attacker.yml', playbook_params=params)
     
     # # Setup attacker
-    # caldera_api_key = config['caldera']['api_key']
+    caldera_api_key = config['caldera']['api_key']
     # attacker = Attacker(caldera_api_key)
+    attacker = TwoPathAttacker(caldera_api_key)
 
-    # Setup initial defender
-    defender = WaitAndSpotDefender(ansible_runner, conn, elasticsearch_conn, config['external_ip'], config['elasticsearch']['port'], config['elasticsearch']['api_key'])
-    defender.start()
+    attacker.start_operation()
+    time.sleep(5)
+    attacker.get_operation_status()
+    time.sleep(5)
+    print('Hi world')
 
-    # Start attacker
-    # attacker.start_operation()
+    # # Setup initial defender
+    # defender = WaitAndSpotDefender(ansible_runner, conn, elasticsearch_conn, config['external_ip'], config['elasticsearch']['port'], config['elasticsearch']['api_key'])
+    # defender.start()
 
-    # shutdown_server_by_name(conn, 'sub1_host1')
-    print('Defender loop starting!')
-    try:
-        while True:
-            defender.run()
-            time.sleep(.5)
+    # # Start attacker
+    # # attacker.start_operation()
 
-            # # Use Caldera API to start an operation
-            # attacker.start_operation()
+    # # shutdown_server_by_name(conn, 'sub1_host1')
+    # print('Defender loop starting!')
+    # try:
+    #     while True:
+    #         defender.run()
+    #         time.sleep(.5)
+
+    #         # # Use Caldera API to start an operation
+    #         # attacker.start_operation()
     
-    except KeyboardInterrupt:
-        pass
+    # except KeyboardInterrupt:
+    #     pass
 
     
 

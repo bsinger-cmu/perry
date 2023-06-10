@@ -1,3 +1,10 @@
-defender: Defender
+defender: 
+  type: Defender
+  arsenal:
+    type: CountArsenal
+    storage:
+      DeployDecoy: 0
+      StartHoneyService: 0
+      RestoreServer: 0
 attacker: TwoPathAttacker
 deployment_instance: SimpleInstanceV1

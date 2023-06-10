@@ -41,4 +41,9 @@ For a visual interface you can start Kibana:
 
 3. In `config` create a configuration file (an example is in `config/config_example.yml`)
 
-4. Run `python3 main.py -c CONFIG_FNAME`
+4. Run `python3 main.py -c CONFIG_FNAME -s SCENARIO_FNAME`
+
+
+## Saving Openstack Instances as Images
+
+`openstack server image create INSTANCE_ID --name IMAGE_NAME`

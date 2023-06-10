@@ -185,7 +185,7 @@ resource "openstack_networking_floatingip_associate_v2" "fip_manage" {
 ### Subnet 1 Hosts ###
 resource "openstack_compute_instance_v2" "sub1_host1" {
   name            = "sub1_host1"
-  image_name      = "ubuntu20_pip"
+  image_name      = "ubuntu20_sysflow"
   flavor_name     = "m1.small"
   security_groups = ["${openstack_networking_secgroup_v2.simple.id}"]
   key_pair        = "cage"
@@ -197,7 +197,7 @@ resource "openstack_compute_instance_v2" "sub1_host1" {
 
 resource "openstack_compute_instance_v2" "sub2_host1" {
   name            = "sub1_host2"
-  image_name      = "ubuntu20_pip"
+  image_name      = "ubuntu20_sysflow"
   flavor_name     = "m1.small"
   security_groups = ["${openstack_networking_secgroup_v2.simple.id}"]
   key_pair        = "cage"
@@ -209,7 +209,7 @@ resource "openstack_compute_instance_v2" "sub2_host1" {
 
 resource "openstack_compute_instance_v2" "sub3_host1" {
   name            = "sub1_host3"
-  image_name      = "ubuntu20_pip"
+  image_name      = "ubuntu20_sysflow"
   flavor_name     = "m1.small"
   security_groups = ["${openstack_networking_secgroup_v2.simple.id}"]
   key_pair        = "cage"

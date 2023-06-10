@@ -1,7 +1,7 @@
-class Arsenal(object):
+class Arsenal():
 
     def __init__(self):
-        self.storage = {}
+        return
 
     # Define by subclass
     def get_capabilities(self):

@@ -12,7 +12,7 @@ class SimpleTelemetryAnalysis(TelemetryAnalysis):
 
     def get_new_telemetry(self):
         # Get new deception alerts
-        last_second_query = {"query": {"range": {"timestamp": {"gte": "now-1s"}}}}
+        last_second_query = {"query": {"range": {"timestamp": {"gte": "now-5s"}}}}
         alert_query_data = self.elasticsearch_conn.search(index='deception_alerts', body=last_second_query)
 
         # Get documents from query

@@ -59,10 +59,14 @@ class Emulator:
         self.deployment_instance.setup(already_deployed=True)
 
         self.goalkeeper.set_flags(self.deployment_instance.flags)
+        self.goalkeeper.start_execution_timer()
         
         # Setup initial defender
-        defender_ = getattr(defender_module, scenario['defender'])
-        self.defender = defender_(ansible_runner, self.openstack_conn, elasticsearch_conn, config['external_ip'], config['elasticsearch']['port'], config['elasticsearch']['api_key'])
+        defender_ = getattr(defender_module, scenario['defender']['type'])
+        arsenal_ = getattr(defender_module, scenario['defender']['arsenal']['type'])
+        arsenal = arsenal_(scenario['defender']['arsenal'])
+
+        self.defender = defender_(ansible_runner, self.openstack_conn, elasticsearch_conn, config['external_ip'], config['elasticsearch']['port'], config['elasticsearch']['api_key'], arsenal)
         #self.defender = Defender(ansible_runner, self.openstack_conn, elasticsearch_conn, config['external_ip'], config['elasticsearch']['port'], config['elasticsearch']['api_key'])
         self.defender.start()
 
