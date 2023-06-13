@@ -56,7 +56,7 @@ class Emulator:
         # Deploy deployment instance
         deployment_instance_ = getattr(deployment_instance_module, scenario['deployment_instance'])
         self.deployment_instance = deployment_instance_(ansible_runner, self.openstack_conn, config['external_ip'])
-        self.deployment_instance.setup(already_deployed=True)
+        self.deployment_instance.setup(already_deployed=False)
 
         self.goalkeeper.set_flags(self.deployment_instance.flags)
         self.goalkeeper.start_execution_timer()
