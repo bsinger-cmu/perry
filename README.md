@@ -63,11 +63,11 @@ The credentials for logging in can be found in the configuration file: https://g
 
 ## Running demo code
 
-1. Create a `clouds.yaml` file for your configuration (look at `clouds_example.yaml` for a reference)
+1. Create a `clouds.yaml` file for your configuration (look at `clouds_example.yaml` for a reference). Take note of username, password, and project name fields.
 
-2. In `deployment_instance` create a `credentials.tfvars` (an example is in `credentials_example.tfvars`)
+2. In `deployment_instance` create a `credentials.tfvars` (an example is in `credentials_example.tfvars`). Note that you will need to replace the openstack username, password, and project name to match other configs.
 
-3. In `config` create a configuration file (an example is in `config/config_example.yml`)
+3. In `config` create a configuration file (an example is in `config/config_example.yml`). Note that you will need to add the elasticsearch and caldera API keys (different from login keys)
 
 4. To run `python3 main.py -c CONFIG_FNAME -s SCENARIO_FNAME`
 
@@ -84,6 +84,8 @@ Elasticsearch: localhost:5601
 Caldera: localhost:8888
 
 If you are remote, I recommend using SSH tunnels: `ssh gromit.andrew.cmu.edu -L localhost:8000:10.20.20.1:443` (forwards Openstack dashboard to localhost 8000)
+
+Full command with all three tunnels open `ssh <USERNAME>@gromit.andrew.cmu.edu -L localhost:8000:10.20.20.1:443 -L localhost:5601:localhost:5601 -L localhost:8888:localhost:8888`
 
 or `ssh gromit -L localhost:5601:localhost:5601`
 
