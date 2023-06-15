@@ -61,7 +61,7 @@ In a new terminal window:
 3. In `config/` create a configuration file (an example is in `config/config_example.yml`). Note that you will need to add the elasticsearch and caldera API keys (different from login keys)
 
 4. To run `python3 main.py -c CONFIG_FNAME` Note that CONFIG_FNAME is NOT the path to the file, rather simply the name of the config file.
-    - An example: `python3 emulator.py -c CONFIG_FNAME`
+    - An example: `python3 emulator.py -c CONFIG_FNAME -s SCENARIO_NAME`
 
 # GUI locations
 
