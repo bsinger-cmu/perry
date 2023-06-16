@@ -201,7 +201,7 @@ resource "openstack_networking_floatingip_associate_v2" "fip_manage" {
 ### Company Subnet Hosts ###
 resource "openstack_compute_instance_v2" "activedir_host" {
   name            = "activedir_host"
-  image_name      = "ubuntu20_pip"
+  image_name      = "ubuntu20_sysflow"
   flavor_name     = "m1.small"
   key_pair        = "cage"
   
@@ -212,7 +212,7 @@ resource "openstack_compute_instance_v2" "activedir_host" {
 
 resource "openstack_compute_instance_v2" "ceo_host" {
   name            = "ceo_host"
-  image_name      = "ubuntu20_pip"
+  image_name      = "ubuntu20_sysflow"
   flavor_name     = "m1.small"
   key_pair        = "cage"
   
@@ -223,7 +223,7 @@ resource "openstack_compute_instance_v2" "ceo_host" {
 
 resource "openstack_compute_instance_v2" "finance_host" {
   name            = "finance_host"
-  image_name      = "ubuntu20_pip"
+  image_name      = "ubuntu20_sysflow"
   flavor_name     = "m1.small"
   key_pair        = "cage"
 
@@ -234,7 +234,7 @@ resource "openstack_compute_instance_v2" "finance_host" {
 
 resource "openstack_compute_instance_v2" "hr_host" {
   name            = "hr_host"
-  image_name      = "ubuntu20_pip"
+  image_name      = "ubuntu20_sysflow"
   flavor_name     = "m1.small"
   key_pair        = "cage"
 
@@ -245,7 +245,7 @@ resource "openstack_compute_instance_v2" "hr_host" {
 
 resource "openstack_compute_instance_v2" "intern_host" {
   name            = "intern_host"
-  image_name      = "ubuntu20_pip"
+  image_name      = "ubuntu20_sysflow"
   flavor_name     = "m1.small"
   key_pair        = "cage"
 
@@ -257,7 +257,7 @@ resource "openstack_compute_instance_v2" "intern_host" {
 ### Datacenter Subnet Hosts ###
 resource "openstack_compute_instance_v2" "database_host" {
   name            = "database_host"
-  image_name      = "ubuntu20_pip"
+  image_name      = "ubuntu20_sysflow"
   flavor_name     = "m1.small"
   key_pair        = "cage"
   
