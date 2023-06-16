@@ -56,7 +56,7 @@ def main(config):
 
     attacker.start_operation()
     time.sleep(5)
-    attacker.get_operation_status()
+    attacker.get_operation_details()
     time.sleep(5)
     print('Hi world')
 
