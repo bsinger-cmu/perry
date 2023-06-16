@@ -1,4 +1,5 @@
 from deployment_instance.topology_orchestrator import deploy_network, destroy_network
+from deployment_instance.vulnerability_orchestrator import VulnerabilityOrchestrator
 
 public_ip = '10.20.20'
 # Finds management server that can be used to talk to other servers
@@ -18,6 +19,7 @@ class DeploymentInstance:
         self.openstack_conn = openstack_conn
         self.ssh_key_path = './environment/ssh_keys/'
         self.caldera_ip = caldera_ip
+        self.vuln_orch = VulnerabilityOrchestrator(self.ansible_runner)
 
         self.flags = {}
 
