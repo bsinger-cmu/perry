@@ -74,7 +74,7 @@ resource "openstack_networking_secgroup_rule_v2" "tcp_in_datacenter" {
   security_group_id = "${openstack_networking_secgroup_v2.company.id}"
 }
 resource "openstack_networking_secgroup_rule_v2" "tcp_out_datacenter" {
-  direction         = "ingress"
+  direction         = "egress"
   ethertype         = "IPv4"
   protocol          = "tcp"
   port_range_min    = 1
@@ -100,7 +100,7 @@ resource "openstack_networking_secgroup_rule_v2" "tcp_in_company" {
   security_group_id = "${openstack_networking_secgroup_v2.datacenter.id}"
 }
 resource "openstack_networking_secgroup_rule_v2" "tcp_out_company" {
-  direction         = "ingress"
+  direction         = "egress"
   ethertype         = "IPv4"
   protocol          = "tcp"
   port_range_min    = 1
