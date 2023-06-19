@@ -23,6 +23,7 @@ resource "openstack_networking_secgroup_rule_v2" "manage_ssh_out" {
   remote_ip_prefix  = "192.168.198.0/24"
   security_group_id = "${openstack_networking_secgroup_v2.talk_to_manage.id}"
 }
+
 resource "openstack_networking_secgroup_v2" "manage_freedom" {
   name        = "manage_freedom"
   description = ""
