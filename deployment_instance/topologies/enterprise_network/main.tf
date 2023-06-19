@@ -62,55 +62,6 @@ resource "openstack_networking_port_v2" "activedir_company_port" {
   admin_state_up     = "true"
   security_group_ids = [
     "${openstack_networking_secgroup_v2.talk_to_manage.id}",
-    "${openstack_networking_secgroup_v2.activedir.id}",
-    "${openstack_networking_secgroup_v2.company.id}"
-  ]
-
-  fixed_ip {
-    subnet_id  = "${openstack_networking_subnet_v2.company_subnet.id}"
-    ip_address = "192.168.200.0"
-  }
-}
-
-resource "openstack_networking_port_v2" "ceo_company_port" {
-  name               = "ceo_company_port"
-  network_id         = "${openstack_networking_network_v2.company_network.id}"
-  admin_state_up     = "true"
-  security_group_ids = [
-    "${openstack_networking_secgroup_v2.talk_to_manage.id}",
-    "${openstack_networking_secgroup_v2.ceo.id}",
-    "${openstack_networking_secgroup_v2.company.id}"
-  ]
-
-  fixed_ip {
-    subnet_id  = "${openstack_networking_subnet_v2.company_subnet.id}"
-    ip_address = "192.168.200.1"
-  }
-}
-
-resource "openstack_networking_port_v2" "finance_company_port" {
-  name               = "finance_company_port"
-  network_id         = "${openstack_networking_network_v2.network_B.id}"
-  admin_state_up     = "true"
-  security_group_ids = [
-    "${openstack_networking_secgroup_v2.talk_to_manage.id}",
-    "${openstack_networking_secgroup_v2.finance.id}",
-    "${openstack_networking_secgroup_v2.company.id}"
-  ]
-
-  fixed_ip {
-    subnet_id  = "${openstack_networking_subnet_v2.company_subnet.id}"
-    ip_address = "192.168.200.2"
-  }
-}
-
-resource "openstack_networking_port_v2" "hr_company_port" {
-  name               = "hr_company_port"
-  network_id         = "${openstack_networking_network_v2.network_B.id}"
-  admin_state_up     = "true"
-  security_group_ids = [
-    "${openstack_networking_secgroup_v2.talk_to_manage.id}",
-    "${openstack_networking_secgroup_v2.hr.id}",
     "${openstack_networking_secgroup_v2.company.id}"
   ]
 
@@ -120,13 +71,12 @@ resource "openstack_networking_port_v2" "hr_company_port" {
   }
 }
 
-resource "openstack_networking_port_v2" "intern_company_port" {
-  name               = "intern_company_port"
+resource "openstack_networking_port_v2" "ceo_company_port" {
+  name               = "ceo_company_port"
   network_id         = "${openstack_networking_network_v2.company_network.id}"
   admin_state_up     = "true"
   security_group_ids = [
-    "${openstack_networking_secgroup_v2.talk_to_manage.id}", 
-    "${openstack_networking_secgroup_v2.intern.id}", 
+    "${openstack_networking_secgroup_v2.talk_to_manage.id}",
     "${openstack_networking_secgroup_v2.company.id}"
   ]
 
@@ -136,19 +86,63 @@ resource "openstack_networking_port_v2" "intern_company_port" {
   }
 }
 
+resource "openstack_networking_port_v2" "finance_company_port" {
+  name               = "finance_company_port"
+  network_id         = "${openstack_networking_network_v2.company_network.id}"
+  admin_state_up     = "true"
+  security_group_ids = [
+    "${openstack_networking_secgroup_v2.talk_to_manage.id}",
+    "${openstack_networking_secgroup_v2.company.id}"
+  ]
+
+  fixed_ip {
+    subnet_id  = "${openstack_networking_subnet_v2.company_subnet.id}"
+    ip_address = "192.168.200.5"
+  }
+}
+
+resource "openstack_networking_port_v2" "hr_company_port" {
+  name               = "hr_company_port"
+  network_id         = "${openstack_networking_network_v2.company_network.id}"
+  admin_state_up     = "true"
+  security_group_ids = [
+    "${openstack_networking_secgroup_v2.talk_to_manage.id}",
+    "${openstack_networking_secgroup_v2.company.id}"
+  ]
+
+  fixed_ip {
+    subnet_id  = "${openstack_networking_subnet_v2.company_subnet.id}"
+    ip_address = "192.168.200.6"
+  }
+}
+
+resource "openstack_networking_port_v2" "intern_company_port" {
+  name               = "intern_company_port"
+  network_id         = "${openstack_networking_network_v2.company_network.id}"
+  admin_state_up     = "true"
+  security_group_ids = [
+    "${openstack_networking_secgroup_v2.talk_to_manage.id}", 
+    "${openstack_networking_secgroup_v2.company.id}"
+  ]
+
+  fixed_ip {
+    subnet_id  = "${openstack_networking_subnet_v2.company_subnet.id}"
+    ip_address = "192.168.200.7"
+  }
+}
+
 resource "openstack_networking_port_v2" "database_datacenter_port" {
   name               = "database_datacenter_port"
   network_id         = "${openstack_networking_network_v2.datacenter_network.id}"
   admin_state_up     = "true"
   security_group_ids = [
     "${openstack_networking_secgroup_v2.talk_to_manage.id}", 
-    "${openstack_networking_secgroup_v2.database.id}", 
     "${openstack_networking_secgroup_v2.datacenter.id}"
   ]
 
   fixed_ip {
     subnet_id  = "${openstack_networking_subnet_v2.datacenter_subnet.id}"
-    ip_address = "192.168.201.0"
+    ip_address = "192.168.201.3"
   }
 }
 
