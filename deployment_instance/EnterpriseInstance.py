@@ -58,10 +58,10 @@ class EnterpriseInstance(DeploymentInstance):
 
         # Setup initial attacker on intern machine
         params = {'host': '192.168.200.7', 'user': 'intern', 'caldera_ip': self.caldera_ip}
-        r = self.ansible_runner.run_playbook('candera/setup_attacker.yml', playbook_params=params)
+        r = self.ansible_runner.run_playbook('caldera/setup_attacker.yml', playbook_params=params)
 
 
         # Setup flags
-        self.flags['192.168.200.4'] = setup_flag(self.ansible_runner, '192.168.200.1', '/home/ceo/flag.txt', 'ceo', 'root')
-        self.flags['192.168.200.5'] = setup_flag(self.ansible_runner, '192.168.200.2', '/home/finance/flag.txt', 'finance', 'root')
-        self.flags['192.168.201.3'] = setup_flag(self.ansible_runner, '192.168.201.0', '/home/database/flag.txt', 'database', 'root')
+        self.flags['192.168.200.4'] = setup_flag(self.ansible_runner, '192.168.200.4', '/home/ceo/flag.txt', 'ceo', 'root')
+        self.flags['192.168.200.5'] = setup_flag(self.ansible_runner, '192.168.200.5', '/home/finance/flag.txt', 'finance', 'root')
+        self.flags['192.168.201.3'] = setup_flag(self.ansible_runner, '192.168.201.3', '/home/database/flag.txt', 'database', 'root')
