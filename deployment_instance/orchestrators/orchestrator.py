@@ -2,7 +2,7 @@ import os
 from collections import defaultdict
 
 class OrchestrationTask:
-    def __init__(self, name, host) -> None:
+    def __init__(self, host, name) -> None:
         self.name = name
         self.host = host
         self.params = {'host': host}
@@ -36,9 +36,5 @@ class Orchestrator:
 
     def deploy(self, filename, params):
         filepath = self.dir + filename + ".yml"
-        if not os.path.isfile(filepath):
-            print("Error: File does not exist: ", filepath)
-            print("Suggestion: Ensure that the file name is spelled correctly with the correct extension (.yml)")
-            return
         
         self.ansible_runner.run_playbook(filepath, playbook_params=params)
