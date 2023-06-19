@@ -102,10 +102,10 @@ resource "openstack_networking_secgroup_rule_v2" "tcp_out_datacenter" {
 }
 
 ### Datacenter Network Rules ###
-# resource "openstack_networking_secgroup_v2" "database" {
-#   name        = "database"
-#   description = "database security group"
-# }
+resource "openstack_networking_secgroup_v2" "database" {
+  name        = "database"
+  description = "database security group"
+}
 
 resource "openstack_networking_secgroup_v2" "datacenter" {
   name        = "datacenter"
