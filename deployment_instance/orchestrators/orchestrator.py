@@ -24,7 +24,8 @@ class Orchestrator:
         self.ansible_runner = ansible_runner
         self.deployed_tasks: defaultdict[any, list[OrchestrationTask]] = defaultdict(list)
 
-    def print_vulnerabilities(self):
+    def print_items(self):
+        print(type(self).__name__)
         for host, tasks in self.deployed_tasks.items():
             print("Host: ", host)
             for task in tasks:

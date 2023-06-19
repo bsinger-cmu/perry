@@ -57,4 +57,4 @@ class TwoPathInstance(DeploymentInstance):
 
         # Setup flag
         # self.flags['192.168.203.3'] = setup_flag(self.ansible_runner, '192.168.203.3', '/home/ubuntu/flag.txt', 'ubuntu', 'root')
-        self.flags['192.168.203.3'] = self.orchestrator.goals.create_flag('192.168.203.3', '/home/ubuntu/flag.txt', 'ubuntu', 'root')
+        self.flags['192.168.203.3'] = self.orchestrator.goals.setup_flag('192.168.203.3', '/home/ubuntu/flag.txt', 'ubuntu', 'root')

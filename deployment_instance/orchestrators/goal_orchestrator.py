@@ -25,7 +25,7 @@ class GoalOrchestrator(Orchestrator):
         return flag_contents
 
     # Create and add flag to host. returns flag contents
-    def create_flag(self, host: str, flag_path: str, user: str, user_group: str):
+    def setup_flag(self, host: str, flag_path: str, user: str, user_group: str):
         flag = self.generate_flag()
         self.add_flag(host, flag_path, flag, user, user_group)
         return flag
