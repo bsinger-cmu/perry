@@ -28,16 +28,6 @@ resource "openstack_networking_secgroup_v2" "manage_freedom" {
   description = ""
 }
 
-resource "openstack_networking_secgroup_rule_v2" "manage_freedom" {
-  direction         = "ingress"
-  ethertype         = "IPv4"
-  protocol          = "tcp"
-  port_range_min    = 22
-  port_range_max    = 22
-  remote_ip_prefix  = "0.0.0.0/0"
-  security_group_id = "${openstack_networking_secgroup_v2.manage_freedom.id}"
-}
-
 resource "openstack_networking_secgroup_rule_v2" "manage_freedom_ssh_out" {
   direction         = "egress"
   ethertype         = "IPv4"
@@ -66,6 +56,13 @@ resource "openstack_networking_secgroup_v2" "activedir" {
   name        = "activedir"
   description = "Active Directory security group"
 }
+
+resource "openstack_networking_secgroup_v2" "other" {
+  name        = "other"
+  description = "general purpose sec group until more quota is allowed"
+}
+
+/*
 resource "openstack_networking_secgroup_v2" "ceo" {
   name        = "ceo"
   description = "CEO security group"
@@ -82,9 +79,10 @@ resource "openstack_networking_secgroup_v2" "intern" {
   name        = "intern"
   description = "intern security group"
 }
+*/
 
 # Company Network talks to Datacenter Network
-resource "openstack_networking_secgroup_v2" "tcp_in_datacenter" {
+resource "openstack_networking_secgroup_rule_v2" "tcp_in_datacenter" {
   direction         = "ingress"
   ethertype         = "IPv4"
   protocol          = "tcp"
@@ -93,8 +91,8 @@ resource "openstack_networking_secgroup_v2" "tcp_in_datacenter" {
   remote_ip_prefix  = "192.168.201.0/24"
   security_group_id = "${openstack_networking_secgroup_v2.company.id}"
 }
-resource "openstack_networking_secgroup_v2" "tcp_out_datacenter" {
-  direction         = "ingress"
+resource "openstack_networking_secgroup_rule_v2" "tcp_out_datacenter" {
+  direction         = "egress"
   ethertype         = "IPv4"
   protocol          = "tcp"
   port_range_min    = 1
@@ -115,7 +113,7 @@ resource "openstack_networking_secgroup_v2" "datacenter" {
 }
 
 # Datacenter Network talks to Company Network
-resource "openstack_networking_secgroup_v2" "tcp_in_company" {
+resource "openstack_networking_secgroup_rule_v2" "tcp_in_company" {
   direction         = "ingress"
   ethertype         = "IPv4"
   protocol          = "tcp"
@@ -124,8 +122,8 @@ resource "openstack_networking_secgroup_v2" "tcp_in_company" {
   remote_ip_prefix  = "192.168.200.0/24"
   security_group_id = "${openstack_networking_secgroup_v2.datacenter.id}"
 }
-resource "openstack_networking_secgroup_v2" "tcp_out_company" {
-  direction         = "ingress"
+resource "openstack_networking_secgroup_rule_v2" "tcp_out_company" {
+  direction         = "egress"
   ethertype         = "IPv4"
   protocol          = "tcp"
   port_range_min    = 1
