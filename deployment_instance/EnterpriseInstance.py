@@ -37,6 +37,7 @@ class EnterpriseInstance(DeploymentInstance):
         self.orchestrator.common.create_user('192.168.200.7', 'intern', 'ubuntu')
         self.orchestrator.common.create_user('192.168.201.3', 'database', 'ubuntu')
         
+
         # TODO: Add vulnerabilities to hosts
         self.orchestrator.vulns.add_sshEnablePasswordLogin('192.168.200.3') ## TEMP VULN
         self.orchestrator.vulns.add_sshEnablePasswordLogin('192.168.200.4') ## TEMP VULN
@@ -50,3 +51,4 @@ class EnterpriseInstance(DeploymentInstance):
         self.flags['192.168.200.4'] = self.orchestrator.goals.setup_flag('192.168.200.4', '/home/ceo/flag.txt', 'ceo', 'root')
         self.flags['192.168.200.5'] = self.orchestrator.goals.setup_flag('192.168.200.5', '/home/finance/flag.txt', 'finance', 'root')
         self.flags['192.168.201.3'] = self.orchestrator.goals.setup_flag('192.168.201.3', '/home/database/flag.txt', 'database', 'root')
+
