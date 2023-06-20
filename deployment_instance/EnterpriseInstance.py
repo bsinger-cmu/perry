@@ -19,12 +19,12 @@ class EnterpriseInstance(DeploymentInstance):
         self.find_management_server()
 
 
-        # ActiveDir:    192.168.200.3  <-- Samba RCE vulnerability
-        # CEO:          192.168.200.4 FLAG <-- Weak (sudo) user credentials vulnerability
-        # Finance:      192.168.200.5 FLAG <-- VSTP Backdoor vulnerability
-        # HR:           192.168.200.6
-        # Intern:       192.168.200.7  <-- infected with attacker
-        # Database:     192.168.201.3 FLAG <-- Netcat Shell vulnerability
+        # # ActiveDir:    192.168.200.3      <-- Samba RCE vulnerability
+        # # CEO:          192.168.200.4 FLAG <-- SSH login, sudoers writeable
+        # # Finance:      192.168.200.5 FLAG <-- VSTP Backdoor vulnerability
+        # $ HR:           192.168.200.6
+        # ! Intern:       192.168.200.7      <-- infected with attacker (SSH login)
+        # # Database:     192.168.201.3 FLAG <-- SSH login, weak user password
         
         self.orchestrator.deployment.check_host_liveness('192.168.200.3')
         time.sleep(3)
@@ -37,14 +37,17 @@ class EnterpriseInstance(DeploymentInstance):
         self.orchestrator.common.create_user('192.168.200.7', 'intern', 'ubuntu')
         self.orchestrator.common.create_user('192.168.201.3', 'database', 'ubuntu')
         
-
-        # TODO: Add vulnerabilities to hosts
-        self.orchestrator.vulns.add_sshEnablePasswordLogin('192.168.200.3') ## TEMP VULN
-        self.orchestrator.vulns.add_sshEnablePasswordLogin('192.168.200.4') ## TEMP VULN
-        self.orchestrator.vulns.add_sshEnablePasswordLogin('192.168.201.3') ## TEMP VULN
+        # Add vulnerabilities to hosts
+        self.orchestrator.vulns.add_sshEnablePasswordLogin('192.168.200.4')
+        self.orchestrator.vulns.add_writeableSudoers('192.168.200.4')
+        # self.orchestrator.vulns.add_vsftpdBackdoor('192.168.200.5')
+        self.orchestrator.vulns.add_sshEnablePasswordLogin('192.168.200.5')
+        self.orchestrator.vulns.add_weakUserPassword('192.168.201.3', 'database')
+        self.orchestrator.vulns.add_sshEnablePasswordLogin('192.168.201.3')
 
         # Setup initial attacker on intern machine
         self.orchestrator.attacker.install_attacker('192.168.200.7', 'intern', self.caldera_ip)
+        self.orchestrator.vulns.add_sshEnablePasswordLogin('192.168.200.7')
 
 
         # Setup flags
