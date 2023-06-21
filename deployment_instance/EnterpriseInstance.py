@@ -40,8 +40,10 @@ class EnterpriseInstance(DeploymentInstance):
         # Add vulnerabilities to hosts
         self.orchestrator.vulns.add_sshEnablePasswordLogin('192.168.200.4')
         self.orchestrator.vulns.add_writeableSudoers('192.168.200.4')
-        # self.orchestrator.vulns.add_vsftpdBackdoor('192.168.200.5')
-        self.orchestrator.vulns.add_sshEnablePasswordLogin('192.168.200.5')
+        
+        self.orchestrator.vulns.add_vsftpdBackdoor('192.168.200.5')
+        # self.orchestrator.vulns.add_sshEnablePasswordLogin('192.168.200.5')
+
         self.orchestrator.vulns.add_weakUserPassword('192.168.201.3', 'database')
         self.orchestrator.vulns.add_sshEnablePasswordLogin('192.168.201.3')
 
