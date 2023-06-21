@@ -68,7 +68,7 @@ resource "openstack_networking_port_v2" "activedir_company_port" {
 
   fixed_ip {
     subnet_id  = "${openstack_networking_subnet_v2.company_subnet.id}"
-    ip_address = "192.168.200.5"
+    ip_address = "192.168.200.3"
   }
 }
 
@@ -84,7 +84,7 @@ resource "openstack_networking_port_v2" "ceo_company_port" {
 
   fixed_ip {
     subnet_id  = "${openstack_networking_subnet_v2.company_subnet.id}"
-    ip_address = "192.168.200.6"
+    ip_address = "192.168.200.4"
   }
 }
 
@@ -100,7 +100,7 @@ resource "openstack_networking_port_v2" "finance_company_port" {
 
   fixed_ip {
     subnet_id  = "${openstack_networking_subnet_v2.company_subnet.id}"
-    ip_address = "192.168.200.7"
+    ip_address = "192.168.200.5"
   }
 }
 
@@ -116,7 +116,7 @@ resource "openstack_networking_port_v2" "hr_company_port" {
 
   fixed_ip {
     subnet_id  = "${openstack_networking_subnet_v2.company_subnet.id}"
-    ip_address = "192.168.200.3"
+    ip_address = "192.168.200.6"
   }
 }
 
@@ -132,7 +132,7 @@ resource "openstack_networking_port_v2" "intern_company_port" {
 
   fixed_ip {
     subnet_id  = "${openstack_networking_subnet_v2.company_subnet.id}"
-    ip_address = "192.168.200.4"
+    ip_address = "192.168.200.7"
   }
 }
 
