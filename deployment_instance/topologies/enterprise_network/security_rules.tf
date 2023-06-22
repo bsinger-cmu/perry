@@ -101,6 +101,25 @@ resource "openstack_networking_secgroup_rule_v2" "tcp_out_datacenter" {
   security_group_id = "${openstack_networking_secgroup_v2.company.id}"
 }
 
+resource "openstack_networking_secgroup_rule_v2" "intracompany_tcp_in" {
+  direction         = "ingress"
+  ethertype         = "IPv4"
+  protocol          = "tcp"
+  port_range_min    = 1
+  port_range_max    = 65535
+  remote_ip_prefix  = "192.168.200.0/24"
+  security_group_id = "${openstack_networking_secgroup_v2.company.id}"
+}
+resource "openstack_networking_secgroup_rule_v2" "intracompany_tcp_out" {
+  direction         = "egress"
+  ethertype         = "IPv4"
+  protocol          = "tcp"
+  port_range_min    = 1
+  port_range_max    = 65535
+  remote_ip_prefix  = "192.168.200.0/24"
+  security_group_id = "${openstack_networking_secgroup_v2.company.id}"
+}
+
 resource "openstack_networking_secgroup_rule_v2" "company_ssh_in" {
   direction         = "ingress"
   ethertype         = "IPv4"
