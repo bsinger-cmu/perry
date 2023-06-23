@@ -120,45 +120,6 @@ resource "openstack_networking_secgroup_rule_v2" "intracompany_tcp_out" {
   security_group_id = "${openstack_networking_secgroup_v2.company.id}"
 }
 
-resource "openstack_networking_secgroup_rule_v2" "company_ssh_in" {
-  direction         = "ingress"
-  ethertype         = "IPv4"
-  protocol          = "tcp"
-  port_range_min    = 22
-  port_range_max    = 22
-  remote_ip_prefix  = "192.168.200.0/24"
-  security_group_id = "${openstack_networking_secgroup_v2.company.id}"
-}
-
-resource "openstack_networking_secgroup_rule_v2" "company_ssh_out" {
-  direction         = "egress"
-  ethertype         = "IPv4"
-  protocol          = "tcp"
-  port_range_min    = 22
-  port_range_max    = 22
-  remote_ip_prefix  = "192.168.200.0/24"
-  security_group_id = "${openstack_networking_secgroup_v2.company.id}"
-}
-
-resource "openstack_networking_secgroup_rule_v2" "company_ftp_in" {
-  direction         = "ingress"
-  ethertype         = "IPv4"
-  protocol          = "tcp"
-  port_range_min    = 20
-  port_range_max    = 21
-  remote_ip_prefix  = "192.168.200.0/24"
-  security_group_id = "${openstack_networking_secgroup_v2.company.id}"
-}
-
-resource "openstack_networking_secgroup_rule_v2" "company_ftp_out" {
-  direction         = "egress"
-  ethertype         = "IPv4"
-  protocol          = "tcp"
-  port_range_min    = 20
-  port_range_max    = 21
-  remote_ip_prefix  = "192.168.200.0/24"
-  security_group_id = "${openstack_networking_secgroup_v2.company.id}"
-}
 
 ### Datacenter Network Rules ###
 # resource "openstack_networking_secgroup_v2" "database" {
@@ -191,42 +152,22 @@ resource "openstack_networking_secgroup_rule_v2" "tcp_out_company" {
   security_group_id = "${openstack_networking_secgroup_v2.datacenter.id}"
 }
 
-resource "openstack_networking_secgroup_rule_v2" "datacenter_ssh_in" {
+resource "openstack_networking_secgroup_rule_v2" "intradatacenter_tcp_in" {
   direction         = "ingress"
   ethertype         = "IPv4"
   protocol          = "tcp"
-  port_range_min    = 22
-  port_range_max    = 22
+  port_range_min    = 1
+  port_range_max    = 65535
   remote_ip_prefix  = "192.168.201.0/24"
   security_group_id = "${openstack_networking_secgroup_v2.datacenter.id}"
 }
 
-resource "openstack_networking_secgroup_rule_v2" "datacenter_ssh_out" {
+resource "openstack_networking_secgroup_rule_v2" "intradatacenter_tcp_out" {
   direction         = "egress"
   ethertype         = "IPv4"
   protocol          = "tcp"
-  port_range_min    = 22
-  port_range_max    = 22
-  remote_ip_prefix  = "192.168.201.0/24"
-  security_group_id = "${openstack_networking_secgroup_v2.datacenter.id}"
-}
-
-resource "openstack_networking_secgroup_rule_v2" "datacenter_ftp_in" {
-  direction         = "ingress"
-  ethertype         = "IPv4"
-  protocol          = "tcp"
-  port_range_min    = 20
-  port_range_max    = 21
-  remote_ip_prefix  = "192.168.201.0/24"
-  security_group_id = "${openstack_networking_secgroup_v2.datacenter.id}"
-}
-
-resource "openstack_networking_secgroup_rule_v2" "datacenter_ftp_out" {
-  direction         = "egress"
-  ethertype         = "IPv4"
-  protocol          = "tcp"
-  port_range_min    = 20
-  port_range_max    = 21
+  port_range_min    = 1
+  port_range_max    = 65535
   remote_ip_prefix  = "192.168.201.0/24"
   security_group_id = "${openstack_networking_secgroup_v2.datacenter.id}"
 }
