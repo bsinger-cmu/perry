@@ -59,9 +59,10 @@ class CommonOrchestrator(Orchestrator):
         task.set_params({'package': package_name})
         self.add_task(task)
 
-    def reboot(self, host: str, timeout: int):
+    def reboot(self, host: str, timeout: int = -1):
         task = OrchestrationTask(host, "reboot")
-        task.set_params({'timeout': str(timeout)})
+        if timeout != -1:
+            task.set_params({'timeout': str(timeout)})
         self.add_task(task)
     
     def run_command(self, host: str, command: str):
