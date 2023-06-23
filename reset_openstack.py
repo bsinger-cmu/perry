@@ -46,9 +46,11 @@ class OpenstackResetter():
     
     def list_interfaces(self, router):
         all_interfaces = self.cli.list_router_interfaces(router)
+        print("> Interfaces:")
         for interface in all_interfaces:
-            print("\t[%s] - %s" % (interface.id, interface.name))
-            print(interface)
+            print("  * [%s] - %s" % (interface.id, interface.name))
+            for fixed_ip in interface.fixed_ips:
+                print("    ~ [%s] - Subnet Ip Address: %s" % (fixed_ip['subnet_id'], fixed_ip['ip_address']))
 
     def list_routers(self):
         all_routers = self.cli.list_routers()
@@ -56,7 +58,6 @@ class OpenstackResetter():
         print("Routers:")
         for router in all_routers:
             print("[%s] - %s" % (router.id, router.name))
-            print("-> Interfaces:")
             self.list_interfaces(router)
 
     def list_network_ports(self):
