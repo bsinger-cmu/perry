@@ -4,6 +4,7 @@ from deployment_instance.orchestrators.defender_orchestrator import DefenderOrch
 from deployment_instance.orchestrators.deployment_orchestrator import DeploymentOrchestrator
 from deployment_instance.orchestrators.goal_orchestrator import GoalOrchestrator
 from deployment_instance.orchestrators.vulnerability_orchestrator import VulnerabilityOrchestrator
+from deployment_instance.orchestrators.ad_orchestrator import ADOrchestrator
 
 # Master Orchestrator
 class MasterOrchestrator():
@@ -15,3 +16,4 @@ class MasterOrchestrator():
         self.deployment = DeploymentOrchestrator(ansible_runner)
         self.goals = GoalOrchestrator(ansible_runner)
         self.vulns = VulnerabilityOrchestrator(ansible_runner)
+        self.enterprise = ADOrchestrator(ansible_runner)
