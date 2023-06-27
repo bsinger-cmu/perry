@@ -17,7 +17,7 @@
       blockinfile:
         path: /etc/hosts
         block: |
-          192.168.200.5 yosimite yosimite.deception.lcl
+          {{ host }} yosimite yosimite.deception.lcl
 
     - name: Stop systemd-resolved service
       systemd:
@@ -38,7 +38,7 @@
       copy:
         dest: /etc/resolv.conf
         content: |
-          nameserver 192.168.200.5
+          nameserver {{ host }}
           search deception.lcl
           nameserver 8.8.8.8
           nameserver 8.8.4.4
