@@ -173,7 +173,7 @@ if __name__ == '__main__':
         parser.print_help()
         sys.exit(1)
     conn = openstack.connect(cloud="default")
-    opnstk = OpenstackResetter()
+    opnstk = OpenstackResetter(conn)
 
     if args.reset:
         opnstk.reset()
