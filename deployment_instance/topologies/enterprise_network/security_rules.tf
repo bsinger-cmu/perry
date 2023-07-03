@@ -171,3 +171,53 @@ resource "openstack_networking_secgroup_rule_v2" "intradatacenter_tcp_out" {
   remote_ip_prefix  = "192.168.201.0/24"
   security_group_id = "${openstack_networking_secgroup_v2.datacenter.id}"
 }
+# resource "openstack_networking_secgroup_rule_v2" "datacenter_ssh_out" {
+#   direction         = "egress"
+#   ethertype         = "IPv4"
+#   protocol          = "tcp"
+#   port_range_min    = 22
+#   port_range_max    = 22
+#   remote_ip_prefix  = "192.168.201.0/24"
+#   security_group_id = "${openstack_networking_secgroup_v2.datacenter.id}"
+# }
+
+### DNS and LDAP ports ###
+resource "openstack_networking_secgroup_rule_v2" "udp_in_activedir" {
+  direction         = "ingress"
+  ethertype         = "IPv4"
+  protocol          = "udp"
+  port_range_min    = 53
+  port_range_max    = 53
+  remote_ip_prefix  = "192.168.200.0/23"
+  security_group_id = "${openstack_networking_secgroup_v2.activedir.id}"
+}
+
+resource "openstack_networking_secgroup_rule_v2" "tcp_in_activedir_389" {
+  direction         = "ingress"
+  ethertype         = "IPv4"
+  protocol          = "tcp"
+  port_range_min    = 389
+  port_range_max    = 389
+  remote_ip_prefix  = "192.168.200.0/23"
+  security_group_id = "${openstack_networking_secgroup_v2.activedir.id}"
+}
+
+resource "openstack_networking_secgroup_rule_v2" "tcp_in_activedir_636" {
+  direction         = "ingress"
+  ethertype         = "IPv4"
+  protocol          = "tcp"
+  port_range_min    = 636
+  port_range_max    = 636
+  remote_ip_prefix  = "192.168.200.0/23"
+  security_group_id = "${openstack_networking_secgroup_v2.activedir.id}"
+}
+
+resource "openstack_networking_secgroup_rule_v2" "tcp_in_activedir_88" {
+  direction         = "ingress"
+  ethertype         = "IPv4"
+  protocol          = "tcp"
+  port_range_min    = 88
+  port_range_max    = 88
+  remote_ip_prefix  = "192.168.200.0/23"
+  security_group_id = "${openstack_networking_secgroup_v2.activedir.id}"
+}

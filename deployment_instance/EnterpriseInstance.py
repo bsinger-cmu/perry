@@ -36,6 +36,16 @@ class EnterpriseInstance(DeploymentInstance):
         self.orchestrator.common.create_user('192.168.200.6', 'hr', 'ubuntu')
         self.orchestrator.common.create_user('192.168.200.7', 'intern', 'ubuntu')
         self.orchestrator.common.create_user('192.168.201.3', 'database', 'ubuntu')
+
+        #Add Samba AD DC, create users/groups, and configure host machines to join AD
+        self.orchestrator.enterprise.samba_AD('192.168.200.3', 'ENTERPRISE', 'DECEPTION.LCL', 'nBMat41l0cY&')
+        self.orchestrator.enterprise.add_Groups('192.168.200.3')
+        self.orchestrator.enterprise.add_Users('192.168.200.3', 'deployment_instance/user_details.yml')
+        self.orchestrator.enterprise.join_AD('192.168.200.4')
+        self.orchestrator.enterprise.join_AD('192.168.200.5')
+        self.orchestrator.enterprise.join_AD('192.168.200.6')
+        self.orchestrator.enterprise.join_AD('192.168.200.7')
+        self.orchestrator.enterprise.join_AD('192.168.201.3')
         
         # Add vulnerabilities to hosts
         # Active Directory
