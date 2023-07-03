@@ -8,5 +8,6 @@
       pkg:
         - sshpass
         - nmap
+        - ncat
       state: present
       update_cache: yes
