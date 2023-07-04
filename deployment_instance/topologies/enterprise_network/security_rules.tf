@@ -52,15 +52,15 @@ resource "openstack_networking_secgroup_v2" "company" {
   name        = "company"
   description = "Company security group"
 }
-# resource "openstack_networking_secgroup_v2" "activedir" {
-#   name        = "activedir"
-#   description = "Active Directory security group"
-# }
+resource "openstack_networking_secgroup_v2" "activedir" {
+  name        = "activedir"
+  description = "Active Directory security group"
+}
 
-# resource "openstack_networking_secgroup_v2" "other" {
-#   name        = "other"
-#   description = "general purpose sec group until more quota is allowed"
-# }
+resource "openstack_networking_secgroup_v2" "other" {
+  name        = "other"
+  description = "general purpose sec group until more quota is allowed"
+}
 
 /*
 resource "openstack_networking_secgroup_v2" "ceo" {
