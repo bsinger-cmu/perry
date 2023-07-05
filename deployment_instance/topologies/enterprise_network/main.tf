@@ -126,7 +126,7 @@ resource "openstack_networking_port_v2" "intern_company_port" {
   admin_state_up     = "true"
   security_group_ids = [
     "${openstack_networking_secgroup_v2.talk_to_manage.id}", 
-    "${openstack_networking_secgroup_v2.other.id}", 
+    "${openstack_networking_secgroup_v2.other.id}",
     "${openstack_networking_secgroup_v2.company.id}"
   ]
 
@@ -142,7 +142,6 @@ resource "openstack_networking_port_v2" "database_datacenter_port" {
   admin_state_up     = "true"
   security_group_ids = [
     "${openstack_networking_secgroup_v2.talk_to_manage.id}", 
-    "${openstack_networking_secgroup_v2.database.id}", 
     "${openstack_networking_secgroup_v2.datacenter.id}"
   ]
 
