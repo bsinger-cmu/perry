@@ -27,6 +27,9 @@ class Emulator:
     def __init__(self):
         # Initialize connection
         self.openstack_conn = openstack.connect(cloud='default')
+        self.scenario = None
+        self.config = None
+        
 
     def setup(self, config, scenario):
         # Setup connection to elasticsearch
@@ -44,8 +47,12 @@ class Emulator:
         ansible_dir = './ansible/'
         ansible_runner = AnsibleRunner(ssh_key_path, None, ansible_dir)
 
+        self.scenario = scenario
+        self.config = config
+
         # Setup attacker
         caldera_api_key = config['caldera']['api_key']
+        self.caldera_api_key = caldera_api_key
         attacker_ = getattr(attacker_module, scenario['attacker'])
         self.attacker = attacker_(caldera_api_key)
 
@@ -56,6 +63,7 @@ class Emulator:
         # Deploy deployment instance
         deployment_instance_ = getattr(deployment_instance_module, scenario['deployment_instance'])
         self.deployment_instance = deployment_instance_(ansible_runner, self.openstack_conn, config['external_ip'])
+        
         self.deployment_instance.setup(already_deployed=False)
 
         self.goalkeeper.set_flags(self.deployment_instance.flags)
@@ -115,11 +123,151 @@ class Emulator:
         return self.defender.run(actions)
     
 
+class EmulatorInteractive():
+    def __init__(self, emulator):
+        self.emulator = emulator
+        self.commands_desc = {
+            "exit": "exit emulator",
+            "help": "print this help message",
+            "run": "run attacker",
+            "save <metrics.json>": "save metrics to file (default: metrics.json)",
+            "set <attacker> <value>": "set attacker to <attacker>",
+            "reset <attacker>": "set attacker to <attacker>",
+        }
+        self.commands = {
+            "exit": self.handle_exit,
+            "help": self.handle_help,
+            "run":  self.handle_run,
+            "save": self.handle_save,
+            "reset":  self.handle_reset,
+            "set":  self.handle_set,
+        }
+    
+    def print_help(self, args=[]):
+        if len(args) > 0:
+            print("Extra arguments found. Ignoring...")
+        print("Commands:")
+        for command in self.commands_desc:
+            print(f"{command}: {self.commands_desc[command]}")
+    
+    def handle_exit(self, args=[]):
+        if len(args) > 0:
+            print("Extra arguments found. Ignoring...")
+        print("Exiting emulator...")
+        exit()
+
+    def handle_run(self, args=[]):
+        if len(args) > 0:
+            print("Extra arguments found. Ignoring...")
+        print("Starting attacker...")
+        metrics = self.emulator.run()
+        print("Attacker finished!")
+        print("Metrics:")
+        print(metrics)
+
+    def handle_save(self, args):
+        metrics_file = "metrics.json"
+        if len(args) > 0:
+            metrics_file = args[0]
+        print(f"Saving metrics to {metrics_file}...")
+        self.emulator.goalkeeper.save_metrics(metrics_file)
+        print("Metrics saved!")
+    
+    def handle_help(self, args):
+        if len(args) > 0:
+            print("Extra arguments found. Ignoring...")
+        self.print_help()
+
+    def handle_set(self, args):
+        if len(args) != 2:
+            print("Improper usage. No changes made.")
+            print("Usage: reset <attacker> <type>")
+            return
+        
+        if args[0] != "attacker":
+            print("Invalid argument. No changes made.")
+            return
+
+        attacker = args[1]
+        attacker_ = getattr(attacker_module, attacker, None)
+        if attacker_ == None:
+            print("Attacker not found. No changes made.")
+        else:
+            self.emulator.attacker = attacker_(self.emulator.caldera_api_key)
+            print(f"Attacker set to {attacker}!")
+
+    def handle_reset(self, args):
+        if len(args) != 1:
+            print("Improper usage. No changes made.")
+            print("Usage: reset <attacker>")
+            return
+        
+        if args[0] != "attacker":
+            print("Invalid argument. No changes made.")
+            print("Usage: reset <attacker>")
+            return
+
+        attacker = self.emulator.scenario['attacker']['type']
+        attacker_ = getattr(attacker_module, attacker, None)
+        if attacker_ == None:
+            print("Attacker not found. No changes made.")
+        else:
+            self.emulator.attacker = attacker_(self.emulator.caldera_api_key)
+            print(f"Attacker set to {attacker}!")
+
+    def start_interactive_emulator(self):
+        print("Starting interactive emulator...")
+        print("Type 'help' for a list of commands")
+        while True:
+            user_input = input("emulator> ")
+
+            emulator_argv = user_input.split(" ")
+            command = emulator_argv[0]
+
+            # if command == "run":
+            #     emulator.run()
+            
+            # elif command == "exit":
+            #     break
+            
+            # elif command == "save":
+            #     if emulator_argc == 2:
+            #         metrics_file = emulator_argv[1]
+            #     else:
+            #         metrics_file = "metrics.json"
+            #     emulator.goalkeeper.save_metrics(metrics_file)
+
+            # elif command == "set":
+            #     if emulator_argc == 3 and emulator_argv[1] == "attacker":
+            #         attacker_ = getattr(attacker_module, emulator_argv[2], None)
+            #         if attacker_ == None:
+            #             print("Attacker not found. No changes made.")
+            #         else:
+            #             emulator.attacker = attacker_(emulator.caldera_api_key)
+            #             print("Attacker set to %s." % emulator_argv[2])
+            #     else:
+            #         print("Invalid use of set command.")
+            #         print("Usage: set <attacker> <value>")
+
+            # elif command == "help":
+            #     self.print_help()
+
+            if command in self.commands:
+                self.commands[command](emulator_argv[1:])
+            
+            else:
+                print("Command not recognized")
+                self.print_help()
+        
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('-c', '--config', help='Name of configuration file')
-    parser.add_argument('-s', '--scenario', help='Name of scenario file')
+    parser.add_argument('-c', '--config', help='Name of configuration file', required=True)
+    parser.add_argument('-s', '--scenario', help='Name of scenario file', required=True)
+    parser.add_argument('-i', '--interactive', help='Run emulator in interactive mode', action='store_true', default=False)
     args = parser.parse_args()
+
+    print(f"Starting emulator in {'' if args.interactive else 'non-'}interactive mode...")
 
     # open yml config file
     with open(path.join('config', args.config), 'r') as f:
@@ -131,8 +279,13 @@ if __name__ == "__main__":
 
     emulator = Emulator()
     emulator.setup(config, scenario)
+    
     emulator.run()
 
     # Print metrics
     print(emulator.goalkeeper.metrics)
     emulator.goalkeeper.save_metrics('metrics.json')
+
+
+    if args.interactive:
+        EmulatorInteractive(emulator).start_interactive_emulator()
