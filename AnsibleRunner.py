@@ -15,6 +15,10 @@ class AnsibleRunner:
         if playbook_params is None:
             playbook_params = {}
 
+        print(f"\n")
+        print(f"[RUNNING PLAYBOOK]    {playbook_name}")
+        print(f"[PLAYBOOK  PARAMS]    {playbook_params}")
+
         # Merge default params with playbook specific params
         playbook_full_params = self.ansible_vars_default | playbook_params
         ansible_result = ansible_runner.run(extravars=playbook_full_params, private_data_dir=self.ansible_dir,
