@@ -8,18 +8,19 @@ class GoalKeeper:
         self.attacker = attacker
         self.flags = {}
         self.root_flags = {}
+        self.metrics = {}
     
     def start_setup_timer(self):
         self.setup_start_time = time.time()
 
     def stop_setup_timer(self):
-        self.metrics['setup_time'] = time.time() - self.setup_start_time
+        self.setup_stop_time = time.time()
     
     def start_execution_timer(self):
         self.execution_start_time = time.time()
     
     def stop_execution_timer(self):
-        self.metrics['execution_time'] = time.time() - self.execution_start_time
+        self.execution_stop_time = time.time()
     
     def set_flags(self, flags):
         self.flags = flags

@@ -1,3 +1,5 @@
+import json
+import os
 from deployment_instance.topology_orchestrator import deploy_network, destroy_network
 from deployment_instance.MasterOrchestrator import MasterOrchestrator
 
@@ -34,6 +36,38 @@ class DeploymentInstance:
         if flag in self.flags:
             return self.flags[flag]
         return 0
+    
+    def save_flags(self, file_name="flags.json"):
+        with open(os.path.join('temp_flags', file_name), 'w') as f:
+            json.dump(self.flags, f)
+
+    def save_root_flags(self, file_name="root_flags.json"):
+        with open(os.path.join('temp_flags', file_name), 'w') as f:
+            json.dump(self.flags, f)
+
+    def save_all_flags(self, file_name="flags.json", root_file_name="root_flags.json"):
+        self.save_flags(file_name)
+        self.save_root_flags(root_file_name)
+
+    def load_flags(self, file_name="flags.json"):
+        with open(os.path.join('temp_flags', file_name), 'r') as f:
+            self.flags = json.load(f)
+    
+    def load_root_flags(self, file_name="root_flags.json"):
+        with open(os.path.join('temp_flags', file_name), 'r') as f:
+            self.root_flags = json.load(f)
+
+    def load_all_flags(self, file_name="flags.json", root_file_name="root_flags.json"):
+        self.load_flags(file_name)
+        self.load_root_flags(root_file_name)
+
+    def print_all_flags(self):
+        print("Flags:")
+        for host, flag in self.flags.items():
+            print(f"\t{host}: {flag}")
+        print("Root Flags:")
+        for host, flag in self.root_flags.items():
+            print(f"\t{host}: {flag}")
     
     def deploy_topology(self):
         destroy_network(self.topology)
