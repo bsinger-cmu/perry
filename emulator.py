@@ -6,6 +6,7 @@ from deployment_instance import SimpleInstanceV1, GoalKeeper
 import openstack
 
 import time
+from datetime import datetime
 
 # Dynamically import modules
 import importlib
@@ -77,6 +78,7 @@ class Emulator:
         self.defender = defender_(ansible_runner, self.openstack_conn, elasticsearch_conn, config['external_ip'], config['elasticsearch']['port'], config['elasticsearch']['api_key'], arsenal)
         #self.defender = Defender(ansible_runner, self.openstack_conn, elasticsearch_conn, config['external_ip'], config['elasticsearch']['port'], config['elasticsearch']['api_key'])
         self.defender.start()
+        self.goalkeeper.stop_setup_timer()
 
     # Start attacker
     def start_attacker(self):
@@ -110,6 +112,7 @@ class Emulator:
         self.start_attacker()
         # Runs loop until emulation finishes
         self.start_main_loop()
+        self.goalkeeper.stop_execution_timer()
         # Once finished calculate have goalkeeper measure final success metrics
         metrics = self.goalkeeper.calculate_metrics()
         # Cleanup
@@ -129,18 +132,16 @@ class EmulatorInteractive():
         self.commands_desc = {
             "exit": "exit emulator",
             "help": "print this help message",
-            "run": "run attacker",
-            "save <metrics.json>": "save metrics to file (default: metrics.json)",
+            "run -n": "run attacker. \n\t-n <NUM> to run NUM times",
             "set <attacker> <value>": "set attacker to <attacker>",
             "reset <attacker>": "set attacker to <attacker>",
         }
         self.commands = {
-            "exit": self.handle_exit,
-            "help": self.handle_help,
-            "run":  self.handle_run,
-            "save": self.handle_save,
-            "reset":  self.handle_reset,
-            "set":  self.handle_set,
+            "exit":     self.handle_exit,
+            "help":     self.handle_help,
+            "run":      self.handle_run,
+            "reset":    self.handle_reset,
+            "set":      self.handle_set,
         }
     
     def print_help(self, args=[]):
@@ -157,18 +158,32 @@ class EmulatorInteractive():
         exit()
 
     def handle_run(self, args=[]):
-        if len(args) > 0:
+        if len(args) > 1:
             print("Extra arguments found. Ignoring...")
-        print("Starting attacker...")
-        metrics = self.emulator.run()
-        print("Attacker finished!")
-        print("Metrics:")
-        print(metrics)
+        num = 1
+        if "-n" in args:
+            if args.index("-n") + 1 >= len(args):
+                print("No number of runs specified. Ignoring...")
+            else:
+                num = int(args[args.index("-n") + 1])
+                print(f"Running attacker {num} times...")
 
-    def handle_save(self, args):
-        metrics_file = "metrics.json"
+        for i in range(num):
+            print(f"Starting attacker... {i+1}/{num}")
+            metrics = self.emulator.run()
+            print("Attacker finished!")
+            print("Metrics:")
+            print(metrics)
+            self.handle_save()
+
+    def handle_save(self, args=[]):
+        now = datetime.now()
+        now_str = now.strftime("%Y-%m-%d_%H-%M-%S")
+        metrics_file = "metrics-" + now_str + ".json"
+        
         if len(args) > 0:
             metrics_file = args[0]
+
         print(f"Saving metrics to {metrics_file}...")
         self.emulator.goalkeeper.save_metrics(metrics_file)
         print("Metrics saved!")
@@ -223,34 +238,6 @@ class EmulatorInteractive():
 
             emulator_argv = user_input.split(" ")
             command = emulator_argv[0]
-
-            # if command == "run":
-            #     emulator.run()
-            
-            # elif command == "exit":
-            #     break
-            
-            # elif command == "save":
-            #     if emulator_argc == 2:
-            #         metrics_file = emulator_argv[1]
-            #     else:
-            #         metrics_file = "metrics.json"
-            #     emulator.goalkeeper.save_metrics(metrics_file)
-
-            # elif command == "set":
-            #     if emulator_argc == 3 and emulator_argv[1] == "attacker":
-            #         attacker_ = getattr(attacker_module, emulator_argv[2], None)
-            #         if attacker_ == None:
-            #             print("Attacker not found. No changes made.")
-            #         else:
-            #             emulator.attacker = attacker_(emulator.caldera_api_key)
-            #             print("Attacker set to %s." % emulator_argv[2])
-            #     else:
-            #         print("Invalid use of set command.")
-            #         print("Usage: set <attacker> <value>")
-
-            # elif command == "help":
-            #     self.print_help()
 
             if command in self.commands:
                 self.commands[command](emulator_argv[1:])
