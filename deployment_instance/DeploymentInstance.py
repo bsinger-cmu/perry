@@ -22,6 +22,7 @@ class DeploymentInstance:
         self.orchestrator = MasterOrchestrator(self.ansible_runner)
 
         self.flags = {}
+        self.root_flags = {}
 
         self.find_management_server()
 
