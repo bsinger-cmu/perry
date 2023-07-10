@@ -32,7 +32,7 @@ class Emulator:
         self.config = None
         
 
-    def setup(self, config, scenario):
+    def setup(self, config, scenario, skip_setup=False):
         # Setup connection to elasticsearch
         elasticsearch_server = f"https://localhost:{config['elasticsearch']['port']}"
         elasticsearch_api_key = config['elasticsearch']['api_key']
@@ -65,9 +65,16 @@ class Emulator:
         deployment_instance_ = getattr(deployment_instance_module, scenario['deployment_instance'])
         self.deployment_instance = deployment_instance_(ansible_runner, self.openstack_conn, config['external_ip'])
         
-        self.deployment_instance.setup(already_deployed=False)
+        if skip_setup:
+            self.deployment_instance.load_all_flags()
+        else:
+            self.deployment_instance.setup(already_deployed=False)
+            self.deployment_instance.save_all_flags()
+        
+        self.deployment_instance.print_all_flags()
 
         self.goalkeeper.set_flags(self.deployment_instance.flags)
+        self.goalkeeper.set_root_flags(self.deployment_instance.root_flags)
         self.goalkeeper.start_execution_timer()
         
         # Setup initial defender
@@ -115,16 +122,21 @@ class Emulator:
         self.goalkeeper.stop_execution_timer()
         # Once finished calculate have goalkeeper measure final success metrics
         metrics = self.goalkeeper.calculate_metrics()
+        
+        now = datetime.now()
+        now_str = now.strftime("%Y-%m-%d_%H-%M-%S")
+        metrics_file = "metrics-" + now_str + ".json"
+        self.emulator.goalkeeper.save_metrics(metrics_file)
+        
         # Cleanup
         self.attacker.cleanup()
-
         return metrics
 
     # Call if using an external stepper for the defender
     # Example: You want OpenAI gym to control the defender for learning a new policy
     def external_defender_steps(self, actions):
-        return self.defender.run(actions)
-    
+        return self.defender.run(actions)    
+
 
 class EmulatorInteractive():
     def __init__(self, emulator):
@@ -132,7 +144,7 @@ class EmulatorInteractive():
         self.commands_desc = {
             "exit": "exit emulator",
             "help": "print this help message",
-            "run -n": "run attacker. \n\t-n <NUM> to run NUM times",
+            "run": "run attacker. \n\t-n <NUM> to run NUM times",
             "set <attacker> <value>": "set attacker to <attacker>",
             "reset <attacker>": "set attacker to <attacker>",
         }
@@ -252,9 +264,14 @@ if __name__ == "__main__":
     parser.add_argument('-c', '--config', help='Name of configuration file', required=True)
     parser.add_argument('-s', '--scenario', help='Name of scenario file', required=True)
     parser.add_argument('-i', '--interactive', help='Run emulator in interactive mode', action='store_true', default=False)
+
+    # parser.add_argument('-f', '--load-flags', help='Load flags from file', type=str, default='temp_flags/flags.json')
+    # parser.add_argument('-r', '--load-root-flags', help='Load root flags from file', type=str, default='temp_flags/root_flags.json')
+    parser.add_argument('-l', '--load-flags', help='Load flags from default file. Skips initial setup', action='store_true', default=False)
     args = parser.parse_args()
 
     print(f"Starting emulator in {'' if args.interactive else 'non-'}interactive mode...")
+
 
     # open yml config file
     with open(path.join('config', args.config), 'r') as f:
@@ -265,7 +282,15 @@ if __name__ == "__main__":
         scenario = yaml.safe_load(f)
 
     emulator = Emulator()
-    emulator.setup(config, scenario)
+    
+    # Load flags
+    if args.load_flags:
+        print("Flags will be loaded from file. Skipping initial setup...")
+        print("Loading flags...")
+        emulator.goalkeeper.load_flags(args.load_flags)
+        emulator.goalkeeper.load_root_flags(args.load_flags)
+
+    emulator.setup(config, scenario, skip_setup=args.load_flags)
     
     emulator.run()
 
