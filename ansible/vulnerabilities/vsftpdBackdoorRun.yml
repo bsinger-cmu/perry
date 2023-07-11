@@ -1,0 +1,7 @@
+---
+- hosts: "{{ host }}"
+  remote_user: root
+
+  tasks:
+  - name: Execute vsftpd
+    shell: "vsftpd >/dev/null 2>&1 &"
