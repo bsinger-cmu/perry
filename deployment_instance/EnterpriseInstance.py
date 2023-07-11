@@ -59,7 +59,7 @@ class EnterpriseInstance(DeploymentInstance):
         # Active Directory
         self.orchestrator.vulns.add_netcatShell('192.168.200.3')
         # CEO
-        self.orchestrator.vulns.add_weakUserPassword('192.168.200.4', 'ceo')
+        # self.orchestrator.vulns.add_weakUserPassword('192.168.200.4', 'ceo')
         self.orchestrator.vulns.add_sshEnablePasswordLogin('192.168.200.4')
         self.orchestrator.vulns.add_writeablePassword('192.168.200.4')
         # Finance
@@ -71,9 +71,6 @@ class EnterpriseInstance(DeploymentInstance):
         self.orchestrator.vulns.add_sshEnablePasswordLogin('192.168.201.3')
         self.orchestrator.vulns.add_netcatShell('192.168.201.3')
 
-        # Setup attacker on intern machine
-        self.orchestrator.attacker.install_attacker('192.168.200.7', 'intern', self.caldera_ip)
-
         # Setup flags
         self.flags['192.168.200.4'] = self.orchestrator.goals.setup_flag('192.168.200.4', '/home/ceo/flag.txt', 'ceo', 'root')
         self.flags['192.168.200.5'] = self.orchestrator.goals.setup_flag('192.168.200.5', '/home/finance/flag.txt', 'finance', 'root')
@@ -82,6 +79,15 @@ class EnterpriseInstance(DeploymentInstance):
         self.root_flags['192.168.200.4'] = self.orchestrator.goals.setup_root_flag('192.168.200.4')
         self.root_flags['192.168.200.5'] = self.orchestrator.goals.setup_root_flag('192.168.200.5')
         self.root_flags['192.168.201.3'] = self.orchestrator.goals.setup_root_flag('192.168.201.3')
+
+        # Execute Processes
+        self.orchestrator.vulns.run_vsftpdBackdoor('192.168.200.5')
+        
+        # Setup attacker on intern machine
+        self.orchestrator.attacker.install_attacker('192.168.200.7', 'intern', self.caldera_ip)
+
+
+        # TODO: TAKE SNAPSHOTS
 
         print ("Flags:")
         print (self.flags)
