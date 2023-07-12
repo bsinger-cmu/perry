@@ -48,6 +48,7 @@ class DeploymentInstance:
             json.dump(self.root_flags, f)
 
     def save_all_flags(self, file_name="flags.json", root_file_name="root_flags.json"):
+        print("Saving all flags to file...")
         self.save_flags(file_name)
         self.save_root_flags(root_file_name)
 
@@ -60,6 +61,7 @@ class DeploymentInstance:
             self.root_flags = json.load(f)
 
     def load_all_flags(self, file_name="flags.json", root_file_name="root_flags.json"):
+        print("Loading all flags from file...")
         self.load_flags(file_name)
         self.load_root_flags(root_file_name)
 
@@ -116,6 +118,7 @@ class DeploymentInstance:
             return instance.id
 
     def save_all_snapshots(self, wait=True):
+        print("Saving all snapshots...")
         self._load_instances()
         images = []
         for instance in self.all_instances:
@@ -132,9 +135,10 @@ class DeploymentInstance:
                     if curr_img:
                         all_active = all_active and curr_img.status == 'active'
                         print(f"[status: {curr_img.status}] - {curr_img.name}")
-                time.sleep(3)
+                time.sleep(10)
     
     def load_all_snapshots(self, wait=True):
+        print("Loading all snapshots...")
         self._load_instances()
         for instance in self.all_instances:
             self.load_snapshot(instance.private_v4, instance.name + "_image")
@@ -149,7 +153,7 @@ class DeploymentInstance:
                     if curr_instance:
                         all_active = all_active and curr_instance.status == 'ACTIVE'
                         print(f"[status: {curr_instance.status}] - {curr_instance.name}")
-                time.sleep(3)
+                time.sleep(10)
         # for instance in self.all_instances:
         #     curr_instance = self.openstack_conn.get_server_by_id(instance.id)
         #     print(f"[status {curr_instance.status}] - {curr_instance.name}")

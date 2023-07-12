@@ -32,7 +32,7 @@ class Emulator:
         self.config = None
         
 
-    def setup(self, config, scenario, skip_setup=False):
+    def setup(self, config, scenario, already_deployed=False, new_flags=False):
         # Setup connection to elasticsearch
         elasticsearch_server = f"https://localhost:{config['elasticsearch']['port']}"
         elasticsearch_api_key = config['elasticsearch']['api_key']
@@ -42,7 +42,7 @@ class Emulator:
             basic_auth=("elastic", elasticsearch_api_key),
             verify_certs=False
         )
-
+        # TODO DELETE ALL AGENTS
         # Initialize ansible
         ssh_key_path = config['ssh_key_path']
         ansible_dir = './ansible/'
@@ -65,16 +65,19 @@ class Emulator:
         deployment_instance_ = getattr(deployment_instance_module, scenario['deployment_instance'])
         self.deployment_instance = deployment_instance_(ansible_runner, self.openstack_conn, config['external_ip'])
         
-        if skip_setup:
-            self.deployment_instance.load_all_flags()
-        else:
-            self.deployment_instance.setup(already_deployed=False)
-            self.deployment_instance.save_all_flags()
+        # if already_deployed:
+        #     self.deployment_instance.load_all_flags()
+        # else:
+        #     self.deployment_instance.setup(already_deployed=False)
+        #     self.deployment_instance.save_all_flags()
+
+        self.deployment_instance.setup(already_deployed=already_deployed)
         
         self.deployment_instance.print_all_flags()
 
         self.goalkeeper.set_flags(self.deployment_instance.flags)
         self.goalkeeper.set_root_flags(self.deployment_instance.root_flags)
+
         self.goalkeeper.start_execution_timer()
         
         # Setup initial defender
@@ -90,6 +93,7 @@ class Emulator:
     # Start attacker
     def start_attacker(self):
         self.attacker.start_operation()
+        print("Operation ID: " + self.attacker.operation_id)
 
     def finished(self):
         return not self.attacker.still_running()
@@ -122,11 +126,11 @@ class Emulator:
         self.goalkeeper.stop_execution_timer()
         # Once finished calculate have goalkeeper measure final success metrics
         metrics = self.goalkeeper.calculate_metrics()
-        
+
         now = datetime.now()
         now_str = now.strftime("%Y-%m-%d_%H-%M-%S")
         metrics_file = "metrics-" + now_str + ".json"
-        self.emulator.goalkeeper.save_metrics(metrics_file)
+        self.goalkeeper.save_metrics(metrics_file)
         
         # Cleanup
         self.attacker.cleanup()
@@ -265,9 +269,8 @@ if __name__ == "__main__":
     parser.add_argument('-s', '--scenario', help='Name of scenario file', required=True)
     parser.add_argument('-i', '--interactive', help='Run emulator in interactive mode', action='store_true', default=False)
 
-    # parser.add_argument('-f', '--load-flags', help='Load flags from file', type=str, default='temp_flags/flags.json')
-    # parser.add_argument('-r', '--load-root-flags', help='Load root flags from file', type=str, default='temp_flags/root_flags.json')
-    parser.add_argument('-l', '--load-flags', help='Load flags from default file. Skips initial setup', action='store_true', default=False)
+    parser.add_argument('-f', '--new-flags', help='INACTIVE. Create new flags for deployment. (saves new snapshots)', action='store_true', default=False)
+    parser.add_argument('-d', '--already-deployed', help='Already Deployed. Use images for setup instead', action='store_true', default=False)
     args = parser.parse_args()
 
     print(f"Starting emulator in {'' if args.interactive else 'non-'}interactive mode...")
@@ -283,14 +286,10 @@ if __name__ == "__main__":
 
     emulator = Emulator()
     
-    # Load flags
-    if args.load_flags:
-        print("Flags will be loaded from file. Skipping initial setup...")
-        print("Loading flags...")
-        emulator.goalkeeper.load_flags(args.load_flags)
-        emulator.goalkeeper.load_root_flags(args.load_flags)
+    if args.new_flags:
+        print("This flag is currently inactive. Ignoring...")
 
-    emulator.setup(config, scenario, skip_setup=args.load_flags)
+    emulator.setup(config, scenario, already_deployed=args.already_deployed)
     
     emulator.run()
 

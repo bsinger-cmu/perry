@@ -30,12 +30,14 @@ class GoalKeeper:
     
     def check_flag(self, flag):
         for host, flag_value in self.flags.items():
+            print(f"flag_value: {flag_value} looking for flag: {flag}, host: {host}")
             if flag_value == flag:
                 return host
         return None
     
     def check_root_flag(self, flag):
         for host, flag_value in self.root_flags.items():
+            print(f"flag_value: {flag_value} looking for flag: {flag}, host: {host}")
             if flag_value == flag:
                 return host
         return None
@@ -52,13 +54,20 @@ class GoalKeeper:
         self.metrics['experiment_time'] = experiment_time
         self.metrics['execution_time'] = execution_time
         self.metrics['setup_time'] = setup_time
+        
+        print("Flags")
+        print(self.flags)
+        print("Root Flags")
+        print(self.root_flags)
 
         # Record flags captured
         flags_captured = []
         root_flags_captured = []
         relationships = self.attacker.get_relationships()
         for relationship in relationships:
-            if relationship['source']['value'] == 'flag.txt' and relationship['edge'] == 'has_contents':
+            print("source " + relationship['source']['value'])
+            if "flag.txt" in relationship['source']['value'] and relationship['edge'] == 'has_contents':
+                print("flag " + relationship['target']['value'])
                 host_flag_captured = self.check_flag(relationship['target']['value'])
                 host_root_flag_captured = self.check_root_flag(relationship['target']['value'])
                 if host_flag_captured is not None:
