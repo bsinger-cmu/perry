@@ -74,6 +74,7 @@ class EnterpriseInstance(DeploymentInstance):
             self.orchestrator.vulns.add_netcatShell('192.168.201.3')
 
             # Setup flags
+
             self.flags['192.168.200.4'] = self.orchestrator.goals.setup_flag('192.168.200.4', '/home/ceo/flag.txt', 'ceo', 'root')
             self.flags['192.168.200.5'] = self.orchestrator.goals.setup_flag('192.168.200.5', '/home/finance/flag.txt', 'finance', 'root')
             self.flags['192.168.201.3'] = self.orchestrator.goals.setup_flag('192.168.201.3', '/home/database/flag.txt', 'database', 'root')
@@ -81,8 +82,10 @@ class EnterpriseInstance(DeploymentInstance):
             self.root_flags['192.168.200.4'] = self.orchestrator.goals.setup_root_flag('192.168.200.4')
             self.root_flags['192.168.200.5'] = self.orchestrator.goals.setup_root_flag('192.168.200.5')
             self.root_flags['192.168.201.3'] = self.orchestrator.goals.setup_root_flag('192.168.201.3')
+
             self.save_all_flags()
             self.print_all_flags()
+            time.sleep(10)
             self.save_all_snapshots()
         
         else:
@@ -97,12 +100,21 @@ class EnterpriseInstance(DeploymentInstance):
                 self.root_flags['192.168.200.5'] = self.orchestrator.goals.setup_root_flag('192.168.200.5')
                 self.root_flags['192.168.201.3'] = self.orchestrator.goals.setup_root_flag('192.168.201.3')
                 self.save_all_flags()
-                self.save_all_snapshots()
                 self.print_all_flags()
+                time.sleep(10)
+                self.save_all_snapshots(wait=False)
             else:
                 self.load_all_flags()
                 self.print_all_flags()
 
+        # Check Flags
+        self.orchestrator.common.check_file('192.168.200.4', '/home/ceo/flag.txt')
+        self.orchestrator.common.check_file('192.168.200.5', '/home/finance/flag.txt')
+        self.orchestrator.common.check_file('192.168.201.3', '/home/database/flag.txt')
+        self.orchestrator.common.check_file('192.168.200.4', '/root/flag.txt')
+        self.orchestrator.common.check_file('192.168.200.5', '/root/flag.txt')
+        self.orchestrator.common.check_file('192.168.201.3', '/root/flag.txt')
+        
         # Execute Processes
         self.orchestrator.vulns.run_vsftpdBackdoor('192.168.200.5')
         

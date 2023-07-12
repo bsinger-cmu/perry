@@ -3,6 +3,7 @@ import os
 import time
 from deployment_instance.topology_orchestrator import deploy_network, destroy_network
 from deployment_instance.MasterOrchestrator import MasterOrchestrator
+from colorama import Fore, Style
 
 public_ip = '10.20.20'
 # Finds management server that can be used to talk to other servers
@@ -111,7 +112,7 @@ class DeploymentInstance:
         if instance:
             image = self.openstack_conn.get_image(snapshot_name)
             if image:
-                print(f'Loading snapshot {snapshot_name} for instance {instance.id}...')
+                print(f'Loading snapshot {snapshot_name} for instance {instance.name}...')
                 self.openstack_conn.rebuild_server(instance.id, image.id, wait=wait, admin_pass=None)
                 if wait:
                     print(f'Successfully loaded snapshot {snapshot_name} with id {image.id}')
@@ -130,11 +131,13 @@ class DeploymentInstance:
             all_active = False
             while not all_active:
                 all_active = True
+                print(f"\n{'Status':<12}{'Name'}")
                 for image in images:
                     curr_img = self.openstack_conn.get_image_by_id(image)
                     if curr_img:
                         all_active = all_active and curr_img.status == 'active'
-                        print(f"[status: {curr_img.status}] - {curr_img.name}")
+                        color = Fore.GREEN if curr_img.status == 'active' else Fore.RED
+                        print(f"{color}{curr_img.status:<12}{Style.RESET_ALL}{curr_img.name}")
                 time.sleep(10)
     
     def load_all_snapshots(self, wait=True):
@@ -148,11 +151,19 @@ class DeploymentInstance:
             all_active = False
             while not all_active:
                 all_active = True
+                print(f"\n{'Status':<12}{'Name'}")
                 for instance in self.all_instances:
                     curr_instance = self.openstack_conn.get_server_by_id(instance.id)
                     if curr_instance:
                         all_active = all_active and curr_instance.status == 'ACTIVE'
-                        print(f"[status: {curr_instance.status}] - {curr_instance.name}")
+                        color = Fore.GREEN if curr_instance.status == 'ACTIVE' else Fore.RED
+                        print(f"{color}{curr_instance.status:<12}{Style.RESET_ALL}{curr_instance.name}")
+                        
+                        
+                        if curr_instance.status == 'ERROR':
+                            print("ERROR: Instance in error state. Aborting...")
+                            exit(1)
+                            
                 time.sleep(10)
         # for instance in self.all_instances:
         #     curr_instance = self.openstack_conn.get_server_by_id(instance.id)

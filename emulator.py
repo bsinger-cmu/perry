@@ -3,6 +3,7 @@ import argparse
 from AnsibleRunner import AnsibleRunner
 from deployment_instance import SimpleInstanceV1, GoalKeeper
 
+from colorama import Fore, Style
 import openstack
 
 import time
@@ -149,15 +150,11 @@ class EmulatorInteractive():
             "exit": "exit emulator",
             "help": "print this help message",
             "run": "run attacker. \n\t-n <NUM> to run NUM times",
-            "set <attacker> <value>": "set attacker to <attacker>",
-            "reset <attacker>": "set attacker to <attacker>",
         }
         self.commands = {
             "exit":     self.handle_exit,
             "help":     self.handle_help,
             "run":      self.handle_run,
-            "reset":    self.handle_reset,
-            "set":      self.handle_set,
         }
     
     def print_help(self, args=[]):
@@ -186,6 +183,7 @@ class EmulatorInteractive():
 
         for i in range(num):
             print(f"Starting attacker... {i+1}/{num}")
+            self.emulator.setup(self.emulator.config, self.emulator.scenario, already_deployed=True)
             metrics = self.emulator.run()
             print("Attacker finished!")
             print("Metrics:")
@@ -208,43 +206,6 @@ class EmulatorInteractive():
         if len(args) > 0:
             print("Extra arguments found. Ignoring...")
         self.print_help()
-
-    def handle_set(self, args):
-        if len(args) != 2:
-            print("Improper usage. No changes made.")
-            print("Usage: reset <attacker> <type>")
-            return
-        
-        if args[0] != "attacker":
-            print("Invalid argument. No changes made.")
-            return
-
-        attacker = args[1]
-        attacker_ = getattr(attacker_module, attacker, None)
-        if attacker_ == None:
-            print("Attacker not found. No changes made.")
-        else:
-            self.emulator.attacker = attacker_(self.emulator.caldera_api_key)
-            print(f"Attacker set to {attacker}!")
-
-    def handle_reset(self, args):
-        if len(args) != 1:
-            print("Improper usage. No changes made.")
-            print("Usage: reset <attacker>")
-            return
-        
-        if args[0] != "attacker":
-            print("Invalid argument. No changes made.")
-            print("Usage: reset <attacker>")
-            return
-
-        attacker = self.emulator.scenario['attacker']['type']
-        attacker_ = getattr(attacker_module, attacker, None)
-        if attacker_ == None:
-            print("Attacker not found. No changes made.")
-        else:
-            self.emulator.attacker = attacker_(self.emulator.caldera_api_key)
-            print(f"Attacker set to {attacker}!")
 
     def start_interactive_emulator(self):
         print("Starting interactive emulator...")

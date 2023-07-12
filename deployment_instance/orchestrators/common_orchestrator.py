@@ -24,6 +24,11 @@ class CommonOrchestrator(Orchestrator):
         task.set_params({'user': username, 
                          'password': password})
         self.add_task(task)
+    
+    def check_file(self, host: str, file: str):
+        task = OrchestrationTask(host, "checkFile")
+        task.set_params({'file_path': file})
+        self.add_task(task)
 
     def create_directory(self, host: str, cpath: str, dmode: str):
         task = OrchestrationTask(host, "createDirectory")
