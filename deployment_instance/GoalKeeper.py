@@ -1,6 +1,8 @@
 import time
 import json
 import os
+from rich import print as rprint
+
 
 class GoalKeeper:
 
@@ -8,6 +10,7 @@ class GoalKeeper:
         self.attacker = attacker
         self.flags = {}
         self.root_flags = {}
+        self.operation_id = None
         self.metrics = {}
     
     def start_setup_timer(self):
@@ -30,14 +33,14 @@ class GoalKeeper:
     
     def check_flag(self, flag):
         for host, flag_value in self.flags.items():
-            print(f"flag_value: {flag_value} looking for flag: {flag}, host: {host}")
+            # print(f"flag_value: {flag_value} looking for flag: {flag}, host: {host}")
             if flag_value == flag:
                 return host
         return None
     
     def check_root_flag(self, flag):
         for host, flag_value in self.root_flags.items():
-            print(f"flag_value: {flag_value} looking for flag: {flag}, host: {host}")
+            # print(f"flag_value: {flag_value} looking for flag: {flag}, host: {host}")
             if flag_value == flag:
                 return host
         return None
@@ -51,23 +54,24 @@ class GoalKeeper:
         setup_time = self.setup_stop_time - self.setup_start_time
         experiment_time = setup_time + execution_time
         
+        self.metrics['operation_id'] = self.operation_id
+        self.metrics['start_time'] = self.setup_start_time
+
         self.metrics['experiment_time'] = experiment_time
         self.metrics['execution_time'] = execution_time
         self.metrics['setup_time'] = setup_time
         
         print("Flags")
-        print(self.flags)
+        rprint(self.flags)
         print("Root Flags")
-        print(self.root_flags)
+        rprint(self.root_flags)
 
         # Record flags captured
         flags_captured = []
         root_flags_captured = []
         relationships = self.attacker.get_relationships()
         for relationship in relationships:
-            print("source " + relationship['source']['value'])
             if "flag.txt" in relationship['source']['value'] and relationship['edge'] == 'has_contents':
-                print("flag " + relationship['target']['value'])
                 host_flag_captured = self.check_flag(relationship['target']['value'])
                 host_root_flag_captured = self.check_root_flag(relationship['target']['value'])
                 if host_flag_captured is not None:
@@ -91,3 +95,7 @@ class GoalKeeper:
     def save_metrics(self, file_name):
         with open(os.path.join('results', file_name), 'w') as f:
             json.dump(self.metrics, f)
+
+    def print_metrics(self):
+        print("Metrics:")
+        rprint(self.metrics)
