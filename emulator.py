@@ -3,7 +3,6 @@ import argparse
 from AnsibleRunner import AnsibleRunner
 from deployment_instance import SimpleInstanceV1, GoalKeeper
 
-from colorama import Fore, Style
 import openstack
 
 import time
@@ -18,11 +17,12 @@ attacker_module = importlib.import_module('attacker')
 from attacker import Attacker, TwoPathAttacker
 from defender import WaitAndSpotDefender, Defender
 
-from rich import print
+from rich import print as rprint
 from os import path
 import yaml
 from elasticsearch import Elasticsearch
 
+from colorama import Fore, Style
 
 class Emulator:
 
@@ -72,7 +72,9 @@ class Emulator:
         #     self.deployment_instance.setup(already_deployed=False)
         #     self.deployment_instance.save_all_flags()
 
-        self.deployment_instance.setup(already_deployed=already_deployed)
+        load = self.deployment_instance.setup(already_deployed=already_deployed)
+        if load == 1: ## Failure to load snapshots
+            return load
         
         self.deployment_instance.print_all_flags()
 
@@ -94,6 +96,7 @@ class Emulator:
     # Start attacker
     def start_attacker(self):
         self.attacker.start_operation()
+        self.goalkeeper.operation_id = self.attacker.operation_id
         print("Operation ID: " + self.attacker.operation_id)
 
     def finished(self):
@@ -119,6 +122,7 @@ class Emulator:
             pass
 
     def run(self):
+        time.sleep(5)
         self.goalkeeper.start_execution_timer()
 
         self.start_attacker()
@@ -162,7 +166,7 @@ class EmulatorInteractive():
             print("Extra arguments found. Ignoring...")
         print("Commands:")
         for command in self.commands_desc:
-            print(f"{command}: {self.commands_desc[command]}")
+            rprint(f"{command}: {self.commands_desc[command]}")
     
     def handle_exit(self, args=[]):
         if len(args) > 0:
@@ -179,16 +183,46 @@ class EmulatorInteractive():
                 print("No number of runs specified. Ignoring...")
             else:
                 num = int(args[args.index("-n") + 1])
-                print(f"Running attacker {num} times...")
+                rprint(f"Running attacker {num} times...")
+
+        all_metrics = []
+        complete_count = 0
+        error_count = 0
 
         for i in range(num):
-            print(f"Starting attacker... {i+1}/{num}")
-            self.emulator.setup(self.emulator.config, self.emulator.scenario, already_deployed=True)
+            rprint(f"Starting attacker... {i+1}/{num}")
+            load = self.emulator.setup(self.emulator.config, self.emulator.scenario, already_deployed=True)
+            
+            if load == 1: # Failed to load snapshots. Skip this run
+                error_count += 1
+                all_metrics.append((i, None))
+                continue
+            
             metrics = self.emulator.run()
             print("Attacker finished!")
             print("Metrics:")
-            print(metrics)
+            rprint(metrics)
             self.handle_save()
+            print("Cleaning up attacker...")
+            self.emulator.attacker.cleanup()
+
+            all_metrics.append((i, metrics))
+            complete_count += 1
+        
+        # Print metrics for multiple runs
+        # if num > 1:
+        # print(f"Ran attacker {num} times\nTimes to completion: {complete_count}\nTimes fatal exit: {error_count}")
+        print(f"Ran attacker {num} times\nTimes {Fore.GREEN}to completion: {Style.RESET_ALL}{complete_count}\nTimes {Fore.RED}fatal exit:{Style.RESET_ALL} {error_count}")
+        for j in range(num):
+            metrics = all_metrics[j][1]
+            if metrics is None:
+                # print(f"Run {j+1}: Failed to load snapshots")
+                print(f"Run {j+1}: {Fore.RED}Failed to load snapshots{Style.RESET_ALL}")
+            else:
+                # print(f"Run {j+1}: Ran to completion")
+                print(f"Run {j+1}: {Fore.GREEN}Ran to completion{Style.RESET_ALL}")
+                rprint(metrics)
+
 
     def handle_save(self, args=[]):
         now = datetime.now()
@@ -232,6 +266,7 @@ if __name__ == "__main__":
 
     parser.add_argument('-f', '--new-flags', help='INACTIVE. Create new flags for deployment. (saves new snapshots)', action='store_true', default=False)
     parser.add_argument('-d', '--already-deployed', help='Already Deployed. Use images for setup instead', action='store_true', default=False)
+    # parser.add_argument('-t', '--test', help='placeholder', action='store_true', default=False)
     args = parser.parse_args()
 
     print(f"Starting emulator in {'' if args.interactive else 'non-'}interactive mode...")
@@ -245,17 +280,18 @@ if __name__ == "__main__":
     with open(path.join('scenarios', args.scenario), 'r') as f:
         scenario = yaml.safe_load(f)
 
+
     emulator = Emulator()
     
     if args.new_flags:
-        print("This flag is currently inactive. Ignoring...")
+        rprint("This flag is currently inactive. Ignoring...")
 
     emulator.setup(config, scenario, already_deployed=args.already_deployed)
     
     emulator.run()
 
     # Print metrics
-    print(emulator.goalkeeper.metrics)
+    rprint(emulator.goalkeeper.metrics)
     emulator.goalkeeper.save_metrics('metrics.json')
 
 
