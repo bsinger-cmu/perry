@@ -4,6 +4,7 @@ import time
 from deployment_instance.topology_orchestrator import deploy_network, destroy_network
 from deployment_instance.MasterOrchestrator import MasterOrchestrator
 from colorama import Fore, Style
+from rich import print as rprint
 
 public_ip = '10.20.20'
 # Finds management server that can be used to talk to other servers
@@ -49,7 +50,7 @@ class DeploymentInstance:
             json.dump(self.root_flags, f)
 
     def save_all_flags(self, file_name="flags.json", root_file_name="root_flags.json"):
-        print("Saving all flags to file...")
+        rprint("Saving all flags to file...")
         self.save_flags(file_name)
         self.save_root_flags(root_file_name)
 
@@ -62,17 +63,17 @@ class DeploymentInstance:
             self.root_flags = json.load(f)
 
     def load_all_flags(self, file_name="flags.json", root_file_name="root_flags.json"):
-        print("Loading all flags from file...")
+        rprint("Loading all flags from file...")
         self.load_flags(file_name)
         self.load_root_flags(root_file_name)
 
     def print_all_flags(self):
-        print("Flags:")
+        rprint("Flags:")
         for host, flag in self.flags.items():
-            print(f"\t{host}: {flag}")
-        print("Root Flags:")
+            rprint(f"\t{host}: '{flag}'")
+        rprint("Root Flags:")
         for host, flag in self.root_flags.items():
-            print(f"\t{host}: {flag}")
+            rprint(f"\t{host}: '{flag}'")
 
     def _load_instances(self):
         if self.all_instances is None:
@@ -82,13 +83,13 @@ class DeploymentInstance:
         try:
             image = self.openstack_conn.get_image(snapshot_name)
             if image and overwrite:
-                print(f'Image {snapshot_name} already exists. Deleting...')
+                rprint(f"Image '{snapshot_name}' already exists. Deleting...")
                 self.openstack_conn.delete_image(image.id, wait=True)
             elif image and not overwrite:
-                print(f'Image {snapshot_name} already exists. Aborting...')
+                rprint(f"Image '{snapshot_name}' already exists. Aborting...")
                 return
             else:
-                print(f'Image {snapshot_name} does not exist. Creating...')
+                rprint(f"Image '{snapshot_name}' does not exist. Creating...")
         except:
             print("Multiple images with the same name exist. Aborting...")
             return
@@ -119,7 +120,7 @@ class DeploymentInstance:
             return instance.id
 
     def save_all_snapshots(self, wait=True):
-        print("Saving all snapshots...")
+        rprint("Saving all snapshots...")
         self._load_instances()
         images = []
         for instance in self.all_instances:
@@ -127,31 +128,32 @@ class DeploymentInstance:
             images.append(image)
 
         if wait:
-            print("Waiting for all images to be saved...")
+            rprint("Waiting for all images to be saved...")
             all_active = False
             while not all_active:
                 all_active = True
-                print(f"\n{'Status':<12}{'Name'}")
+                rprint(f"\n{'Status':<12}{'Name'}")
                 for image in images:
                     curr_img = self.openstack_conn.get_image_by_id(image)
                     if curr_img:
                         all_active = all_active and curr_img.status == 'active'
                         color = Fore.GREEN if curr_img.status == 'active' else Fore.RED
+                        color = Fore.YELLOW if curr_img.status == 'saving' else color
                         print(f"{color}{curr_img.status:<12}{Style.RESET_ALL}{curr_img.name}")
-                time.sleep(10)
+                time.sleep(25)
     
     def load_all_snapshots(self, wait=True):
-        print("Loading all snapshots...")
+        rprint("Loading all snapshots...")
         self._load_instances()
         for instance in self.all_instances:
             self.load_snapshot(instance.private_v4, instance.name + "_image")
         
         if wait:
-            print("Waiting for all instances to be active...")
+            rprint("Waiting for all instances to be active...")
             all_active = False
             while not all_active:
                 all_active = True
-                print(f"\n{'Status':<12}{'Name'}")
+                rprint(f"\n{'Status':<12}{'Name'}")
                 for instance in self.all_instances:
                     curr_instance = self.openstack_conn.get_server_by_id(instance.id)
                     if curr_instance:
@@ -162,9 +164,10 @@ class DeploymentInstance:
                         
                         if curr_instance.status == 'ERROR':
                             print("ERROR: Instance in error state. Aborting...")
-                            exit(1)
-                            
+                            return 1 ## Failure to load snapshots
+
                 time.sleep(10)
+        return 0
         # for instance in self.all_instances:
         #     curr_instance = self.openstack_conn.get_server_by_id(instance.id)
         #     print(f"[status {curr_instance.status}] - {curr_instance.name}")
