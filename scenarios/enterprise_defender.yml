@@ -6,5 +6,5 @@ defender:
       DeployDecoy: 0
       StartHoneyService: 1
       RestoreServer: 5
-attacker: TwoPathAttacker
+attacker: EnterpriseAttacker
 deployment_instance: EnterpriseInstance

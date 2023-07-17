@@ -29,3 +29,8 @@ class GoalOrchestrator(Orchestrator):
         flag = self.generate_flag()
         self.add_flag(host, flag_path, flag, user, user_group)
         return flag
+
+    def setup_root_flag(self, host: str):
+        flag = self.generate_flag()
+        self.add_flag(host, '/root/flag.txt', flag, 'root', 'root')
+        return flag

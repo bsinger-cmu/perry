@@ -8,11 +8,6 @@
     port_no: "4444"
     proto: tcp
 
-- name: Install ncat
-  ansible.builtin.import_playbook: ../common/installPackage.yml
-  vars:
-    package: ncat
-
 - name: Create netcat listener cron job
   ansible.builtin.import_playbook: ../common/cronJob.yml
   vars:
