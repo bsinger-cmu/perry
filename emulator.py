@@ -18,6 +18,10 @@ from attacker import Attacker, TwoPathAttacker
 from defender import WaitAndSpotDefender, Defender
 
 from rich import print as rprint
+from console import console, progress
+from rich.progress import track
+import rich.progress as rpg
+
 from os import path
 import yaml
 from elasticsearch import Elasticsearch
@@ -33,7 +37,7 @@ class Emulator:
         self.config = None
         
 
-    def setup(self, config, scenario, already_deployed=False, new_flags=False):
+    def setup(self, config, scenario, use_snapshots=False, new_flags=False, redeploy_network=True):
         # Setup connection to elasticsearch
         elasticsearch_server = f"https://localhost:{config['elasticsearch']['port']}"
         elasticsearch_api_key = config['elasticsearch']['api_key']
@@ -72,7 +76,7 @@ class Emulator:
         #     self.deployment_instance.setup(already_deployed=False)
         #     self.deployment_instance.save_all_flags()
 
-        load = self.deployment_instance.setup(already_deployed=already_deployed)
+        load = self.deployment_instance.setup(use_snapshots=use_snapshots, redeploy_network=redeploy_network, new_flags=new_flags)
         if load == 1: ## Failure to load snapshots
             return load
         
@@ -130,16 +134,17 @@ class Emulator:
         self.start_main_loop()
         self.goalkeeper.stop_execution_timer()
         # Once finished calculate have goalkeeper measure final success metrics
-        metrics = self.goalkeeper.calculate_metrics()
+        self.goalkeeper.set_metric('deployment_instance', self.scenario['deployment_instance'])
+        self.goalkeeper.set_metric('attacker', self.scenario['attacker'])
+        self.goalkeeper.set_metric('defender', self.scenario['defender']['type'])
 
-        now = datetime.now()
-        now_str = now.strftime("%Y-%m-%d_%H-%M-%S")
-        metrics_file = "metrics-" + now_str + ".json"
-        self.goalkeeper.save_metrics(metrics_file)
+        self.goalkeeper.calculate_metrics()
+        
+        self.goalkeeper.save_metrics()
         
         # Cleanup
         self.attacker.cleanup()
-        return metrics
+        return self.goalkeeper.metrics
 
     # Call if using an external stepper for the defender
     # Example: You want OpenAI gym to control the defender for learning a new policy
@@ -191,7 +196,7 @@ class EmulatorInteractive():
 
         for i in range(num):
             rprint(f"Starting attacker... {i+1}/{num}")
-            load = self.emulator.setup(self.emulator.config, self.emulator.scenario, already_deployed=True)
+            load = self.emulator.setup(self.emulator.config, self.emulator.scenario, use_snapshots=True)
             
             if load == 1: # Failed to load snapshots. Skip this run
                 error_count += 1
@@ -200,9 +205,7 @@ class EmulatorInteractive():
             
             metrics = self.emulator.run()
             print("Attacker finished!")
-            print("Metrics:")
-            rprint(metrics)
-            self.handle_save()
+            self.emulator.goalkeeper.print_metrics()
             print("Cleaning up attacker...")
             self.emulator.attacker.cleanup()
 
@@ -224,17 +227,14 @@ class EmulatorInteractive():
                 rprint(metrics)
 
 
-    def handle_save(self, args=[]):
-        now = datetime.now()
-        now_str = now.strftime("%Y-%m-%d_%H-%M-%S")
-        metrics_file = "metrics-" + now_str + ".json"
-        
-        if len(args) > 0:
-            metrics_file = args[0]
+    # def handle_save(self, args=[]):
+    #     metrics_file = None
+    #     if len(args) > 0:
+    #         metrics_file = args[0]
 
-        print(f"Saving metrics to {metrics_file}...")
-        self.emulator.goalkeeper.save_metrics(metrics_file)
-        print("Metrics saved!")
+    #     print(f"Saving metrics to {metrics_file}...")
+    #     self.emulator.goalkeeper.save_metrics(metrics_file)
+    #     print("Metrics saved!")
     
     def handle_help(self, args):
         if len(args) > 0:
@@ -265,12 +265,22 @@ if __name__ == "__main__":
     parser.add_argument('-i', '--interactive', help='Run emulator in interactive mode', action='store_true', default=False)
 
     parser.add_argument('-f', '--new-flags', help='INACTIVE. Create new flags for deployment. (saves new snapshots)', action='store_true', default=False)
-    parser.add_argument('-d', '--already-deployed', help='Already Deployed. Use images for setup instead', action='store_true', default=False)
-    # parser.add_argument('-t', '--test', help='placeholder', action='store_true', default=False)
+    parser.add_argument('-d', '--debug', help='(ALWAYS ON). debug mode', action='store_true', default=False)
+    
+    parser.add_argument('-S', '--use-snapshots', help='Use images for setup instead', action='store_true', default=False)
+    parser.add_argument('-N', '--no-deploy-network', help='Do not redeploy network topology', action='store_true', default=False)
+    
+    parser.add_argument('-t', '--test', help='placeholder', action='store_true', default=False)
     args = parser.parse_args()
 
     print(f"Starting emulator in {'' if args.interactive else 'non-'}interactive mode...")
 
+    if args.test:
+        console.log("Test mode")
+        for i in track(range(10), "test"):
+            console.log("test")
+            time.sleep(.1)
+        exit()
 
     # open yml config file
     with open(path.join('config', args.config), 'r') as f:
@@ -285,15 +295,15 @@ if __name__ == "__main__":
     
     if args.new_flags:
         rprint("This flag is currently inactive. Ignoring...")
+    if args.debug:
+        rprint("This flag is currently inactive. Debug mode always on. Ignoring...")
 
-    emulator.setup(config, scenario, already_deployed=args.already_deployed)
-    
+    emulator.setup(config, scenario, use_snapshots=args.use_snapshots, redeploy_network=(not args.no_deploy_network))
     emulator.run()
 
     # Print metrics
-    rprint(emulator.goalkeeper.metrics)
-    emulator.goalkeeper.save_metrics('metrics.json')
-
+    emulator.goalkeeper.print_metrics()
+    emulator.attacker.cleanup()
 
     if args.interactive:
         EmulatorInteractive(emulator).start_interactive_emulator()
