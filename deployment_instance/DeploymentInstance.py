@@ -145,9 +145,27 @@ class DeploymentInstance:
     def load_all_snapshots(self, wait=True):
         rprint("Loading all snapshots...")
         self._load_instances()
+        
+        # This is so that we do not try to load a snapshot while an instance is
+        # being rebuilt. 
+        waiting_for_rebuild = True
+        while waiting_for_rebuild:
+            waiting_for_rebuild = False
+            for instance in self.all_instances:
+                curr_instance = self.openstack_conn.get_server_by_id(instance.id)
+                if curr_instance.status == 'REBUILD':
+                    waiting_for_rebuild = True
+                    rprint(f"Instance {Fore.RED}{curr_instance.name}{Style.RESET_ALL} is being rebuilt. Waiting...")
+            if not waiting_for_rebuild:
+                rprint("All instances are ready to be rebuilt.")
+            else:
+                time.sleep(10)
+
+        # Load all snapshots
         for instance in self.all_instances:
             self.load_snapshot(instance.private_v4, instance.name + "_image")
         
+        # Wait for all instances to be active before doing anything else
         if wait:
             rprint("Waiting for all instances to be active...")
             all_active = False
@@ -166,7 +184,7 @@ class DeploymentInstance:
                             print("ERROR: Instance in error state. Aborting...")
                             return 1 ## Failure to load snapshots
 
-                time.sleep(10)
+                time.sleep(5)
         return 0
         # for instance in self.all_instances:
         #     curr_instance = self.openstack_conn.get_server_by_id(instance.id)
