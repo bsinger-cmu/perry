@@ -134,11 +134,11 @@ class Emulator:
         self.start_main_loop()
         self.goalkeeper.stop_execution_timer()
         # Once finished calculate have goalkeeper measure final success metrics
+        self.goalkeeper.calculate_metrics()
         self.goalkeeper.set_metric('deployment_instance', self.scenario['deployment_instance'])
         self.goalkeeper.set_metric('attacker', self.scenario['attacker'])
         self.goalkeeper.set_metric('defender', self.scenario['defender']['type'])
 
-        self.goalkeeper.calculate_metrics()
         
         self.goalkeeper.save_metrics()
         
