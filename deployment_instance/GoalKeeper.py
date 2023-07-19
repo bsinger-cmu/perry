@@ -1,3 +1,4 @@
+from datetime import datetime
 import time
 import json
 import os
@@ -44,6 +45,9 @@ class GoalKeeper:
             if flag_value == flag:
                 return host
         return None
+    
+    def set_metric(self, metric_name, metric_value):
+        self.metrics[metric_name] = metric_value
 
     def calculate_metrics(self):
         # TODO: Make this an object
@@ -92,9 +96,16 @@ class GoalKeeper:
 
         return self.metrics
     
-    def save_metrics(self, file_name):
-        with open(os.path.join('results', file_name), 'w') as f:
+    def save_metrics(self, file_name=None):
+        metrics_file = file_name
+        if file_name is None:
+            now = datetime.now()
+            now_str = now.strftime("%Y-%m-%d_%H-%M-%S")
+            metrics_file = "metrics-" + now_str + ".json"
+        rprint(f"Saving metrics to {metrics_file}...")
+        with open(os.path.join('metrics', metrics_file), 'w') as f:
             json.dump(self.metrics, f)
+        print("Metrics saved.")
 
     def print_metrics(self):
         print("Metrics:")
