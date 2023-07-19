@@ -9,38 +9,51 @@ import time
                 
 class TwoPathInstance(DeploymentInstance):
 
-    def setup(self, already_deployed=False):
+    def setup(self, use_snapshots=False, redeploy_network=False, new_flags=False):
         # Setup topology
-        if not already_deployed:
-            destroy_network('two_path_network')
-            deploy_network('two_path_network')
-            time.sleep(5)
+        if not use_snapshots:
+            if redeploy_network:
+                print("Redeploying network...")
+                destroy_network('two_path_network')
+                deploy_network('two_path_network')
+                time.sleep(5)
 
-        # Update management ip for new network
-        # TODO have management server be fixed, and only deploy instance servers
-        self.find_management_server()
-        self.orchestrator.deployment.check_host_liveness('192.168.200.3')
-        time.sleep(3)
+            # Update management ip for new network
+            # TODO have management server be fixed, and only deploy instance servers
+            self.find_management_server()
+            self.orchestrator.deployment.check_host_liveness('192.168.200.3')
+            time.sleep(3)
 
-        # Install ubuntu users on all servers
-        self.orchestrator.common.create_user('192.168.200.3', 'ubuntu', 'ubuntu')
-        self.orchestrator.common.create_user('192.168.201.3', 'ubuntu', 'ubuntu')
-        self.orchestrator.common.create_user('192.168.202.3', 'ubuntu', 'ubuntu')
-        self.orchestrator.common.create_user('192.168.203.3', 'ubuntu', 'ubuntu')
+            # Install ubuntu users on all servers
+            self.orchestrator.common.create_user('192.168.200.3', 'ubuntu', 'ubuntu')
+            self.orchestrator.common.create_user('192.168.201.3', 'ubuntu', 'ubuntu')
+            self.orchestrator.common.create_user('192.168.202.3', 'ubuntu', 'ubuntu')
+            self.orchestrator.common.create_user('192.168.203.3', 'ubuntu', 'ubuntu')
 
-        # # Install SysFlow
-        # params = {'host': '192.168.200.3'}
-        # r = self.ansible_runner.run_playbook('defender/sysflow/install_sysflow.yml', playbook_params=params)
-        # params = {'host': '192.168.201.3'}
-        # r = self.ansible_runner.run_playbook('defender/sysflow/install_sysflow.yml', playbook_params=params)
-        # params = {'host': '192.168.202.3'}
-        # r = self.ansible_runner.run_playbook('defender/sysflow/install_sysflow.yml', playbook_params=params)
-        # params = {'host': '192.168.203.3'}
-        # r = self.ansible_runner.run_playbook('defender/sysflow/install_sysflow.yml', playbook_params=params)
+            # # Install SysFlow
+            # params = {'host': '192.168.200.3'}
+            # r = self.ansible_runner.run_playbook('defender/sysflow/install_sysflow.yml', playbook_params=params)
+            # params = {'host': '192.168.201.3'}
+            # r = self.ansible_runner.run_playbook('defender/sysflow/install_sysflow.yml', playbook_params=params)
+            # params = {'host': '192.168.202.3'}
+            # r = self.ansible_runner.run_playbook('defender/sysflow/install_sysflow.yml', playbook_params=params)
+            # params = {'host': '192.168.203.3'}
+            # r = self.ansible_runner.run_playbook('defender/sysflow/install_sysflow.yml', playbook_params=params)
 
-        # Enable vulnerability on flag and attacker server
-        self.orchestrator.vulns.add_sshEnablePasswordLogin('192.168.200.3')
-        self.orchestrator.vulns.add_sshEnablePasswordLogin('192.168.203.3')
+            # Enable vulnerability on flag and attacker server
+            self.orchestrator.vulns.add_sshEnablePasswordLogin('192.168.200.3')
+            self.orchestrator.vulns.add_sshEnablePasswordLogin('192.168.203.3')
+        
+        else:
+            load = self.load_all_snapshots()
+            if load == 1: ## Failure to load snapshots
+                return load
+            time.sleep(10)
+
+        ## NOTE:
+        # Will be changed for each run of the experiment.
+        # Move under if statement if you want it to be part of the snapshot
+
 
         # Randomly choose A or B server to be vulnerable
         coin_flip = random.randint(0,1)
