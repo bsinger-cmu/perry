@@ -23,5 +23,8 @@ progress = Progress(
     TimeElapsedColumn(),
     console=console,
     refresh_per_second=10,
+    redirect_stderr=True,
+    redirect_stdout=True,
+    expand=True,
     # transient=True,
 )

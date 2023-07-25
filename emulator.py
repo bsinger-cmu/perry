@@ -193,49 +193,45 @@ class EmulatorInteractive():
         all_metrics = []
         complete_count = 0
         error_count = 0
+        emulator_task = progress.add_task("[green]Running Experiment", start=False, total=num)
 
-        for i in range(num):
-            rprint(f"Starting attacker... {i+1}/{num}")
-            load = self.emulator.setup(self.emulator.config, self.emulator.scenario, use_snapshots=True)
-            
-            if load == 1: # Failed to load snapshots. Skip this run
-                error_count += 1
-                all_metrics.append((i, None))
-                continue
-            
-            metrics = self.emulator.run()
-            print("Attacker finished!")
-            self.emulator.goalkeeper.print_metrics()
-            print("Cleaning up attacker...")
-            self.emulator.attacker.cleanup()
+        with progress:
+            progress.start_task(emulator_task)
+            for i in range(num):
+                rprint(f"Starting attacker... {i+1}/{num}")
+                load = self.emulator.setup(self.emulator.config, self.emulator.scenario, use_snapshots=True)
+                
+                if load == 1: # Failed to load snapshots. Skip this run
+                    error_count += 1
+                    all_metrics.append((i, None))
+                    continue
+                
+                metrics = self.emulator.run()
+                print("Attacker finished!")
+                self.emulator.goalkeeper.print_metrics()
+                print("Cleaning up attacker...")
+                self.emulator.attacker.cleanup()
 
-            all_metrics.append((i, metrics))
-            complete_count += 1
+                all_metrics.append((i, metrics))
+                complete_count += 1
+                progress.advance(emulator_task)
+
+        progress.remove_task(emulator_task)
         
         # Print metrics for multiple runs
-        # if num > 1:
-        # print(f"Ran attacker {num} times\nTimes to completion: {complete_count}\nTimes fatal exit: {error_count}")
-        print(f"Ran attacker {num} times\nTimes {Fore.GREEN}to completion: {Style.RESET_ALL}{complete_count}\nTimes {Fore.RED}fatal exit:{Style.RESET_ALL} {error_count}")
         for j in range(num):
             metrics = all_metrics[j][1]
             if metrics is None:
-                # print(f"Run {j+1}: Failed to load snapshots")
                 print(f"Run {j+1}: {Fore.RED}Failed to load snapshots{Style.RESET_ALL}")
             else:
-                # print(f"Run {j+1}: Ran to completion")
                 print(f"Run {j+1}: {Fore.GREEN}Ran to completion{Style.RESET_ALL}")
                 rprint(metrics)
 
+        print(f"Total number of experiments runs:         {num}")
+        print(f"Times {Fore.GREEN}to completion:          {Style.RESET_ALL}{complete_count}")
+        print(f"Times {Fore.RED}failed to load snapshots: {Style.RESET_ALL}{error_count}")
 
-    # def handle_save(self, args=[]):
-    #     metrics_file = None
-    #     if len(args) > 0:
-    #         metrics_file = args[0]
 
-    #     print(f"Saving metrics to {metrics_file}...")
-    #     self.emulator.goalkeeper.save_metrics(metrics_file)
-    #     print("Metrics saved!")
-    
     def handle_help(self, args):
         if len(args) > 0:
             print("Extra arguments found. Ignoring...")
@@ -276,10 +272,14 @@ if __name__ == "__main__":
     print(f"Starting emulator in {'' if args.interactive else 'non-'}interactive mode...")
 
     if args.test:
-        console.log("Test mode")
-        for i in track(range(10), "test"):
-            console.log("test")
-            time.sleep(.1)
+        task1 = progress.add_task("[red]Downloading...", start=False, total=10)
+        with progress:
+            progress.start_task(task1)
+            while not progress.finished:
+                progress.update(task1, advance=1)
+                print("test")
+                time.sleep(0.2)
+        progress.remove_task(task1)
         exit()
 
     # open yml config file

@@ -15,6 +15,7 @@ class OpenstackResetter():
         print(f"[RESET ({self.current_index}/{self.total_items})]\t({index}/{total})\t{message}...")
 
     def list_all(self):
+        print(">---        Listing Openstack        ---<")
         self.initialize_lists()
         self.list_instances()
         self.list_floating_ips()
@@ -23,6 +24,8 @@ class OpenstackResetter():
         self.list_subnets()
         self.list_networks()
         self.list_sec_groups()
+        print(f"TOTAL ITEMS = {self.total_items}")
+        print(">---            Finished!            ---<")
 
     def reset(self):
         print(">---       Resetting Openstack       ---<")
