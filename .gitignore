@@ -138,3 +138,5 @@ dmypy.json
 clouds.yaml
 
 temp_flags/
+results/
+metrics/

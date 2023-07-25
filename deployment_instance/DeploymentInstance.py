@@ -184,7 +184,7 @@ class DeploymentInstance:
                             print("ERROR: Instance in error state. Aborting...")
                             return 1 ## Failure to load snapshots
 
-                time.sleep(5)
+                time.sleep(7)
         return 0
         # for instance in self.all_instances:
         #     curr_instance = self.openstack_conn.get_server_by_id(instance.id)
