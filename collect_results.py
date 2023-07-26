@@ -111,6 +111,10 @@ class Collector():
         root_flags_captured_count = {}
         total_time = sum([data['experiment_time'] for data in self.filtered_files])
 
+        total_host_restores = sum([data['total_host_restores'] for data in self.filtered_files])
+        average_host_restores = round(total_host_restores / total_experiments, 2)
+        total_restores_per_host = { }
+
         for data in self.filtered_files:
             num_flags_captured = len(set(data['flags_captured']))
             num_root_flags_captured = len(set(data['root_flags_captured']))
@@ -124,9 +128,18 @@ class Collector():
                 root_flags_captured_count[num_root_flags_captured] = 1
             else:
                 root_flags_captured_count[num_root_flags_captured] += 1
-
+            
+            for host, count in data['count_host_restores'].items():
+                if host not in total_restores_per_host:
+                    total_restores_per_host[host] = count
+                else:
+                    total_restores_per_host[host] += count
+            
         flags_captured_count = dict(sorted(flags_captured_count.items()))
         root_flags_captured_count = dict(sorted(root_flags_captured_count.items()))
+        total_restores_per_host = dict(sorted(total_restores_per_host.items()))
+        average_restores_per_host = { host: round(count / total_experiments, 2) for host, count in total_restores_per_host.items() }
+        average_restores_per_host = dict(sorted(average_restores_per_host.items()))
 
         print("")
         print("*"*80)
@@ -179,6 +192,20 @@ class Collector():
         print("Root Flags Captured Count:")
         for num_flags_captured, count in root_flags_captured_count.items():
             print(f"\t{num_flags_captured} Flags: {count:<5} times ({round(count/total_experiments*100,2)}%)")
+
+        if total_host_restores > 0:
+            print("")
+            print(f"Total Restores:   {total_host_restores}")
+            print(f"Average Restores:   {average_host_restores}")
+            print("")
+            print("Total Restores Per Host:")
+            for host, count in total_restores_per_host.items():
+                print(f"\t{host}: {count} restores")
+            print("")
+            print("Average Restores Per Host:")
+            for host, count in average_restores_per_host.items():
+                print(f"\t{host}: {count} restores")
+        
         print("")
         print("*"*80)
         print("")
