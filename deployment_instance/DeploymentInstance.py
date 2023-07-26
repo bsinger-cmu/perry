@@ -5,6 +5,7 @@ from deployment_instance.topology_orchestrator import deploy_network, destroy_ne
 from deployment_instance.MasterOrchestrator import MasterOrchestrator
 from colorama import Fore, Style
 from rich import print as rprint
+from openstack.connection import Connection
 
 public_ip = '10.20.20'
 # Finds management server that can be used to talk to other servers
@@ -21,11 +22,13 @@ def find_manage_server(conn):
 class DeploymentInstance:
     def __init__(self, ansible_runner, openstack_conn, caldera_ip):
         self.ansible_runner = ansible_runner
-        self.openstack_conn = openstack_conn
+        self.openstack_conn: Connection = openstack_conn
         self.ssh_key_path = './environment/ssh_keys/'
         self.caldera_ip = caldera_ip
         self.orchestrator = MasterOrchestrator(self.ansible_runner)
         self.all_instances = None
+
+        self.hosts = {}
 
         self.flags = {}
         self.root_flags = {}
@@ -161,6 +164,21 @@ class DeploymentInstance:
             else:
                 time.sleep(10)
 
+        waiting_for_active = True
+        while waiting_for_active:
+            waiting_for_active = False
+            for instance in self.all_instances:
+                curr_instance = self.openstack_conn.get_server_by_id(instance.id)
+                if curr_instance.status == "SHUTOFF":
+                    waiting_for_active = True
+                    rprint(f"Starting instance {Fore.RED}{curr_instance.name}{Style.RESET_ALL}...")
+
+                    task_state = curr_instance.task_state
+                    if not task_state:
+                        self.openstack_conn.compute.start_server(curr_instance.id)
+                    else:
+                        rprint(f"Instance {curr_instance.name} has task_state {task_state}. Skipping for now...")
+
         # Load all snapshots
         for instance in self.all_instances:
             self.load_snapshot(instance.private_v4, instance.name + "_image")
@@ -177,8 +195,9 @@ class DeploymentInstance:
                     if curr_instance:
                         all_active = all_active and curr_instance.status == 'ACTIVE'
                         color = Fore.GREEN if curr_instance.status == 'ACTIVE' else Fore.RED
+                        color = Fore.YELLOW if curr_instance.status == 'REBUILD' else color
+
                         print(f"{color}{curr_instance.status:<12}{Style.RESET_ALL}{curr_instance.name}")
-                        
                         
                         if curr_instance.status == 'ERROR':
                             print("ERROR: Instance in error state. Aborting...")
