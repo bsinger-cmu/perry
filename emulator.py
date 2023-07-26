@@ -33,6 +33,7 @@ class Emulator:
     def __init__(self):
         # Initialize connection
         self.openstack_conn = openstack.connect(cloud='default')
+
         self.scenario = None
         self.config = None
         
@@ -139,11 +140,17 @@ class Emulator:
         self.goalkeeper.set_metric('attacker', self.scenario['attacker'])
         self.goalkeeper.set_metric('defender', self.scenario['defender']['type'])
 
+        self.goalkeeper.metrics = self.goalkeeper.metrics | self.defender.metrics
         
-        self.goalkeeper.save_metrics()
-        
+        print("Attacker finished!")
+        self.goalkeeper.print_metrics()
         # Cleanup
+        
+        print("Cleaning up attacker...")
         self.attacker.cleanup()
+
+        print("Saving metrics...")
+        self.goalkeeper.save_metrics()
         return self.goalkeeper.metrics
 
     # Call if using an external stepper for the defender
@@ -207,11 +214,7 @@ class EmulatorInteractive():
                     continue
                 
                 metrics = self.emulator.run()
-                print("Attacker finished!")
-                self.emulator.goalkeeper.print_metrics()
-                print("Cleaning up attacker...")
-                self.emulator.attacker.cleanup()
-
+                
                 all_metrics.append((i, metrics))
                 complete_count += 1
                 progress.advance(emulator_task)
@@ -271,16 +274,6 @@ if __name__ == "__main__":
 
     print(f"Starting emulator in {'' if args.interactive else 'non-'}interactive mode...")
 
-    if args.test:
-        task1 = progress.add_task("[red]Downloading...", start=False, total=10)
-        with progress:
-            progress.start_task(task1)
-            while not progress.finished:
-                progress.update(task1, advance=1)
-                print("test")
-                time.sleep(0.2)
-        progress.remove_task(task1)
-        exit()
 
     # open yml config file
     with open(path.join('config', args.config), 'r') as f:
@@ -292,6 +285,12 @@ if __name__ == "__main__":
 
 
     emulator = Emulator()
+    
+    if args.test:
+        servers = emulator.openstack_conn.list_servers(filters={"status": "SHUTOFF"})
+        print(servers[0].task_state)
+        emulator.openstack_conn.compute.start_server(servers[0].id)
+        exit()
     
     if args.new_flags:
         rprint("This flag is currently inactive. Ignoring...")
