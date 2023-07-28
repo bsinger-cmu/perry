@@ -19,14 +19,16 @@ class Filters:
         self.filters = []
         self.condition_classes = {
             "eq": self.Equals,
-            "neq": self.NotEquals
+            "neq": self.NotEquals,
+            "dne": self.DoesNotExist,
         }
     
     # Add a filter to the list of filters
     def add_filter(self, filter_str):
         key, filter_type, value = filter_str.split(":")
         if filter_type not in self.condition_classes:
-            raise Exception(f"Filter type {filter_type} not supported.")
+            print(f"Filter type '{filter_type}' not supported.")
+            raise Exception("Filter type not supported.")
         
         condition_class = self.condition_classes[filter_type]
         self.filters.append(condition_class(key, value))
@@ -50,25 +52,30 @@ class Filters:
 
     class Equals(Condition):
         def check(self, data):
-            return data[self.key] == self.value
+            return self.key in data.keys() and data[self.key] == self.value
 
     class NotEquals(Condition):
         def check(self, data):
-            return data[self.key] != self.value
+            return self.key in data.keys() and data[self.key] != self.value
+    
+    class DoesNotExist(Condition):
+        def check(self, data):
+            return self.key not in data.keys()
 
 
 class Collector():
-    def __init__(self, start_datetime, end_datetime, root_dir="metrics", out_dir="results"):
-        self.root_dir = root_dir
-        self.out_dir = out_dir
+    def __init__(self, start_datetime, end_datetime, search_dir="metrics", output_dir="results"):
+        self.search_dir = search_dir
+        self.output_dir = output_dir
         self.start_datetime = start_datetime
         self.end_datetime = end_datetime
         
         self.files = []
+        self.filtered_file_names = []
         self.filtered_files = []
 
     def collect_files(self):
-        for file in os.listdir(self.root_dir):
+        for file in os.listdir(self.search_dir):
             if file.endswith(".json") and file.startswith("metrics-"):
                 date_str = file.split("metrics-")[1].split(".json")[0]
                 date = datetime.strptime(date_str, "%Y-%m-%d_%H-%M-%S")
@@ -77,12 +84,23 @@ class Collector():
 
     def filter_files(self, conditions):
         for file in self.files:
-            with open(f"{self.root_dir}/{file}", 'r') as f:
+            with open(f"{self.search_dir}/{file}", 'r') as f:
                 data = json.load(f)
                 if filters.check_all(data):
                     self.filtered_files.append(data)
-    
+                    self.filtered_file_names.append(file.split(".json")[0])
+        self.filtered_file_names.sort()
+        print(f"Filtered {len(self.files)} files down to {len(self.filtered_files)} files.")
+        if len(self.filtered_file_names) > 0:
+            print(f"From {self.filtered_file_names[0]} to {self.filtered_file_names[-1]}")
+        # for file in self.filtered_file_names:
+        #     print(f"\t{file}")
+
     def _export_csv(self, filename):
+        if len(self.filtered_files) == 0:
+            print("No files to export.")
+            return
+        
         with open(filename, 'w') as f:
             writer = csv.DictWriter(f, fieldnames=self.filtered_files[0].keys())
             writer.writeheader()
@@ -93,12 +111,16 @@ class Collector():
         filetype = filename.split(".")[-1]
 
         if filetype == "csv":
-            self._export_csv(f"{self.out_dir}/{filename}")
+            self._export_csv(f"{self.output_dir}/{filename}")
         else:
             raise Exception(f"File type {filetype} not supported.")
     
     def print_experiment_metrics(self):
         total_experiments   = len(self.filtered_files)
+        if total_experiments == 0:
+            print("No experiments to print metrics for.")
+            return
+        
         avg_experiment_time = round(sum([data['experiment_time'] for data in self.filtered_files]) / len(self.filtered_files), 2)
         avg_execution_time  = round(sum([data['execution_time'] for data in self.filtered_files]) / len(self.filtered_files), 2)
         avg_setup_time      = round(sum([data['setup_time'] for data in self.filtered_files]) / len(self.filtered_files), 2)
@@ -111,9 +133,8 @@ class Collector():
         root_flags_captured_count = {}
         total_time = sum([data['experiment_time'] for data in self.filtered_files])
 
-        total_host_restores = sum([data['total_host_restores'] for data in self.filtered_files])
-        average_host_restores = round(total_host_restores / total_experiments, 2)
         total_restores_per_host = { }
+        total_host_restores = 0
 
         for data in self.filtered_files:
             num_flags_captured = len(set(data['flags_captured']))
@@ -129,17 +150,23 @@ class Collector():
             else:
                 root_flags_captured_count[num_root_flags_captured] += 1
             
-            for host, count in data['count_host_restores'].items():
-                if host not in total_restores_per_host:
-                    total_restores_per_host[host] = count
-                else:
-                    total_restores_per_host[host] += count
+            if 'count_host_restores' in data:
+                for host, count in data['count_host_restores'].items():
+                    if host not in total_restores_per_host:
+                        total_restores_per_host[host] = count
+                    else:
+                        total_restores_per_host[host] += count
             
+        
         flags_captured_count = dict(sorted(flags_captured_count.items()))
         root_flags_captured_count = dict(sorted(root_flags_captured_count.items()))
-        total_restores_per_host = dict(sorted(total_restores_per_host.items()))
-        average_restores_per_host = { host: round(count / total_experiments, 2) for host, count in total_restores_per_host.items() }
-        average_restores_per_host = dict(sorted(average_restores_per_host.items()))
+        
+        if len(total_restores_per_host.items()) > 0:
+            total_host_restores = sum([data['total_host_restores'] for data in self.filtered_files])
+            average_host_restores = round(total_host_restores / total_experiments, 2)
+            total_restores_per_host = dict(sorted(total_restores_per_host.items()))
+            average_restores_per_host = { host: round(count / total_experiments, 2) for host, count in total_restores_per_host.items() }
+            average_restores_per_host = dict(sorted(average_restores_per_host.items()))
 
         print("")
         print("*"*80)
@@ -209,15 +236,21 @@ class Collector():
         print("")
         print("*"*80)
         print("")
-        # console.save_svg(f"{self.out_dir}/metrics.svg")
+        # console.save_svg(f"{self.output_dir}/metrics.svg")
         
 
 if __name__ == "__main__":
     argparser = argparse.ArgumentParser()
     argparser.add_argument('-s', '--start-datetime', help='Start of time range to collect files', required=False, default=datetime.min)
     argparser.add_argument('-e', '--end-datetime', help='End of time range to collect files', required=False, default=datetime.max)
+    
     argparser.add_argument('-o', '--output', help='Output file to save results to', required=False, default="results.csv")
     argparser.add_argument('-f', '--filters', help='Filters to apply to collected files', required=False, nargs='*')
+    
+    argparser.add_argument('-d', '--subdir', help='Search a specific subdirectory', required=False)
+    argparser.add_argument('-r', '--rootdir', help='Search a specific root directory', required=False, default="metrics")
+
+    argparser.add_argument('-v', '--verbose', help='Verbose output', required=False, action='store_true', default=False)
 
     args = argparser.parse_args()
 
@@ -234,9 +267,28 @@ if __name__ == "__main__":
     filters = Filters()
     if args.filters:
         filters.add_all_filters(args.filters)
-    
-    result_collector = Collector(start_datetime, end_datetime)
+
+
+    search_dir = args.rootdir
+    output_dir = "results"
+
+    if args.subdir:
+        search_dir = os.path.join(args.rootdir, args.subdir)
+        output_dir = os.path.join(output_dir, args.subdir)
+
+    # Check tthat the directory exists
+    if not os.path.isdir(search_dir):
+        raise Exception(f"Directory {search_dir} does not exist.")
+
+    if not os.path.isdir(output_dir):
+        os.mkdir(output_dir)
+
+    print(f"Will search directory '{search_dir}' for files between {start_datetime} and {end_datetime}...")
+    print(f"Will save results to '{output_dir}/{args.output}'...")
+
+    result_collector = Collector(start_datetime, end_datetime, search_dir, output_dir)
     result_collector.collect_files()
     result_collector.filter_files(filters)
     result_collector.export_file(args.output)
-    result_collector.print_experiment_metrics()
+    if args.verbose:
+        result_collector.print_experiment_metrics()
