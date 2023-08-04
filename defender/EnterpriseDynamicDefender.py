@@ -4,7 +4,7 @@ from .Defender import Defender
 from .capabilities import StartHoneyService, ShutdownServer, RestoreServer, DeployDecoy
 from .telemetry import SimpleTelemetryAnalysis
 
-class EnterpriseWaitAndSpotDefender(Defender):
+class EnterpriseDynamicDefender(Defender):
 
     def __init__(self, ansible_runner, openstack_conn, elasticsearch_conn, external_ip, elasticsearch_port, elasticsearch_api_key, arsenal):
         super().__init__(ansible_runner, openstack_conn, elasticsearch_conn, external_ip, elasticsearch_port, elasticsearch_api_key, arsenal)
@@ -13,10 +13,14 @@ class EnterpriseWaitAndSpotDefender(Defender):
         self.metrics = {
             'total_host_restores': 0,
             'count_host_restores': {},
+            'total_decoy_deployments': 0,
         }
 
+        self.decoy_info = {'network': 'datacenter_network', 'server': 'decoy_', 'sec_group': 'datacenter'}
+        self.decoys = 0
+
     def start(self):
-        print("Starting EnterpriseWaitAndSpotDefender")
+        print("Starting EnterpriseDynamicDefender")
         self.deploy_telemetry()
         return
     
@@ -27,6 +31,7 @@ class EnterpriseWaitAndSpotDefender(Defender):
             StartHoneyService('192.168.200.5'),
             StartHoneyService('192.168.200.6'),
             # StartHoneyService('192.168.201.3', port="4444", service="telnet"),
+            # StartHoneyService('192.168.201.3', port="21", service="ftp"),
         ]
         
         self.orchestrator.run(actions)
@@ -34,24 +39,38 @@ class EnterpriseWaitAndSpotDefender(Defender):
     
     def run(self):
         new_events = self.telemetry_analysis.process_low_level_events()
-        actions_to_execute = []
+        hosts_to_restore = []
+        decoys_to_deploy = []
+
         ips_to_shutdown = set()
+        deploy_decoy = False
 
         for event in new_events:
             attacker_ip = event.attacker_ip
+            print(f'Attacker found on {attacker_ip}, preparing to restore host.')
             # actions_to_execute.append(ShutdownServer(attacker_ip))
             ips_to_shutdown.add(attacker_ip)
-            print(f"new event found on {attacker_ip}")
+            deploy_decoy =  True
 
         for ip in ips_to_shutdown:
-            print(f'Attacker found on {ip}, restoring host...')
-            actions_to_execute.append(RestoreServer(ip))
+            hosts_to_restore.append(RestoreServer(ip))
             self.metrics['total_host_restores'] += 1
             if ip in self.metrics['count_host_restores']:
                 self.metrics['count_host_restores'][ip] += 1
             else:
                 self.metrics['count_host_restores'][ip] = 1
 
-        self.orchestrator.run(actions_to_execute)
+        self.orchestrator.run(hosts_to_restore)
+
+        if deploy_decoy and self.decoys < 6:
+            for _ in range(0, 1):
+                self.decoys += 1
+                self.decoy_info['server'] += str(self.decoys)
+                self.metrics['total_decoy_deployments'] += 1
+
+                print(f"Deploying decoy {self.decoy_info['server']}")
+                decoys_to_deploy.append(DeployDecoy(**self.decoy_info))
+
+        self.orchestrator.run(decoys_to_deploy)
 
         return
