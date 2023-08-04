@@ -1,4 +1,8 @@
 import argparse
+from typing import NoReturn
+from prompt_toolkit import PromptSession
+from prompt_toolkit.history import FileHistory
+from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
 
 from AnsibleRunner import AnsibleRunner
 from deployment_instance import SimpleInstanceV1, GoalKeeper
@@ -36,7 +40,10 @@ class Emulator:
 
         self.scenario = None
         self.config = None
-        
+        self.output_subdir = None
+
+    def set_output_subdir(self, subdir):
+        self.output_subdir = subdir
 
     def setup(self, config, scenario, use_snapshots=False, new_flags=False, redeploy_network=True):
         # Setup connection to elasticsearch
@@ -49,6 +56,18 @@ class Emulator:
             verify_certs=False
         )
         # TODO DELETE ALL AGENTS
+
+        # Delete all decoy instances on openstack
+        all_servers = self.openstack_conn.list_servers()
+        deleted_decoys = False
+        for server in all_servers:
+            if 'decoy' in server.name:
+                print(f"Deleting decoy server: {server.name}")
+                self.openstack_conn.delete_server(server.id)
+                deleted_decoys = True
+        if deleted_decoys:
+            time.sleep(5)
+
         # Initialize ansible
         ssh_key_path = config['ssh_key_path']
         ansible_dir = './ansible/'
@@ -86,7 +105,6 @@ class Emulator:
         self.goalkeeper.set_flags(self.deployment_instance.flags)
         self.goalkeeper.set_root_flags(self.deployment_instance.root_flags)
 
-        self.goalkeeper.start_execution_timer()
         
         # Setup initial defender
         defender_ = getattr(defender_module, scenario['defender']['type'])
@@ -150,53 +168,77 @@ class Emulator:
         self.attacker.cleanup()
 
         print("Saving metrics...")
-        self.goalkeeper.save_metrics()
+        self.goalkeeper.save_metrics(subdir=self.output_subdir)
         return self.goalkeeper.metrics
 
     # Call if using an external stepper for the defender
     # Example: You want OpenAI gym to control the defender for learning a new policy
     def external_defender_steps(self, actions):
-        return self.defender.run(actions)    
+        return self.defender.run(actions)
 
+
+
+class ArgumentParser(argparse.ArgumentParser):
+    def error(self, message):
+        raise argparse.ArgumentError(message)
+
+    def exit(self, status: int = 0, message: str | None = None) -> NoReturn:
+        if status == 0:
+            return
+        print(status, message)
 
 class EmulatorInteractive():
-    def __init__(self, emulator):
+    def __init__(self, emulator, config=None, scenario=None):
         self.emulator = emulator
-        self.commands_desc = {
-            "exit": "exit emulator",
-            "help": "print this help message",
-            "run": "run attacker. \n\t-n <NUM> to run NUM times",
-        }
-        self.commands = {
-            "exit":     self.handle_exit,
-            "help":     self.handle_help,
-            "run":      self.handle_run,
-        }
-    
-    def print_help(self, args=[]):
-        if len(args) > 0:
-            print("Extra arguments found. Ignoring...")
-        print("Commands:")
-        for command in self.commands_desc:
-            rprint(f"{command}: {self.commands_desc[command]}")
-    
-    def handle_exit(self, args=[]):
-        if len(args) > 0:
-            print("Extra arguments found. Ignoring...")
-        print("Exiting emulator...")
-        exit()
+        self.config = config
+        self.scenario = scenario
 
-    def handle_run(self, args=[]):
-        if len(args) > 1:
-            print("Extra arguments found. Ignoring...")
-        num = 1
-        if "-n" in args:
-            if args.index("-n") + 1 >= len(args):
-                print("No number of runs specified. Ignoring...")
-            else:
-                num = int(args[args.index("-n") + 1])
-                rprint(f"Running attacker {num} times...")
+        self.session = PromptSession(history=FileHistory('.emulator_history'))
 
+        self.emulator_parser = ArgumentParser(prog="emulator", add_help=False, exit_on_error=False,)
+        subparsers = self.emulator_parser.add_subparsers()
+
+        run_parser = subparsers.add_parser('run', help='run the attacker')
+        run_parser.add_argument('-n', '--num', help='number of times to run attacker', type=int, default=1)
+        run_parser.set_defaults(func=self.handle_run)
+
+        help_parser = subparsers.add_parser('help', help='print help message')
+        help_parser.set_defaults(func=self.handle_help)
+
+        exit_parser = subparsers.add_parser('exit', help='exit emulator')
+        exit_parser.set_defaults(func=self.handle_exit)
+
+        setup_parser = subparsers.add_parser('setup', help='setup scenario')
+        setup_parser.add_argument('-c', '--config', help='Name of configuration file', required=True)
+        setup_parser.add_argument('-s', '--scenario', help='Name of scenario file', required=True)
+        setup_parser.add_argument('-S', '--use-snapshots', help='Use images for setup instead', action='store_true', default=True)
+        setup_parser.add_argument('-R', '--no-redeploy-network', help='Do not redeploy network topology', action='store_true', default=True)
+        setup_parser.add_argument('-o', '--output', help='Output subdir for metrics', default=None)
+        setup_parser.set_defaults(func=self.handle_setup)
+
+
+        # load_parser = subparsers.add_parser('load', help='load experiment instructions from file')
+
+
+    def handle_setup(self, args):
+        with open(path.join('config', config), 'r') as f:
+            config = yaml.safe_load(f)
+
+        # open yml config file
+        with open(path.join('scenarios', scenario), 'r') as f:
+            scenario = yaml.safe_load(f)
+
+        self.emulator.set_output_subdir(args.output)
+        self.emulator.setup(args.config, args.scenario, use_snapshots=args.use_snapshots, redeploy_network=(not args.no_redeploy_network))
+        return
+
+    def handle_run(self, args):
+        if self.emulator.config is None or self.emulator.scenario is None:
+            print("No config or scenario loaded. Run setup first")
+            return
+
+        num = args.num
+        rprint(f"Running attacker {num} times...")
         all_metrics = []
         complete_count = 0
         error_count = 0
@@ -233,76 +275,77 @@ class EmulatorInteractive():
         print(f"Total number of experiments runs:         {num}")
         print(f"Times {Fore.GREEN}to completion:          {Style.RESET_ALL}{complete_count}")
         print(f"Times {Fore.RED}failed to load snapshots: {Style.RESET_ALL}{error_count}")
+    
+    def handle_exit(self, _):
+        print("Exiting emulator...")
+        exit()
 
-
-    def handle_help(self, args):
-        if len(args) > 0:
-            print("Extra arguments found. Ignoring...")
-        self.print_help()
+    def handle_help(self, _):
+        self.emulator_parser.print_help()
 
     def start_interactive_emulator(self):
         print("Starting interactive emulator...")
         print("Type 'help' for a list of commands")
         while True:
-            user_input = input("emulator> ")
+            user_input = self.session.prompt("emulator> ", auto_suggest=AutoSuggestFromHistory())
 
             emulator_argv = user_input.split(" ")
-            command = emulator_argv[0]
 
-            if command in self.commands:
-                self.commands[command](emulator_argv[1:])
-            
-            else:
-                print("Command not recognized")
-                self.print_help()
+            try:
+                args = self.emulator_parser.parse_args(emulator_argv)
+                if not ('--help' in emulator_argv or '-h' in emulator_argv) and hasattr(args, 'func'):
+                    args.func(args)
+                    print()
+                    
+            except argparse.ArgumentError as e:
+                print(e)
+                self.emulator_parser.print_help()
         
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('-c', '--config', help='Name of configuration file', required=True)
-    parser.add_argument('-s', '--scenario', help='Name of scenario file', required=True)
+    parser.add_argument('-c', '--config', help='Name of configuration file', required=False)
+    parser.add_argument('-s', '--scenario', help='Name of scenario file', required=False)
+
     parser.add_argument('-i', '--interactive', help='Run emulator in interactive mode', action='store_true', default=False)
 
-    parser.add_argument('-f', '--new-flags', help='INACTIVE. Create new flags for deployment. (saves new snapshots)', action='store_true', default=False)
-    parser.add_argument('-d', '--debug', help='(ALWAYS ON). debug mode', action='store_true', default=False)
-    
+    parser.add_argument('-o', '--output', help='Output subdir for metrics', default=None)
+
     parser.add_argument('-S', '--use-snapshots', help='Use images for setup instead', action='store_true', default=False)
-    parser.add_argument('-N', '--no-deploy-network', help='Do not redeploy network topology', action='store_true', default=False)
+    parser.add_argument('-R', '--no-redeploy-network', help='Do not redeploy network topology', action='store_true', default=False)
     
     parser.add_argument('-t', '--test', help='placeholder', action='store_true', default=False)
+
+    parser.add_argument('-d', '--debug', help='(ALWAYS ON). debug mode', action='store_true', default=False)
     args = parser.parse_args()
 
     print(f"Starting emulator in {'' if args.interactive else 'non-'}interactive mode...")
-
-
-    # open yml config file
-    with open(path.join('config', args.config), 'r') as f:
-        config = yaml.safe_load(f)
-
-    # open yml config file
-    with open(path.join('scenarios', args.scenario), 'r') as f:
-        scenario = yaml.safe_load(f)
-
-
-    emulator = Emulator()
     
-    if args.test:
-        servers = emulator.openstack_conn.list_servers(filters={"status": "SHUTOFF"})
-        print(servers[0].task_state)
-        emulator.openstack_conn.compute.start_server(servers[0].id)
-        exit()
-    
-    if args.new_flags:
-        rprint("This flag is currently inactive. Ignoring...")
     if args.debug:
         rprint("This flag is currently inactive. Debug mode always on. Ignoring...")
 
-    emulator.setup(config, scenario, use_snapshots=args.use_snapshots, redeploy_network=(not args.no_deploy_network))
-    emulator.run()
+    # open yml config file
+    if args.config:
+        with open(path.join('config', args.config), 'r') as f:
+            config = yaml.safe_load(f)
 
-    # Print metrics
-    emulator.goalkeeper.print_metrics()
-    emulator.attacker.cleanup()
+    # open yml config file
+    if args.scenario:
+        with open(path.join('scenarios', args.scenario), 'r') as f:
+            scenario = yaml.safe_load(f)
+
+    emulator = Emulator()
 
     if args.interactive:
+        # emulator.setup(config, scenario, use_snapshots=args.use_snapshots, redeploy_network=(not args.no_redeploy_network))
+        emulator.scenario = scenario
+        emulator.config = config
         EmulatorInteractive(emulator).start_interactive_emulator()
+
+    else:
+        emulator.setup(config, scenario, use_snapshots=args.use_snapshots, redeploy_network=(not args.no_redeploy_network))
+        emulator.run()
+
+        # Print metrics
+        emulator.goalkeeper.print_metrics()
+        emulator.attacker.cleanup()
