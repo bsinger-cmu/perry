@@ -30,7 +30,7 @@ from os import path
 import yaml
 from elasticsearch import Elasticsearch
 
-from colorama import Fore, Style
+from colorama import Fore, Back, Style
 
 class Emulator:
 
@@ -180,12 +180,12 @@ class Emulator:
 
 class ArgumentParser(argparse.ArgumentParser):
     def error(self, message):
-        raise argparse.ArgumentError(message)
+        raise argparse.ArgumentError("ERROR", message)
 
     def exit(self, status: int = 0, message: str | None = None) -> NoReturn:
         if status == 0:
             return
-        print(status, message)
+        print("EXIT", status, message)
 
 class EmulatorInteractive():
     def __init__(self, emulator, config=None, scenario=None):
@@ -211,8 +211,8 @@ class EmulatorInteractive():
         setup_parser = subparsers.add_parser('setup', help='setup scenario')
         setup_parser.add_argument('-c', '--config', help='Name of configuration file', required=True)
         setup_parser.add_argument('-s', '--scenario', help='Name of scenario file', required=True)
-        setup_parser.add_argument('-S', '--use-snapshots', help='Use images for setup instead', action='store_true', default=True)
-        setup_parser.add_argument('-R', '--no-redeploy-network', help='Do not redeploy network topology', action='store_true', default=True)
+        setup_parser.add_argument('-S', '--use-snapshots', help='Use images for setup instead', action='store_true', default=False)
+        setup_parser.add_argument('-R', '--redeploy-network', help='Redeploy network topology', action='store_true', default=False)
         setup_parser.add_argument('-o', '--output', help='Output subdir for metrics', default=None)
         setup_parser.set_defaults(func=self.handle_setup)
 
@@ -229,7 +229,7 @@ class EmulatorInteractive():
             scenario = yaml.safe_load(f)
 
         self.emulator.set_output_subdir(args.output)
-        self.emulator.setup(args.config, args.scenario, use_snapshots=args.use_snapshots, redeploy_network=(not args.no_redeploy_network))
+        self.emulator.setup(args.config, args.scenario, use_snapshots=args.use_snapshots, redeploy_network=args.redeploy_network)
         return
 
     def handle_run(self, args):
@@ -240,23 +240,46 @@ class EmulatorInteractive():
         num = args.num
         rprint(f"Running attacker {num} times...")
         all_metrics = []
+        all_statuses = []
+
         complete_count = 0
         error_count = 0
+        exception_count = 0
         emulator_task = progress.add_task("[green]Running Experiment", start=False, total=num)
 
         with progress:
             progress.start_task(emulator_task)
             for i in range(num):
                 rprint(f"Starting attacker... {i+1}/{num}")
-                load = self.emulator.setup(self.emulator.config, self.emulator.scenario, use_snapshots=True)
                 
+                try:
+                    load = self.emulator.setup(self.emulator.config, self.emulator.scenario, use_snapshots=True)
+                except Exception as e:
+                    print(f"{Back.RED}Failed with exception:{Style.RESET_ALL}")
+                    print(e)
+                    error_count += 1
+                    exception_count += 1
+                    all_metrics.append((i, "Exception", e))
+                    progress.advance(emulator_task)
+                    continue
+
                 if load == 1: # Failed to load snapshots. Skip this run
                     error_count += 1
-                    all_metrics.append((i, None))
+                    print(f"{Fore.RED}Failed to load snapshots{Style.RESET_ALL}")
+                    all_metrics.append((i, "Error", "Failed to load snapshots"))
+                    progress.advance(emulator_task)
                     continue
                 
-                metrics = self.emulator.run()
-                
+                try:
+                    metrics = self.emulator.run()
+                except:
+                    print(f"{Back.RED}Failed with exception:{Style.RESET_ALL}")
+                    print(e)
+                    exception_count += 1
+                    all_metrics.append((i, "Exception", e))
+                    progress.advance(emulator_task)
+                    continue
+
                 all_metrics.append((i, metrics))
                 complete_count += 1
                 progress.advance(emulator_task)
@@ -266,15 +289,18 @@ class EmulatorInteractive():
         # Print metrics for multiple runs
         for j in range(num):
             metrics = all_metrics[j][1]
-            if metrics is None:
+            if metrics == "Error":
                 print(f"Run {j+1}: {Fore.RED}Failed to load snapshots{Style.RESET_ALL}")
+            elif metrics == "Exception":
+                print(f"Run {j+1}: {Back.RED}Failed with exception:{Style.RESET_ALL}\n{all_metrics[j][2]}")
             else:
                 print(f"Run {j+1}: {Fore.GREEN}Ran to completion{Style.RESET_ALL}")
                 rprint(metrics)
 
-        print(f"Total number of experiments runs:         {num}")
-        print(f"Times {Fore.GREEN}to completion:          {Style.RESET_ALL}{complete_count}")
-        print(f"Times {Fore.RED}failed to load snapshots: {Style.RESET_ALL}{error_count}")
+        print(f"Total number of experiments runs:     {num}")
+        print(f"Times {Fore.GREEN}to completion:                  {Style.RESET_ALL}{complete_count}")
+        print(f"Times {Fore.RED}failed to load snapshots:       {Style.RESET_ALL}{error_count}")
+        print(f"Times {Back.RED}failed with exception:          {Style.RESET_ALL}{exception_count}")
     
     def handle_exit(self, _):
         print("Exiting emulator...")
@@ -309,10 +335,10 @@ if __name__ == "__main__":
 
     parser.add_argument('-i', '--interactive', help='Run emulator in interactive mode', action='store_true', default=False)
 
-    parser.add_argument('-o', '--output', help='Output subdir for metrics', default=None)
+    parser.add_argument('-o', '--output', help='Output subdir in metrics dir', default=None)
 
     parser.add_argument('-S', '--use-snapshots', help='Use images for setup instead', action='store_true', default=False)
-    parser.add_argument('-R', '--no-redeploy-network', help='Do not redeploy network topology', action='store_true', default=False)
+    parser.add_argument('-R', '--redeploy-network', help='Redeploy network topology', action='store_true', default=False)
     
     parser.add_argument('-t', '--test', help='placeholder', action='store_true', default=False)
 
@@ -336,14 +362,19 @@ if __name__ == "__main__":
 
     emulator = Emulator()
 
+    if args.output:
+        emulator.set_output_subdir(args.output)
+
     if args.interactive:
-        # emulator.setup(config, scenario, use_snapshots=args.use_snapshots, redeploy_network=(not args.no_redeploy_network))
+        if (not args.use_snapshots):
+            emulator.setup(config, scenario, use_snapshots=args.use_snapshots, redeploy_network=args.redeploy_network)
+        
         emulator.scenario = scenario
         emulator.config = config
         EmulatorInteractive(emulator).start_interactive_emulator()
 
     else:
-        emulator.setup(config, scenario, use_snapshots=args.use_snapshots, redeploy_network=(not args.no_redeploy_network))
+        emulator.setup(config, scenario, use_snapshots=args.use_snapshots, redeploy_network=args.redeploy_network)
         emulator.run()
 
         # Print metrics
