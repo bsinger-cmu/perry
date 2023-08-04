@@ -156,7 +156,7 @@ class DeploymentInstance:
             waiting_for_rebuild = False
             for instance in self.all_instances:
                 curr_instance = self.openstack_conn.get_server_by_id(instance.id)
-                if curr_instance.status == 'REBUILD':
+                if curr_instance and curr_instance.status == 'REBUILD':
                     waiting_for_rebuild = True
                     print(f"Instance {Fore.RED}{curr_instance.name}{Style.RESET_ALL} is being rebuilt. Waiting...")
             if not waiting_for_rebuild:
