@@ -140,3 +140,4 @@ clouds.yaml
 temp_flags/
 results/
 metrics/
+.emulator_history
