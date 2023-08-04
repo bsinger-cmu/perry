@@ -26,6 +26,7 @@ class EnterpriseWaitAndSpotDefender(Defender):
             StartHoneyService('192.168.200.3'),
             StartHoneyService('192.168.200.5'),
             StartHoneyService('192.168.200.6'),
+            StartHoneyService('192.168.201.3'),
             # StartHoneyService('192.168.201.3', port="4444", service="telnet"),
         ]
         
@@ -47,6 +48,7 @@ class EnterpriseWaitAndSpotDefender(Defender):
             print(f'Attacker found on {ip}, restoring host...')
             actions_to_execute.append(RestoreServer(ip))
             self.metrics['total_host_restores'] += 1
+            print(f"Restoring host {ip}")
             if ip in self.metrics['count_host_restores']:
                 self.metrics['count_host_restores'][ip] += 1
             else:

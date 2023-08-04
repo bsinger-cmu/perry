@@ -98,15 +98,6 @@ class EnterpriseInstance(DeploymentInstance):
         # Execute Processes
         # self.orchestrator.vulns.run_vsftpdBackdoor('192.168.200.5')
 
-        # Check Flags
-        # self.orchestrator.common.check_file('192.168.200.4', '/home/ceo/flag.txt')
-        # self.orchestrator.common.check_file('192.168.200.5', '/home/finance/flag.txt')
-        # self.orchestrator.common.check_file('192.168.201.3', '/home/database/flag.txt')
-        # self.orchestrator.common.check_file('192.168.200.4', '/root/flag.txt')
-        # self.orchestrator.common.check_file('192.168.200.5', '/root/flag.txt')
-        # self.orchestrator.common.check_file('192.168.201.3', '/root/flag.txt')
-        
-        
         # Setup attacker on intern machine
         self.orchestrator.attacker.install_attacker('192.168.200.7', 'intern', self.caldera_ip)
 
