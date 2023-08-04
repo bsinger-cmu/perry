@@ -96,14 +96,20 @@ class GoalKeeper:
 
         return self.metrics
     
-    def save_metrics(self, file_name=None):
+    def save_metrics(self, file_name=None, subdir=None):
         metrics_file = file_name
         if file_name is None:
             now = datetime.now()
             now_str = now.strftime("%Y-%m-%d_%H-%M-%S")
             metrics_file = "metrics-" + now_str + ".json"
+            
+        if subdir is not None:
+            metrics_file = os.path.join('metrics', subdir, metrics_file)
+        else:
+            metrics_file = os.path.join('metrics', metrics_file)
+
         rprint(f"Saving metrics to {metrics_file}...")
-        with open(os.path.join('metrics', metrics_file), 'w') as f:
+        with open(metrics_file, 'w') as f:
             json.dump(self.metrics, f)
         print("Metrics saved.")
 
