@@ -1,4 +1,5 @@
 import argparse
+import os
 from typing import NoReturn
 from prompt_toolkit import PromptSession
 from prompt_toolkit.history import FileHistory
@@ -49,8 +50,23 @@ class Emulator:
     def set_scenario(self, scenario):
         self.scenario = scenario
 
+    def safe_create_dir(self, dir_path):
+        if not path.exists(dir_path):
+            print(f"Creating directory {dir_path}")
+            try:
+                os.makedirs(dir_path)
+            except OSError as e:
+                print(f"Error creating directory {dir_path}: {e}")
+                return
+
     def set_output_subdir(self, subdir):
-        self.output_subdir = subdir
+        if subdir is not None:
+            self.output_subdir = subdir
+            dirs_to_make = [os.path.join('results', subdir), os.path.join('metrics', subdir)]
+
+            for dir_to_make in dirs_to_make:
+                self.safe_create_dir(dir_to_make)
+
 
     def setup(self, config, scenario, redeploy_hosts=False, new_flags=False, redeploy_network=True):
         # Setup connection to elasticsearch
@@ -194,18 +210,15 @@ class ArgumentParser(argparse.ArgumentParser):
             return
         print("EXIT", status, message)
 
+
 class EmulatorInteractive():
     def __init__(self, emulator, config=None, scenario=None):
         self.emulator = emulator
         self.config = config
         self.scenario = scenario
+        self.loaded_config = None
         self.all_experiments = []
-        self.all_metrics = []
 
-        self.complete_count = 0
-        self.error_count = 0
-        self.exception_count = 0
-        self.trials = 0
 
         self.session = PromptSession(history=FileHistory('.emulator_history'))
 
@@ -235,11 +248,30 @@ class EmulatorInteractive():
         load_parser.set_defaults(func=self.handle_load)
 
         execute_parser = subparsers.add_parser('execute', help='execute loaded experiments')
+        execute_parser.add_argument('-s', '--silent', help='do not print metrics', default=False, action="store_true")
         execute_parser.set_defaults(func=self.handle_execute)
 
         view_parser = subparsers.add_parser('view', help='view current settings')
         view_parser.add_argument('setting', choices=['config', 'scenario', 'experiments'])
         view_parser.set_defaults(func=self.handle_view)
+
+
+    def start_interactive_emulator(self):
+        print("Starting interactive emulator...")
+        print("Type 'help' for a list of commands")
+        while True:
+            user_input = self.session.prompt("emulator> ", auto_suggest=AutoSuggestFromHistory())
+
+            emulator_argv = user_input.split(" ")
+
+            try:
+                args = self.emulator_parser.parse_args(emulator_argv)
+                if not ('--help' in emulator_argv or '-h' in emulator_argv) and hasattr(args, 'func'):
+                    args.func(args)
+            except argparse.ArgumentError as e:
+                print(e)
+                self.emulator_parser.print_help()
+
 
     def load_config_and_scenario(self, config, scenario):
         with open(path.join('config', config), 'r') as f:
@@ -250,13 +282,6 @@ class EmulatorInteractive():
             scenario = yaml.safe_load(f)
         return (config, scenario)
 
-    def handle_setup(self, args):
-        (config, scenario) = self.load_config_and_scenario(args.config, args.scenario)
-
-        self.emulator.set_output_subdir(args.output)
-        self.emulator.set_config(config)
-        self.emulator.set_scenario(scenario)
-        return
     
     def run_experiment_trial(self):
         result = None
@@ -265,11 +290,9 @@ class EmulatorInteractive():
         except Exception as e:
             print(f"{Back.RED}Failed with exception:{Style.RESET_ALL}")
             print(e)
-            # self.exception_count += 1
             result = ("Exception", e)
 
         if load == 1: # Failed to load snapshots. Skip this run
-            # self.error_count += 1
             print(f"{Fore.RED}Failed to load snapshots{Style.RESET_ALL}")
             result = ("Error", "Failed to load snapshots")
         
@@ -278,92 +301,180 @@ class EmulatorInteractive():
         except Exception as e:
             print(f"{Back.RED}Failed with exception:{Style.RESET_ALL}")
             print(e)
-            # self.exception_count += 1
             result = ("Exception", e)
 
         if result is None:
             result = ("Success", metrics)
-            # self.complete_count += 1
         return result
-            
+
+
+    def print_all_metrics(self, all_metrics, trials, complete_count, error_count, exception_count):
+        print(f"\nCompleted all experiment trials. Printing statuses...")
+        for j in range(self.trials):
+            metrics = all_metrics[j][0]
+            if metrics == "Error":
+                print(f"Run {j+1}: {Fore.RED}Failed to load snapshots{Style.RESET_ALL}")
+            elif metrics == "Exception":
+                print(f"Run {j+1}: {Back.RED}Failed with exception:{Style.RESET_ALL}\n{all_metrics[j][1]}")
+            else:
+                print(f"Run {j+1}: {Fore.GREEN}Successfully ran to completion{Style.RESET_ALL}")
+                # rprint(metrics)
+        print(f"{Fore.CYAN}Total number of experiments runs:{Style.RESET_ALL}     {trials}")
+        print(f"Times {Fore.GREEN}to completion:{Style.RESET_ALL}                  {complete_count}")
+        if error_count > 0:
+            print(f"Times {Fore.RED}failed to load snapshots:{Style.RESET_ALL}       {error_count}")
+        if exception_count > 0:
+            print(f"Times {Back.RED}failed with exception:{Style.RESET_ALL}          {exception_count}")
+
+
+    def handle_setup(self, args):
+        (config, scenario) = self.load_config_and_scenario(args.config, args.scenario)
+        self.emulator.set_output_subdir(args.output)
+        self.emulator.set_config(config)
+        self.emulator.set_scenario(scenario)
+        return
+
 
     def handle_run(self, args):
         if self.emulator.config is None or self.emulator.scenario is None:
             print("No config or scenario loaded. Run setup first")
             return
-        num = args.num
-        rprint(f"Running attacker {num} times...")
-        self.all_metrics = []
+        # num = args.num
+        trials = args.num
+        all_metrics = []
 
-        self.trials = num
-        self.complete_count = 0
-        self.error_count = 0
-        self.exception_count = 0
-        emulator_task = progress.add_task("[green]Running Experiment", start=False, total=num)
+        rprint(f"Running {trials} trials...")
+        complete_count = 0
+        error_count = 0
+        exception_count = 0
+        experiment_task = progress.add_task("[yellow]Running Experiment Trials", start=False, total=trials)
 
         with progress:
-            progress.start_task(emulator_task)
-            for i in range(num):
-                rprint(f"Starting attacker... {i+1}/{num}")
-                result = None
-                try:
-                    load = self.emulator.setup(self.emulator.config, self.emulator.scenario)
-                except Exception as e:
-                    print(f"{Back.RED}Failed with exception:{Style.RESET_ALL}")
-                    print(e)
-                    self.exception_count += 1
-                    result = (i, "Exception", e)
+            progress.start_task(experiment_task)
+            for i in range(trials):
+                rprint(f"Starting trial... {i+1}/{trials}")
+                result = self.run_experiment_trial()
 
-                if load == 1: # Failed to load snapshots. Skip this run
-                    self.error_count += 1
-                    print(f"{Fore.RED}Failed to load snapshots{Style.RESET_ALL}")
-                    result = (i, "Error")
-                else:
-                    try:
-                        metrics = self.emulator.run()
-                    except Exception as e:
-                        print(f"{Back.RED}Failed with exception:{Style.RESET_ALL}")
-                        print(e)
-                        self.exception_count += 1
-                        result = (i, "Exception", e)
+                status = result[0]
+                if status == "Success":
+                    complete_count += 1
+                elif status == "Error":
+                    error_count += 1
+                elif status == "Exception":
+                    exception_count += 1
 
-                if result is None:
-                    result = (i, metrics)
-                    self.complete_count += 1
+                all_metrics.append(result)
+                progress.update(experiment_task, refresh=True, advance=1)
+            progress.update(experiment_task,description="[green]Completed Experiment Trials")
 
-                self.all_metrics.append(result)
-                progress.update(emulator_task, refresh=True, advance=1)
-
-        progress.remove_task(emulator_task)
+        progress.remove_task(experiment_task)
         
         # Print metrics for multiple runs
         if not args.silent:
-            self.print_all_metrics()
+            self.print_all_metrics(all_metrics, trials, complete_count, error_count, exception_count)
     
-    def print_all_metrics(self):
-        for j in range(self.trials):
-            metrics = self.all_metrics[j][0]
-            if metrics == "Error":
-                print(f"Run {j+1}: {Fore.RED}Failed to load snapshots{Style.RESET_ALL}")
-            elif metrics == "Exception":
-                print(f"Run {j+1}: {Back.RED}Failed with exception:{Style.RESET_ALL}\n{self.all_metrics[j][1]}")
-            else:
-                print(f"Run {j+1}: {Fore.GREEN}Successfully ran to completion{Style.RESET_ALL}")
-                # rprint(metrics)
-        print(f"{Fore.CYAN}Total number of experiments runs:{Style.RESET_ALL}     {self.trials}")
-        print(f"Times {Fore.GREEN}to completion:{Style.RESET_ALL}                  {self.complete_count}")
-        if self.error_count > 0:
-            print(f"Times {Fore.RED}failed to load snapshots:{Style.RESET_ALL}       {self.error_count}")
-        if self.exception_count > 0:
-            print(f"Times {Back.RED}failed with exception:{Style.RESET_ALL}          {self.exception_count}")
+
 
     def handle_execute(self, args):
-        if self.all_experiments == []:
+        if self.loaded_config is None:
             print("No experiments loaded. Load experiments first using 'load' command")
             return
-        
+
         num_exps = len(self.all_experiments)
-        print("Unimplemented")
+        all_experiments_task = progress.add_task("[cyan]Running All Experiments", start=False, total=num_exps)
+        experiment_task = progress.add_task(f"[yellow]Running Experiment", start=False, total=None)
+        all_subtasks = []
+        all_experiments_outcome = {}
+
+        with progress:
+            for experiment in self.all_experiments:
+                progress.start_task(all_experiments_task)
+
+                (config, scenario) = self.load_config_and_scenario(experiment['setup']['config'], experiment['setup']['scenario'])
+                self.emulator.set_config(config)
+                self.emulator.set_scenario(scenario)
+                if experiment['flags']['use_subdir'] == True:
+                    self.emulator.set_output_subdir(experiment['output']['subdir'])
+                
+                trials = experiment['trials']
+                complete_count = 0
+                error_count = 0
+                exception_count = 0
+                all_metrics = []
+
+                is_halted = False
+
+                exp_id = experiment['id']
+
+                max_exceptions = experiment['settings']['max_exceptions']
+                max_errors = experiment['settings']['max_errors']
+                max_retries = experiment['settings']['max_retries']
+
+                all_subtasks.append(experiment_task)
+
+                if experiment['flags']['redeploy_hosts'] == True or experiment['flags']['redeploy_network'] == True:
+                    self.emulator.setup(self.emulator.config, self.emulator.scenario, 
+                                        redeploy_hosts=experiment['flags']['redeploy_hosts'], 
+                                        redeploy_network=experiment['flags']['redeploy_network'])
+                
+                
+                progress.reset(experiment_task, description=f"[yellow]Running Experiment {exp_id}", total=trials, start=True, completed=0)
+                for i in range(trials):
+                    rprint(f"Starting trial... {i+1}/{trials}")
+                    
+                    result = self.run_experiment_trial()
+                    all_metrics.append(result)
+                    status = result[0]
+                    if status == "Success":
+                        complete_count += 1
+                    elif status == "Error":
+                        error_count += 1
+                    elif status == "Exception":
+                        exception_count += 1
+
+                
+                    if max_errors > 0 and error_count > max_errors:
+                        print(f"{Fore.RED}Max {max_errors} errors exceeded in trial {i+1}. Halting experiment {exp_id}{Style.RESET_ALL}")
+                        progress.stop_task(experiment_task)
+                        is_halted = True
+                        break
+                    if max_exceptions > 0 and exception_count > max_exceptions:
+                        print(f"{Fore.RED}Max {max_exceptions} exceptions exceeded in trial {i+1}. Halting experiment {exp_id}{Style.RESET_ALL}")
+                        progress.stop_task(experiment_task)
+                        is_halted = True
+                        break
+                    
+                    progress.update(experiment_task, refresh=True, advance=1)
+                
+                if is_halted: 
+                    progress.update(experiment_task, description=f"[red]Halted Experiment {exp_id}")
+                else:
+                    progress.update(experiment_task, description=f"[green]Completed Experiment {exp_id}")
+
+                all_experiments_outcome[exp_id] = {"metrics": all_metrics, 
+                                                "trials": trials, 
+                                                "complete": complete_count, 
+                                                "error": error_count, 
+                                                "exception": exception_count}
+                
+                progress.update(all_experiments_task, advance=1, refresh=True)               
+                progress.stop_task(experiment_task)
+        
+        progress.remove_task(all_experiments_task)
+        progress.remove_task(experiment_task)
+
+        if not args.silent:
+            print(f"\nCompleted all experiments from config {self.loaded_config}. Printing statuses...")
+            for exp in self.all_experiments:
+                print(f"\nExperiment {exp['id']}")
+                print(f"{exp['name']}: {exp['description']}")
+                if exp['id'] in all_experiments_outcome.keys():
+                    self.print_all_metrics(**all_experiments_outcome[exp['id']])
+            # for exp in all_experiments_outcome.keys():
+            #     print(f"\nExperiment {exp}:")
+            #     print(f"{}")
+            #     self.print_all_metrics(**all_experiments_outcome[exp])
+            
 
 
     def handle_exit(self, _):
@@ -405,6 +516,7 @@ class EmulatorInteractive():
             print("No file specified")
             return
 
+        self.loaded_config = args.file
         with open(path.join('config', 'experiment_config_defaults.yml'), 'r') as default_config:
             defaults_list = yaml.safe_load(default_config)
             defaults = defaults_list[0]
@@ -412,31 +524,56 @@ class EmulatorInteractive():
         with open(path.join('config', args.file), 'r') as f:
             exp_config = yaml.safe_load(f)
 
-        pattern = r'^[\w-]+$'
+        dirpattern = r'^[\w-]+$'
+        filepattern = r'^[\w\.-]+$'
         required_fields = ['setup', 'setup.config', 'setup.scenario']
+        id_name_fields = ['output.subdir', 'output.summary', 'output.results', 'logging.log_file']
         dir_fields = ['output.subdir']
         file_fields = ['setup.config', 'setup.scenario', 'output.summary', 'output.results', 'logging.log_file']
         bool_fields = ['flags.use_subdir', 'flags.redeploy_hosts', 'flags.redeploy_network']
-        int_fields = ['trials', 'settings.retry_count', 'settings.max_errors', 'settings.max_exceptions']
+        int_fields = ['trials', 'settings.max_retries', 'settings.max_errors', 'settings.max_exceptions']
         custom_fields = {
-                            'logging.logging_type': ['console', 'file', 'both', 'none'],
+                            'logging.log_type': ['console', 'file', 'both', 'none'],
                             'logging.log_level': ['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'],
                             'settings.on_error': ['retry', 'skip', 'halt'],
                             'settings.on_exception': ['retry', 'skip', 'halt']
                          }
+        
+        unimplemented_fields = ['output.summary', 
+                                'output.results', 
+                                'logging.log_file',          # Note: Logging is not implemented
+                                'logging.logging_type',      # Note: Logging is not implemented
+                                'logging.log_level',         # Note: Logging is not implemented
+                                'settings.on_error',         # Note: Retry is not implemented
+                                'settings.on_exception',     # Note: Retry is not implemented 
+                                'settings.max_retries',      # Note: Retry is not implemented
+                                ]
 
+        all_experiment_ids = []
 
         for experiment in exp_config:
             invalid_experiment = False
 
-            exp_id = experiment['id']
-            if 'id' not in experiment or not re.match(pattern, experiment['id']):
+            if 'id' not in experiment or not re.match(dirpattern, experiment['id']):
                 print(f"{Fore.RED}Invalid experiment ID for experiment {exp_id}{Style.RESET_ALL}")
+                print(f"{Fore.RED}All Experiments must have unique ID's. Aborting...{Style.RESET_ALL}")
+                self.all_experiments = []
                 invalid_experiment = True
+                break
+
+            exp_id = experiment['id']
+
+            if exp_id in all_experiment_ids:
+                print(f"{Fore.RED}Duplicate Experiment ID {exp_id} found.{Style.RESET_ALL}")
+                print(f"{Fore.RED}All Experiments must have unique ID's. Aborting...{Style.RESET_ALL}")
+                self.all_experiments = []
+                invalid_experiment = True
+                break
+            
+            all_experiment_ids.append(exp_id)
 
             for required_field in required_fields:
-                (field, subfield) = self.get_fields_from_string(required_field)
-                
+                (field, subfield) = self.get_fields_from_string(required_field)    
                 if field not in experiment:
                     print(f"{Fore.RED}Experiment {exp_id} missing required field: {field}{Style.RESET_ALL}")
                     invalid_experiment = True
@@ -447,39 +584,54 @@ class EmulatorInteractive():
             # Add default values for missing optional fields
             new_experiment = {**defaults, **experiment}
 
-            for field in new_experiment.keys():
-                for subfield in new_experiment[field].keys():
-                    if 'exp_id' in new_experiment[field][subfield]:
-                        new_experiment[field][subfield].replace('exp_id', new_experiment['id'])
+            for id_name_field in id_name_fields:
+                (field, subfield) = self.get_fields_from_string(id_name_field)
+                if subfield is None and 'exp_id' in new_experiment[field]:
+                    new_experiment[field] = new_experiment[field].replace('exp_id', exp_id)
+                    print("subfield is none.. replacing")
+                elif 'exp_id' in new_experiment[field][subfield]:
+                    new_experiment[field][subfield] = new_experiment[field][subfield].replace('exp_id', exp_id)
+                    print("subfield is not none.. replacing")
+
+            # for field in new_experiment.keys():
+            #     print(new_experiment[field])
+            #     for subfield in new_experiment[field].keys():
+            #         if 'exp_id' in new_experiment[field][subfield]:
+            #             new_experiment[field][subfield].replace('exp_id', new_experiment['id'])
             
             for dir_field in dir_fields:
                 (field, subfield) = self.get_fields_from_string(dir_field)
-                if not re.match(pattern, experiment[field][subfield]):
-                    print(f"{Fore.RED}Invalid directory name for {field}.{subfield} in experiment {exp_id}{Style.RESET_ALL}")
+                item = new_experiment[field][subfield] if subfield is not None else new_experiment[field]
+                if not re.match(dirpattern, item):
+                    print(f"{Fore.RED}Invalid directory name {item} for {dir_field} in experiment {exp_id}{Style.RESET_ALL}")
                     invalid_experiment = True
 
             for file_field in file_fields:
                 (field, subfield) = self.get_fields_from_string(file_field)
-                if not re.match(pattern, experiment[field][subfield]):
-                    print(f"{Fore.RED}Invalid filename for {field}.{subfield} in experiment {exp_id}{Style.RESET_ALL}")
+                item = new_experiment[field][subfield] if subfield is not None else new_experiment[field]
+                if not re.match(filepattern, item):
+                    print(f"{Fore.RED}Invalid filename {item} for {file_field} in experiment {exp_id}{Style.RESET_ALL}")
                     invalid_experiment = True
 
             for bool_field in bool_fields:
                 (field, subfield) = self.get_fields_from_string(bool_field)
-                if not type(experiment[field][subfield]) == bool:
-                    print(f"{Fore.RED}Invalid value for {field}.{subfield} in experiment {exp_id}; must be boolean{Style.RESET_ALL}")
+                item = new_experiment[field][subfield] if subfield is not None else new_experiment[field]
+                if not type(item) == bool:
+                    print(f"{Fore.RED}Invalid value {item} for {bool_field} in experiment {exp_id}; must be boolean{Style.RESET_ALL}")
                     invalid_experiment = True
             
             for int_field in int_fields:
                 (field, subfield) = self.get_fields_from_string(int_field)
-                if not type(experiment[field][subfield]) == int:
-                    print(f"{Fore.RED}Invalid value for {field}.{subfield} in experiment {exp_id}; must be integer{Style.RESET_ALL}")
+                item = new_experiment[field][subfield] if subfield is not None else new_experiment[field]
+                if not type(item) == int:
+                    print(f"{Fore.RED}Invalid value {item} for {int_field} in experiment {exp_id}; must be integer{Style.RESET_ALL}")
                     invalid_experiment = True
             
             for custom_field in custom_fields.keys():
                 (field, subfield) = self.get_fields_from_string(custom_field)
-                if experiment[field][subfield] not in custom_fields[custom_field]:
-                    print(f"{Fore.RED}Invalid value for {field}.{subfield} in experiment {exp_id}; must be one of {custom_fields[custom_field]}{Style.RESET_ALL}")
+                item = new_experiment[field][subfield] if subfield is not None else new_experiment[field]
+                if item not in custom_fields[custom_field]:
+                    print(f"{Fore.RED}Invalid value {item} for {custom_field} in experiment {exp_id}; must be one of {custom_fields[custom_field]}{Style.RESET_ALL}")
                     invalid_experiment = True
 
 
@@ -501,21 +653,7 @@ class EmulatorInteractive():
             
         return
 
-    def start_interactive_emulator(self):
-        print("Starting interactive emulator...")
-        print("Type 'help' for a list of commands")
-        while True:
-            user_input = self.session.prompt("emulator> ", auto_suggest=AutoSuggestFromHistory())
-
-            emulator_argv = user_input.split(" ")
-
-            try:
-                args = self.emulator_parser.parse_args(emulator_argv)
-                if not ('--help' in emulator_argv or '-h' in emulator_argv) and hasattr(args, 'func'):
-                    args.func(args)
-            except argparse.ArgumentError as e:
-                print(e)
-                self.emulator_parser.print_help()
+    
         
 
 if __name__ == "__main__":
