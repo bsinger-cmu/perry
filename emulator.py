@@ -25,6 +25,7 @@ from rich import print as rprint
 from console import console, progress
 from rich.progress import track
 import rich.progress as rpg
+import re
 
 from os import path
 import yaml
@@ -42,10 +43,16 @@ class Emulator:
         self.config = None
         self.output_subdir = None
 
+    def set_config(self, config):
+        self.config = config
+
+    def set_scenario(self, scenario):
+        self.scenario = scenario
+
     def set_output_subdir(self, subdir):
         self.output_subdir = subdir
 
-    def setup(self, config, scenario, use_snapshots=False, new_flags=False, redeploy_network=True):
+    def setup(self, config, scenario, redeploy_hosts=False, new_flags=False, redeploy_network=True):
         # Setup connection to elasticsearch
         elasticsearch_server = f"https://localhost:{config['elasticsearch']['port']}"
         elasticsearch_api_key = config['elasticsearch']['api_key']
@@ -96,7 +103,7 @@ class Emulator:
         #     self.deployment_instance.setup(already_deployed=False)
         #     self.deployment_instance.save_all_flags()
 
-        load = self.deployment_instance.setup(use_snapshots=use_snapshots, redeploy_network=redeploy_network, new_flags=new_flags)
+        load = self.deployment_instance.setup(redeploy_hosts=redeploy_hosts, redeploy_network=redeploy_network, new_flags=new_flags)
         if load == 1: ## Failure to load snapshots
             return load
         
@@ -180,7 +187,7 @@ class Emulator:
 
 class ArgumentParser(argparse.ArgumentParser):
     def error(self, message):
-        raise argparse.ArgumentError("ERROR", message)
+        raise argparse.ArgumentError(None, message)
 
     def exit(self, status: int = 0, message: str | None = None) -> NoReturn:
         if status == 0:
@@ -192,6 +199,13 @@ class EmulatorInteractive():
         self.emulator = emulator
         self.config = config
         self.scenario = scenario
+        self.all_experiments = []
+        self.all_metrics = []
+
+        self.complete_count = 0
+        self.error_count = 0
+        self.exception_count = 0
+        self.trials = 0
 
         self.session = PromptSession(history=FileHistory('.emulator_history'))
 
@@ -200,6 +214,7 @@ class EmulatorInteractive():
 
         run_parser = subparsers.add_parser('run', help='run the attacker')
         run_parser.add_argument('-n', '--num', help='number of times to run attacker', type=int, default=1)
+        run_parser.add_argument('-s', '--silent', help='do not print metrics', default=False, action="store_true")
         run_parser.set_defaults(func=self.handle_run)
 
         help_parser = subparsers.add_parser('help', help='print help message')
@@ -211,103 +226,280 @@ class EmulatorInteractive():
         setup_parser = subparsers.add_parser('setup', help='setup scenario')
         setup_parser.add_argument('-c', '--config', help='Name of configuration file', required=True)
         setup_parser.add_argument('-s', '--scenario', help='Name of scenario file', required=True)
-        setup_parser.add_argument('-S', '--use-snapshots', help='Use images for setup instead', action='store_true', default=False)
-        setup_parser.add_argument('-R', '--redeploy-network', help='Redeploy network topology', action='store_true', default=False)
         setup_parser.add_argument('-o', '--output', help='Output subdir for metrics', default=None)
         setup_parser.set_defaults(func=self.handle_setup)
 
+        load_parser = subparsers.add_parser('load', help='load from experiment config file')
+        load_parser.add_argument('file', help='Name of experiment config file', type=str)
+        load_parser.add_argument('-s', '--strict', help='Requires all experiments to have required, valid fields', action='store_true', default=False)
+        load_parser.set_defaults(func=self.handle_load)
 
-        # load_parser = subparsers.add_parser('load', help='load experiment instructions from file')
+        execute_parser = subparsers.add_parser('execute', help='execute loaded experiments')
+        execute_parser.set_defaults(func=self.handle_execute)
 
+        view_parser = subparsers.add_parser('view', help='view current settings')
+        view_parser.add_argument('setting', choices=['config', 'scenario', 'experiments'])
+        view_parser.set_defaults(func=self.handle_view)
 
-    def handle_setup(self, args):
+    def load_config_and_scenario(self, config, scenario):
         with open(path.join('config', config), 'r') as f:
             config = yaml.safe_load(f)
 
         # open yml config file
         with open(path.join('scenarios', scenario), 'r') as f:
             scenario = yaml.safe_load(f)
+        return (config, scenario)
+
+    def handle_setup(self, args):
+        (config, scenario) = self.load_config_and_scenario(args.config, args.scenario)
 
         self.emulator.set_output_subdir(args.output)
-        self.emulator.setup(args.config, args.scenario, use_snapshots=args.use_snapshots, redeploy_network=args.redeploy_network)
+        self.emulator.set_config(config)
+        self.emulator.set_scenario(scenario)
         return
+    
+    def run_experiment_trial(self):
+        result = None
+        try:
+            load = self.emulator.setup(self.emulator.config, self.emulator.scenario)
+        except Exception as e:
+            print(f"{Back.RED}Failed with exception:{Style.RESET_ALL}")
+            print(e)
+            # self.exception_count += 1
+            result = ("Exception", e)
+
+        if load == 1: # Failed to load snapshots. Skip this run
+            # self.error_count += 1
+            print(f"{Fore.RED}Failed to load snapshots{Style.RESET_ALL}")
+            result = ("Error", "Failed to load snapshots")
+        
+        try:
+            metrics = self.emulator.run()
+        except Exception as e:
+            print(f"{Back.RED}Failed with exception:{Style.RESET_ALL}")
+            print(e)
+            # self.exception_count += 1
+            result = ("Exception", e)
+
+        if result is None:
+            result = ("Success", metrics)
+            # self.complete_count += 1
+        return result
+            
 
     def handle_run(self, args):
         if self.emulator.config is None or self.emulator.scenario is None:
             print("No config or scenario loaded. Run setup first")
             return
-
         num = args.num
         rprint(f"Running attacker {num} times...")
-        all_metrics = []
-        all_statuses = []
+        self.all_metrics = []
 
-        complete_count = 0
-        error_count = 0
-        exception_count = 0
+        self.trials = num
+        self.complete_count = 0
+        self.error_count = 0
+        self.exception_count = 0
         emulator_task = progress.add_task("[green]Running Experiment", start=False, total=num)
 
         with progress:
             progress.start_task(emulator_task)
             for i in range(num):
                 rprint(f"Starting attacker... {i+1}/{num}")
-                
+                result = None
                 try:
-                    load = self.emulator.setup(self.emulator.config, self.emulator.scenario, use_snapshots=True)
+                    load = self.emulator.setup(self.emulator.config, self.emulator.scenario)
                 except Exception as e:
                     print(f"{Back.RED}Failed with exception:{Style.RESET_ALL}")
                     print(e)
-                    error_count += 1
-                    exception_count += 1
-                    all_metrics.append((i, "Exception", e))
-                    progress.advance(emulator_task)
-                    continue
+                    self.exception_count += 1
+                    result = (i, "Exception", e)
 
                 if load == 1: # Failed to load snapshots. Skip this run
-                    error_count += 1
+                    self.error_count += 1
                     print(f"{Fore.RED}Failed to load snapshots{Style.RESET_ALL}")
-                    all_metrics.append((i, "Error", "Failed to load snapshots"))
-                    progress.advance(emulator_task)
-                    continue
-                
-                try:
-                    metrics = self.emulator.run()
-                except:
-                    print(f"{Back.RED}Failed with exception:{Style.RESET_ALL}")
-                    print(e)
-                    exception_count += 1
-                    all_metrics.append((i, "Exception", e))
-                    progress.advance(emulator_task)
-                    continue
+                    result = (i, "Error")
+                else:
+                    try:
+                        metrics = self.emulator.run()
+                    except Exception as e:
+                        print(f"{Back.RED}Failed with exception:{Style.RESET_ALL}")
+                        print(e)
+                        self.exception_count += 1
+                        result = (i, "Exception", e)
 
-                all_metrics.append((i, metrics))
-                complete_count += 1
-                progress.advance(emulator_task)
+                if result is None:
+                    result = (i, metrics)
+                    self.complete_count += 1
+
+                self.all_metrics.append(result)
+                progress.update(emulator_task, refresh=True, advance=1)
 
         progress.remove_task(emulator_task)
         
         # Print metrics for multiple runs
-        for j in range(num):
-            metrics = all_metrics[j][1]
+        if not args.silent:
+            self.print_all_metrics()
+    
+    def print_all_metrics(self):
+        for j in range(self.trials):
+            metrics = self.all_metrics[j][0]
             if metrics == "Error":
                 print(f"Run {j+1}: {Fore.RED}Failed to load snapshots{Style.RESET_ALL}")
             elif metrics == "Exception":
-                print(f"Run {j+1}: {Back.RED}Failed with exception:{Style.RESET_ALL}\n{all_metrics[j][2]}")
+                print(f"Run {j+1}: {Back.RED}Failed with exception:{Style.RESET_ALL}\n{self.all_metrics[j][1]}")
             else:
-                print(f"Run {j+1}: {Fore.GREEN}Ran to completion{Style.RESET_ALL}")
-                rprint(metrics)
+                print(f"Run {j+1}: {Fore.GREEN}Successfully ran to completion{Style.RESET_ALL}")
+                # rprint(metrics)
+        print(f"{Fore.CYAN}Total number of experiments runs:{Style.RESET_ALL}     {self.trials}")
+        print(f"Times {Fore.GREEN}to completion:{Style.RESET_ALL}                  {self.complete_count}")
+        if self.error_count > 0:
+            print(f"Times {Fore.RED}failed to load snapshots:{Style.RESET_ALL}       {self.error_count}")
+        if self.exception_count > 0:
+            print(f"Times {Back.RED}failed with exception:{Style.RESET_ALL}          {self.exception_count}")
 
-        print(f"Total number of experiments runs:     {num}")
-        print(f"Times {Fore.GREEN}to completion:                  {Style.RESET_ALL}{complete_count}")
-        print(f"Times {Fore.RED}failed to load snapshots:       {Style.RESET_ALL}{error_count}")
-        print(f"Times {Back.RED}failed with exception:          {Style.RESET_ALL}{exception_count}")
-    
+    def handle_execute(self, args):
+        if self.all_experiments == []:
+            print("No experiments loaded. Load experiments first using 'load' command")
+            return
+        
+        num_exps = len(self.all_experiments)
+        print("Unimplemented")
+
+
     def handle_exit(self, _):
         print("Exiting emulator...")
         exit()
 
     def handle_help(self, _):
         self.emulator_parser.print_help()
+
+    def handle_view(self, args):
+        if args.setting == 'config':
+            if self.emulator.config is None:
+                print("No config loaded")
+                return
+            rprint(self.emulator.config)
+
+        elif args.setting == 'scenario':
+            if self.emulator.scenario is None:
+                print("No scenario loaded")
+                return
+            rprint(self.emulator.scenario)
+        
+        elif args.setting == 'experiments':
+            if self.all_experiments is None:
+                print("No experiment config loaded")
+                return
+            rprint(self.all_experiments)
+
+    @staticmethod
+    def get_fields_from_string(s):
+        pattern = r'(\w+)(?:\.(\w+))?'
+        match = re.match(pattern, s)
+        if match:
+            return match.groups()
+        return None
+
+    def handle_load(self, args):
+        if args.file is None:
+            print("No file specified")
+            return
+
+        with open(path.join('config', 'experiment_config_defaults.yml'), 'r') as default_config:
+            defaults_list = yaml.safe_load(default_config)
+            defaults = defaults_list[0]
+
+        with open(path.join('config', args.file), 'r') as f:
+            exp_config = yaml.safe_load(f)
+
+        pattern = r'^[\w-]+$'
+        required_fields = ['setup', 'setup.config', 'setup.scenario']
+        dir_fields = ['output.subdir']
+        file_fields = ['setup.config', 'setup.scenario', 'output.summary', 'output.results', 'logging.log_file']
+        bool_fields = ['flags.use_subdir', 'flags.redeploy_hosts', 'flags.redeploy_network']
+        int_fields = ['trials', 'settings.retry_count', 'settings.max_errors', 'settings.max_exceptions']
+        custom_fields = {
+                            'logging.logging_type': ['console', 'file', 'both', 'none'],
+                            'logging.log_level': ['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'],
+                            'settings.on_error': ['retry', 'skip', 'halt'],
+                            'settings.on_exception': ['retry', 'skip', 'halt']
+                         }
+
+
+        for experiment in exp_config:
+            invalid_experiment = False
+
+            exp_id = experiment['id']
+            if 'id' not in experiment or not re.match(pattern, experiment['id']):
+                print(f"{Fore.RED}Invalid experiment ID for experiment {exp_id}{Style.RESET_ALL}")
+                invalid_experiment = True
+
+            for required_field in required_fields:
+                (field, subfield) = self.get_fields_from_string(required_field)
+                
+                if field not in experiment:
+                    print(f"{Fore.RED}Experiment {exp_id} missing required field: {field}{Style.RESET_ALL}")
+                    invalid_experiment = True
+                elif subfield is not None and subfield not in experiment[field]:
+                    print(f"{Fore.RED}Experiment {exp_id} missing required subfield of field {field}: {subfield}{Style.RESET_ALL}")
+                    invalid_experiment = True
+
+            # Add default values for missing optional fields
+            new_experiment = {**defaults, **experiment}
+
+            for field in new_experiment.keys():
+                for subfield in new_experiment[field].keys():
+                    if 'exp_id' in new_experiment[field][subfield]:
+                        new_experiment[field][subfield].replace('exp_id', new_experiment['id'])
+            
+            for dir_field in dir_fields:
+                (field, subfield) = self.get_fields_from_string(dir_field)
+                if not re.match(pattern, experiment[field][subfield]):
+                    print(f"{Fore.RED}Invalid directory name for {field}.{subfield} in experiment {exp_id}{Style.RESET_ALL}")
+                    invalid_experiment = True
+
+            for file_field in file_fields:
+                (field, subfield) = self.get_fields_from_string(file_field)
+                if not re.match(pattern, experiment[field][subfield]):
+                    print(f"{Fore.RED}Invalid filename for {field}.{subfield} in experiment {exp_id}{Style.RESET_ALL}")
+                    invalid_experiment = True
+
+            for bool_field in bool_fields:
+                (field, subfield) = self.get_fields_from_string(bool_field)
+                if not type(experiment[field][subfield]) == bool:
+                    print(f"{Fore.RED}Invalid value for {field}.{subfield} in experiment {exp_id}; must be boolean{Style.RESET_ALL}")
+                    invalid_experiment = True
+            
+            for int_field in int_fields:
+                (field, subfield) = self.get_fields_from_string(int_field)
+                if not type(experiment[field][subfield]) == int:
+                    print(f"{Fore.RED}Invalid value for {field}.{subfield} in experiment {exp_id}; must be integer{Style.RESET_ALL}")
+                    invalid_experiment = True
+            
+            for custom_field in custom_fields.keys():
+                (field, subfield) = self.get_fields_from_string(custom_field)
+                if experiment[field][subfield] not in custom_fields[custom_field]:
+                    print(f"{Fore.RED}Invalid value for {field}.{subfield} in experiment {exp_id}; must be one of {custom_fields[custom_field]}{Style.RESET_ALL}")
+                    invalid_experiment = True
+
+
+            if invalid_experiment:
+                if (args.strict):
+                    print(f"{Fore.YELLOW}Strict mode enabled! Halting...{Style.RESET_ALL}")
+                    self.all_experiments = []
+                    print(f"{Fore.YELLOW}No experiments are loaded.{Style.RESET_ALL}")
+                    return
+                else:
+                    print(f"{Fore.YELLOW}Skipping loading of experiment {exp_id} due to invalidity.{Style.RESET_ALL}")
+                    continue
+            
+
+            print(f"{Fore.GREEN}Sucessfully loaded experiment {exp_id}{Style.RESET_ALL}")
+            self.all_experiments.append(new_experiment)
+
+            rprint(new_experiment)
+            
+        return
 
     def start_interactive_emulator(self):
         print("Starting interactive emulator...")
@@ -321,8 +513,6 @@ class EmulatorInteractive():
                 args = self.emulator_parser.parse_args(emulator_argv)
                 if not ('--help' in emulator_argv or '-h' in emulator_argv) and hasattr(args, 'func'):
                     args.func(args)
-                    print()
-                    
             except argparse.ArgumentError as e:
                 print(e)
                 self.emulator_parser.print_help()
@@ -337,7 +527,7 @@ if __name__ == "__main__":
 
     parser.add_argument('-o', '--output', help='Output subdir in metrics dir', default=None)
 
-    parser.add_argument('-S', '--use-snapshots', help='Use images for setup instead', action='store_true', default=False)
+    parser.add_argument('-r', '--redeploy-hosts', help='Re-execute all setup tasks without using snapshots', action='store_true', default=False)
     parser.add_argument('-R', '--redeploy-network', help='Redeploy network topology', action='store_true', default=False)
     
     parser.add_argument('-t', '--test', help='placeholder', action='store_true', default=False)
@@ -366,15 +556,15 @@ if __name__ == "__main__":
         emulator.set_output_subdir(args.output)
 
     if args.interactive:
-        if (not args.use_snapshots):
-            emulator.setup(config, scenario, use_snapshots=args.use_snapshots, redeploy_network=args.redeploy_network)
+        if args.redeploy_hosts:
+            emulator.setup(config, scenario, redeploy_hosts=args.redeploy_hosts, redeploy_network=args.redeploy_network)
         
         emulator.scenario = scenario
         emulator.config = config
         EmulatorInteractive(emulator).start_interactive_emulator()
 
     else:
-        emulator.setup(config, scenario, use_snapshots=args.use_snapshots, redeploy_network=args.redeploy_network)
+        emulator.setup(config, scenario, redeploy_hosts=args.redeploy_hosts, redeploy_network=args.redeploy_network)
         emulator.run()
 
         # Print metrics
