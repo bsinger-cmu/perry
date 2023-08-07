@@ -8,7 +8,7 @@ import time
 
 class EnterpriseInstance(DeploymentInstance):
     
-    def setup(self, use_snapshots=False, redeploy_network=False, new_flags=False):
+    def setup(self, redeploy_hosts=False, redeploy_network=False, new_flags=False):
         # Setup topology
         # # ActiveDir:    192.168.200.3      <-- Samba RCE vulnerability (or - currently - netcat reverse shell) -- shell command
         # # CEO:          192.168.200.4 FLAG <-- SSH password login, passwd writeable - currently weak passwd and ssh login -- 
@@ -17,7 +17,7 @@ class EnterpriseInstance(DeploymentInstance):
         # ! Intern:       192.168.200.7      <-- infected with attacker (SSH password login)
         # # Database:     192.168.201.3 FLAG <-- SSH password login, weak user password (or netcat reverse shell) -- script + shell command
 
-        if not use_snapshots:
+        if redeploy_hosts:
             if redeploy_network:
                 print("Redeploying network...")
                 destroy_network('enterprise_network')
