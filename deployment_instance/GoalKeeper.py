@@ -104,9 +104,18 @@ class GoalKeeper:
             metrics_file = "metrics-" + now_str + ".json"
             
         if subdir is not None:
-            metrics_file = os.path.join('metrics', subdir, metrics_file)
+            dir_path = os.path.join('metrics', subdir)
         else:
-            metrics_file = os.path.join('metrics', metrics_file)
+            dir_path = 'metrics'
+
+        if not os.path.exists(dir_path):
+            try:
+                os.makedirs(dir_path)
+            except OSError as e:
+                print(f"Error creating directory {dir_path}: {e}")
+                return
+
+        metrics_file = os.path.join(dir_path, metrics_file)
 
         rprint(f"Saving metrics to {metrics_file}...")
         with open(metrics_file, 'w') as f:
