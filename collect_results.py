@@ -15,6 +15,9 @@ console = Console(record=True)
 
 
 class Filters:
+    """
+    Filter class for use in filtering files based on condition
+    """
     def __init__(self) -> None:
         self.filters = []
         self.condition_classes = {
@@ -25,6 +28,9 @@ class Filters:
     
     # Add a filter to the list of filters
     def add_filter(self, filter_str):
+        """
+        add a filter to the list of filters
+        """
         key, filter_type, value = filter_str.split(":")
         if filter_type not in self.condition_classes:
             print(f"Filter type '{filter_type}' not supported.")
@@ -34,12 +40,18 @@ class Filters:
         self.filters.append(condition_class(key, value))
     
     def add_all_filters(self, filters):
+        """
+        add all filters from a list to the global list of filters
+        """
         for filter_str in filters:
             self.add_filter(filter_str)
 
     # Check if all filters are true
     # TODO: Add support for OR and AND
     def check_all(self, data):
+        """
+        Check all filter conditions
+        """
         return all([filter.check(data) for filter in self.filters])
 
     class Condition(ABC):
@@ -75,6 +87,10 @@ class Collector():
         self.filtered_files = []
 
     def collect_files(self):
+        """
+        collect_files
+        Collect files based on the given start and end datetimes
+        """
         for file in os.listdir(self.search_dir):
             if file.endswith(".json") and file.startswith("metrics-"):
                 date_str = file.split("metrics-")[1].split(".json")[0]
@@ -83,6 +99,10 @@ class Collector():
                     self.files.append(file)
 
     def filter_files(self, filters):
+        """
+        filter_files
+        Filter files based on the given filters
+        """
         for file in self.files:
             with open(f"{self.search_dir}/{file}", 'r') as f:
                 data = json.load(f)
@@ -95,6 +115,9 @@ class Collector():
             print(f"From {self.filtered_file_names[0]} to {self.filtered_file_names[-1]}")
 
     def _export_csv(self, filename):
+        """
+        Export as csv
+        """
         if len(self.filtered_files) == 0:
             print("No files to export.")
             return
@@ -111,6 +134,10 @@ class Collector():
                 writer.writerow(data)
 
     def export_file(self, filename):
+        """
+        export_file
+        Export the results of all files as a csv or other file type
+        """
         filetype = filename.split(".")[-1]
 
         if filetype == "csv":
@@ -119,6 +146,10 @@ class Collector():
             raise Exception(f"File type {filetype} not supported.")
     
     def print_experiment_metrics(self):
+        """
+        print_experiment_metrics
+        Print metrics for all experiments in the form of a summary
+        """
         total_experiments   = len(self.filtered_files)
         if total_experiments == 0:
             print("No experiments to print metrics for.")
@@ -183,14 +214,6 @@ class Collector():
         print(f"Average Execution Time:    {avg_execution_time} seconds ({round(avg_execution_time/60, 2)} minutes)")
         print(f"Average Experiment Time:   {avg_experiment_time} seconds ({round(avg_experiment_time/60, 2)} minutes)")
 
-        # table = Table(show_header=False, header_style="bold hot_pink")
-        # table.add_column("Metric")
-        # table.add_column("Value")
-        # table.add_row("Average Setup Time", f"{avg_setup_time} seconds ({round(avg_setup_time/60, 2)} minutes)")
-        # table.add_row("Average Execution Time", f"{avg_execution_time} seconds ({round(avg_execution_time/60, 2)} minutes)")
-        # table.add_row("Average Experiment Time", f"{avg_experiment_time} seconds ({round(avg_experiment_time/60, 2)} minutes)")
-        # console.print(table)
-
         print("")
         print(f"Min Flags Captured:        {min_flags_captured}")
         print(f"Max Flags Captured:        {max_flags_captured}")
@@ -198,22 +221,6 @@ class Collector():
         print(f"Min Root Flags Captured:   {min_root_flags_captured}")
         print(f"Max Root Flags Captured:   {max_root_flags_captured}")
         print("")
-
-        # table = Table(show_header=True, header_style="bold hot_pink")
-        # table.add_column("Flags Captured")
-        # table.add_column("Count")
-        # table.add_column("Percentage")
-        # for num_flags_captured, count in flags_captured_count.items():
-        #     table.add_row(f"{num_flags_captured}", f"{count}", f"{round(count/total_experiments*100,2)}%")
-        # console.print(table)
-
-        # table = Table(show_header=True, header_style="bold hot_pink")
-        # table.add_column("Root Flags Captured")
-        # table.add_column("Count")
-        # table.add_column("Percentage")
-        # for num_flags_captured, count in root_flags_captured_count.items():
-        #     table.add_row(f"{num_flags_captured}", f"{count}", f"{round(count/total_experiments*100,2)}%")
-        # console.print(table)
 
         print("Flags Captured Count:")
         for num_flags_captured, count in flags_captured_count.items():

@@ -38,7 +38,6 @@ from colorama import Fore, Back, Style
 class Emulator:
 
     def __init__(self):
-        # Initialize connection
         self.openstack_conn = openstack.connect(cloud='default')
 
         self.scenario = None
@@ -52,6 +51,9 @@ class Emulator:
         self.scenario = scenario
 
     def safe_create_dir(self, dir_path):
+        """
+        safely create a directory
+        """
         if not path.exists(dir_path):
             print(f"Creating directory {dir_path}")
             try:
@@ -61,6 +63,10 @@ class Emulator:
                 return
 
     def set_output_subdir(self, subdir):
+        """
+        set the output directory and ensure that the results and metrics directories exist
+        If not, create them
+        """
         if subdir is not None:
             self.output_subdir = subdir
             dirs_to_make = [os.path.join('results', subdir), os.path.join('metrics', subdir)]
@@ -79,7 +85,6 @@ class Emulator:
             basic_auth=("elastic", elasticsearch_api_key),
             verify_certs=False
         )
-        # TODO DELETE ALL AGENTS
 
         # Delete all decoy instances on openstack
         all_servers = self.openstack_conn.list_servers()
@@ -114,12 +119,6 @@ class Emulator:
         deployment_instance_ = getattr(deployment_instance_module, scenario['deployment_instance'])
         self.deployment_instance = deployment_instance_(ansible_runner, self.openstack_conn, config['external_ip'])
         
-        # if already_deployed:
-        #     self.deployment_instance.load_all_flags()
-        # else:
-        #     self.deployment_instance.setup(already_deployed=False)
-        #     self.deployment_instance.save_all_flags()
-
         load = self.deployment_instance.setup(redeploy_hosts=redeploy_hosts, redeploy_network=redeploy_network, new_flags=new_flags)
         if load == 1: ## Failure to load snapshots
             return load
@@ -169,6 +168,10 @@ class Emulator:
             pass
 
     def run(self):
+        """
+        start running the emulator.
+        This does the setup and then runs the attacker and main loop
+        """
         time.sleep(5)
         self.goalkeeper.start_execution_timer()
 
@@ -258,6 +261,10 @@ class EmulatorInteractive():
 
 
     def start_interactive_emulator(self):
+        """
+        start_interactive_emulator:
+        starts interactive mode
+        """
         print("Starting interactive emulator...")
         print("Type 'help' for a list of commands")
         while True:
@@ -275,6 +282,10 @@ class EmulatorInteractive():
 
 
     def load_config_and_scenario(self, config, scenario):
+        """
+        load_config_and_scenario:
+        Open the config and scenario files and return the yaml contents
+        """
         with open(path.join('config', config), 'r') as f:
             config = yaml.safe_load(f)
 
@@ -285,6 +296,10 @@ class EmulatorInteractive():
 
     
     def run_experiment_trial(self):
+        """
+        run_experiment_trial:
+        This function will run a single trial of the experiment loaded.
+        """
         result = None
         try:
             load = self.emulator.setup(self.emulator.config, self.emulator.scenario)
@@ -311,6 +326,10 @@ class EmulatorInteractive():
 
 
     def print_all_metrics(self, all_metrics, trials, complete_count, error_count, exception_count):
+        """
+        print_all_metrics
+        Print all metrics for multiple runs of the experiment 
+        """
         print(f"\nCompleted all experiment trials. Printing statuses...")
         for j in range(trials):
             metrics = all_metrics[j][0]
@@ -330,6 +349,10 @@ class EmulatorInteractive():
 
 
     def handle_setup(self, args):
+        """
+        handle_setup
+        This function will handle the setup command and load the config and scenario files.
+        """
         (config, scenario) = self.load_config_and_scenario(args.config, args.scenario)
         self.emulator.set_output_subdir(args.output)
         self.emulator.set_config(config)
@@ -338,8 +361,14 @@ class EmulatorInteractive():
 
 
     def handle_run(self, args):
+        """
+        handle_run:
+        This function will handle the run command.
+        It will run the attacker for the specified number of trials for the setup
+        scenario and config files loaded by the setup command
+        """
         if self.emulator.config is None or self.emulator.scenario is None:
-            print("No config or scenario loaded. Run setup first")
+            print("No config or scenario loaded. Run 'setup' command first")
             return
         # num = args.num
         trials = args.num
@@ -378,6 +407,11 @@ class EmulatorInteractive():
 
 
     def handle_execute(self, args):
+        """
+        handle execute
+        This function will handle the execute command.
+        It will run all trials of all experiments loaded from the configuration file.
+        """
         if self.loaded_config is None:
             print("No experiments loaded. Load experiments first using 'load' command")
             return
@@ -388,16 +422,18 @@ class EmulatorInteractive():
         all_subtasks = []
         all_experiments_outcome = {}
 
+        # Use progress bar to show the progress of all experiments
         with progress:
             progress.start_task(all_experiments_task)
             for experiment in self.all_experiments:
-
+                # Load/Setup each experiment
                 (config, scenario) = self.load_config_and_scenario(experiment['setup']['config'], experiment['setup']['scenario'])
                 self.emulator.set_config(config)
                 self.emulator.set_scenario(scenario)
                 if experiment['flags']['use_subdir'] == True:
                     self.emulator.set_output_subdir(experiment['output']['subdir'])
                 
+                # Reset trials and counts
                 trials = experiment['trials']
                 complete_count = 0
                 error_count = 0
@@ -405,7 +441,6 @@ class EmulatorInteractive():
                 all_metrics = []
 
                 is_halted = False
-
                 exp_id = experiment['id']
 
                 max_exceptions = experiment['settings']['max_exceptions']
@@ -423,6 +458,7 @@ class EmulatorInteractive():
                 progress.update(experiment_task, description=f"[yellow]Running Experiment {exp_id}", total=trials, start=False, completed=0)
                 progress.start_task(experiment_task)
                 for i in range(trials):
+                    # Run each trial of the current experiment
                     rprint(f"Starting trial... {i+1}/{trials}")
                     
                     result = self.run_experiment_trial()
@@ -450,12 +486,14 @@ class EmulatorInteractive():
                     progress.update(experiment_task, advance=1)
                 
 
-
+                # set the outcome + metrics of the current experiment
                 all_experiments_outcome[exp_id] = {"all_metrics": all_metrics, 
                                                 "trials": trials, 
                                                 "complete_count": complete_count, 
                                                 "error_count": error_count, 
                                                 "exception_count": exception_count}
+                
+                # If experiment is halted, set the color of bar to red
                 if is_halted: 
                     progress.update(experiment_task, description=f"[red]Halted Experiment {exp_id}")
                 else:
@@ -474,12 +512,7 @@ class EmulatorInteractive():
                 print(f"{exp['name']}: {exp['description']}")
                 if exp['id'] in all_experiments_outcome.keys():
                     self.print_all_metrics(**all_experiments_outcome[exp['id']])
-            # for exp in all_experiments_outcome.keys():
-            #     print(f"\nExperiment {exp}:")
-            #     print(f"{}")
-            #     self.print_all_metrics(**all_experiments_outcome[exp])
             
-
 
     def handle_exit(self, _):
         print("Exiting emulator...")
@@ -489,6 +522,9 @@ class EmulatorInteractive():
         self.emulator_parser.print_help()
 
     def handle_view(self, args):
+        """
+        View current settings: config, scenario, experiments
+        """
         if args.setting == 'config':
             if self.emulator.config is None:
                 print("No config loaded")
@@ -516,6 +552,12 @@ class EmulatorInteractive():
         return None
 
     def handle_load(self, args):
+        """
+        handle_load
+        This function will handle the load command.
+        Load experiments from a configuration file.
+        This also uses the default configuration file to fill in missing fields.
+        """
         if args.file is None:
             print("No file specified")
             return
@@ -559,6 +601,7 @@ class EmulatorInteractive():
             defaults = copy.deepcopy(default_values)
             invalid_experiment = False
 
+            # Check that ID exists and is valid. This ignores strict mode
             if 'id' not in experiment or not re.match(dirpattern, experiment['id']):
                 print(f"{Fore.RED}Invalid experiment ID for experiment {exp_id}{Style.RESET_ALL}")
                 print(f"{Fore.RED}All Experiments must have unique ID's. Aborting...{Style.RESET_ALL}")
@@ -568,6 +611,7 @@ class EmulatorInteractive():
 
             exp_id = experiment['id']
 
+            # Ensure no duplicate experiment id's. Also ignores strict mode
             if exp_id in all_experiment_ids:
                 print(f"{Fore.RED}Duplicate Experiment ID {exp_id} found.{Style.RESET_ALL}")
                 print(f"{Fore.RED}All Experiments must have unique ID's. Aborting...{Style.RESET_ALL}")
@@ -577,6 +621,7 @@ class EmulatorInteractive():
             
             all_experiment_ids.append(exp_id)
 
+            # Check that all required fields are present
             for required_field in required_fields:
                 (field, subfield) = self.get_fields_from_string(required_field)    
                 if field not in experiment:
@@ -589,19 +634,16 @@ class EmulatorInteractive():
             # Add default values for missing optional fields
             new_experiment = {**defaults, **experiment}
 
+            # Find all the fields that have the default exp_id name and replace 
+            # it with the experiment's id
             for id_name_field in id_name_fields:
                 (field, subfield) = self.get_fields_from_string(id_name_field)
                 if subfield is None and 'exp_id' in new_experiment[field]:
                     new_experiment[field] = new_experiment[field].replace('exp_id', exp_id)
                 elif 'exp_id' in new_experiment[field][subfield]:
                     new_experiment[field][subfield] = new_experiment[field][subfield].replace('exp_id', exp_id)
-
-            # for field in new_experiment.keys():
-            #     print(new_experiment[field])
-            #     for subfield in new_experiment[field].keys():
-            #         if 'exp_id' in new_experiment[field][subfield]:
-            #             new_experiment[field][subfield].replace('exp_id', new_experiment['id'])
             
+            # Validate all directories to be correct directory names (alphanumeric with dashes and underscores)
             for dir_field in dir_fields:
                 (field, subfield) = self.get_fields_from_string(dir_field)
                 item = new_experiment[field][subfield] if subfield is not None else new_experiment[field]
@@ -609,6 +651,7 @@ class EmulatorInteractive():
                     print(f"{Fore.RED}Invalid directory name {item} for {dir_field} in experiment {exp_id}{Style.RESET_ALL}")
                     invalid_experiment = True
 
+            # Validate all files to be correct file names (alphanumeric with dashes, underscores, and dots)
             for file_field in file_fields:
                 (field, subfield) = self.get_fields_from_string(file_field)
                 item = new_experiment[field][subfield] if subfield is not None else new_experiment[field]
@@ -616,6 +659,7 @@ class EmulatorInteractive():
                     print(f"{Fore.RED}Invalid filename {item} for {file_field} in experiment {exp_id}{Style.RESET_ALL}")
                     invalid_experiment = True
 
+            # Validate all boolean fields to be boolean
             for bool_field in bool_fields:
                 (field, subfield) = self.get_fields_from_string(bool_field)
                 item = new_experiment[field][subfield] if subfield is not None else new_experiment[field]
@@ -623,6 +667,7 @@ class EmulatorInteractive():
                     print(f"{Fore.RED}Invalid value {item} for {bool_field} in experiment {exp_id}; must be boolean{Style.RESET_ALL}")
                     invalid_experiment = True
             
+            # Validate all int fields to be int
             for int_field in int_fields:
                 (field, subfield) = self.get_fields_from_string(int_field)
                 item = new_experiment[field][subfield] if subfield is not None else new_experiment[field]
@@ -630,6 +675,7 @@ class EmulatorInteractive():
                     print(f"{Fore.RED}Invalid value {item} for {int_field} in experiment {exp_id}; must be integer{Style.RESET_ALL}")
                     invalid_experiment = True
             
+            # Validate all custom fields to be valid options based on the field's options
             for custom_field in custom_fields.keys():
                 (field, subfield) = self.get_fields_from_string(custom_field)
                 item = new_experiment[field][subfield] if subfield is not None else new_experiment[field]
@@ -637,7 +683,7 @@ class EmulatorInteractive():
                     print(f"{Fore.RED}Invalid value {item} for {custom_field} in experiment {exp_id}; must be one of {custom_fields[custom_field]}{Style.RESET_ALL}")
                     invalid_experiment = True
 
-
+            # If the experiment is invalid, reach based on the strict flag
             if invalid_experiment:
                 if (args.strict):
                     print(f"{Fore.YELLOW}Strict mode enabled! Halting...{Style.RESET_ALL}")
