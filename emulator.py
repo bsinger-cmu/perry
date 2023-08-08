@@ -1,4 +1,5 @@
 import argparse
+import copy
 import os
 from typing import NoReturn
 from prompt_toolkit import PromptSession
@@ -296,12 +297,13 @@ class EmulatorInteractive():
             print(f"{Fore.RED}Failed to load snapshots{Style.RESET_ALL}")
             result = ("Error", "Failed to load snapshots")
         
-        try:
-            metrics = self.emulator.run()
-        except Exception as e:
-            print(f"{Back.RED}Failed with exception:{Style.RESET_ALL}")
-            print(e)
-            result = ("Exception", e)
+        if result is None:
+            try:
+                metrics = self.emulator.run()
+            except Exception as e:
+                print(f"{Back.RED}Failed with exception:{Style.RESET_ALL}")
+                print(e)
+                result = ("Exception", e)
 
         if result is None:
             result = ("Success", metrics)
@@ -310,7 +312,7 @@ class EmulatorInteractive():
 
     def print_all_metrics(self, all_metrics, trials, complete_count, error_count, exception_count):
         print(f"\nCompleted all experiment trials. Printing statuses...")
-        for j in range(self.trials):
+        for j in range(trials):
             metrics = all_metrics[j][0]
             if metrics == "Error":
                 print(f"Run {j+1}: {Fore.RED}Failed to load snapshots{Style.RESET_ALL}")
@@ -387,8 +389,8 @@ class EmulatorInteractive():
         all_experiments_outcome = {}
 
         with progress:
+            progress.start_task(all_experiments_task)
             for experiment in self.all_experiments:
-                progress.start_task(all_experiments_task)
 
                 (config, scenario) = self.load_config_and_scenario(experiment['setup']['config'], experiment['setup']['scenario'])
                 self.emulator.set_config(config)
@@ -418,7 +420,8 @@ class EmulatorInteractive():
                                         redeploy_network=experiment['flags']['redeploy_network'])
                 
                 
-                progress.reset(experiment_task, description=f"[yellow]Running Experiment {exp_id}", total=trials, start=True, completed=0)
+                progress.update(experiment_task, description=f"[yellow]Running Experiment {exp_id}", total=trials, start=False, completed=0)
+                progress.start_task(experiment_task)
                 for i in range(trials):
                     rprint(f"Starting trial... {i+1}/{trials}")
                     
@@ -432,33 +435,34 @@ class EmulatorInteractive():
                     elif status == "Exception":
                         exception_count += 1
 
-                
                     if max_errors > 0 and error_count > max_errors:
                         print(f"{Fore.RED}Max {max_errors} errors exceeded in trial {i+1}. Halting experiment {exp_id}{Style.RESET_ALL}")
                         progress.stop_task(experiment_task)
                         is_halted = True
                         break
+
                     if max_exceptions > 0 and exception_count > max_exceptions:
                         print(f"{Fore.RED}Max {max_exceptions} exceptions exceeded in trial {i+1}. Halting experiment {exp_id}{Style.RESET_ALL}")
                         progress.stop_task(experiment_task)
                         is_halted = True
                         break
-                    
-                    progress.update(experiment_task, refresh=True, advance=1)
+
+                    progress.update(experiment_task, advance=1)
                 
+
+
+                all_experiments_outcome[exp_id] = {"all_metrics": all_metrics, 
+                                                "trials": trials, 
+                                                "complete_count": complete_count, 
+                                                "error_count": error_count, 
+                                                "exception_count": exception_count}
                 if is_halted: 
                     progress.update(experiment_task, description=f"[red]Halted Experiment {exp_id}")
                 else:
                     progress.update(experiment_task, description=f"[green]Completed Experiment {exp_id}")
+                progress.update(all_experiments_task, advance=1)    
+                progress.reset(experiment_task, description=f"[yellow]Running Experiment {exp_id}", start=False)
 
-                all_experiments_outcome[exp_id] = {"metrics": all_metrics, 
-                                                "trials": trials, 
-                                                "complete": complete_count, 
-                                                "error": error_count, 
-                                                "exception": exception_count}
-                
-                progress.update(all_experiments_task, advance=1, refresh=True)               
-                progress.stop_task(experiment_task)
         
         progress.remove_task(all_experiments_task)
         progress.remove_task(experiment_task)
@@ -519,7 +523,7 @@ class EmulatorInteractive():
         self.loaded_config = args.file
         with open(path.join('config', 'experiment_config_defaults.yml'), 'r') as default_config:
             defaults_list = yaml.safe_load(default_config)
-            defaults = defaults_list[0]
+            default_values = defaults_list[0]
 
         with open(path.join('config', args.file), 'r') as f:
             exp_config = yaml.safe_load(f)
@@ -552,6 +556,7 @@ class EmulatorInteractive():
         all_experiment_ids = []
 
         for experiment in exp_config:
+            defaults = copy.deepcopy(default_values)
             invalid_experiment = False
 
             if 'id' not in experiment or not re.match(dirpattern, experiment['id']):
@@ -588,10 +593,8 @@ class EmulatorInteractive():
                 (field, subfield) = self.get_fields_from_string(id_name_field)
                 if subfield is None and 'exp_id' in new_experiment[field]:
                     new_experiment[field] = new_experiment[field].replace('exp_id', exp_id)
-                    print("subfield is none.. replacing")
                 elif 'exp_id' in new_experiment[field][subfield]:
                     new_experiment[field][subfield] = new_experiment[field][subfield].replace('exp_id', exp_id)
-                    print("subfield is not none.. replacing")
 
             # for field in new_experiment.keys():
             #     print(new_experiment[field])
@@ -672,6 +675,15 @@ if __name__ == "__main__":
 
     parser.add_argument('-d', '--debug', help='(ALWAYS ON). debug mode', action='store_true', default=False)
     args = parser.parse_args()
+
+    # if args.test:
+    #     test_task = progress.add_task("[yellow]Running Experiment Trials", start=False, total=10)
+    #     with progress:
+    #         progress.start_task(test_task)
+    #         for i in range(10):
+    #             progress.update(test_task, refresh=True, advance=1)
+    #             time.sleep(4.3)
+    #     exit(0)
 
     print(f"Starting emulator in {'' if args.interactive else 'non-'}interactive mode...")
     

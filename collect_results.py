@@ -82,7 +82,7 @@ class Collector():
                 if self.start_datetime <= date and date <= self.end_datetime:
                     self.files.append(file)
 
-    def filter_files(self, conditions):
+    def filter_files(self, filters):
         for file in self.files:
             with open(f"{self.search_dir}/{file}", 'r') as f:
                 data = json.load(f)
@@ -93,8 +93,6 @@ class Collector():
         print(f"Filtered {len(self.files)} files down to {len(self.filtered_files)} files.")
         if len(self.filtered_file_names) > 0:
             print(f"From {self.filtered_file_names[0]} to {self.filtered_file_names[-1]}")
-        # for file in self.filtered_file_names:
-        #     print(f"\t{file}")
 
     def _export_csv(self, filename):
         if len(self.filtered_files) == 0:
@@ -102,9 +100,14 @@ class Collector():
             return
         
         with open(filename, 'w') as f:
-            writer = csv.DictWriter(f, fieldnames=self.filtered_files[0].keys())
+            fieldnames = list(self.filtered_files[0].keys())
+            fieldnames.append('count_flags_captured')
+            
+            writer = csv.DictWriter(f, fieldnames)
             writer.writeheader()
             for data in self.filtered_files:
+                data = {**data, 
+                        'count_flags_captured': len(data['flags_captured'])}
                 writer.writerow(data)
 
     def export_file(self, filename):
