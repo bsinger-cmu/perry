@@ -76,15 +76,31 @@ class Filters:
 
 
 class Collector():
-    def __init__(self, start_datetime, end_datetime, search_dir="metrics", output_dir="results"):
+    def __init__(self, start_datetime, end_datetime, search_dir="metrics", output_dir="results", include_dirs=None):
         self.search_dir = search_dir
         self.output_dir = output_dir
+        self.include_dirs = include_dirs
         self.start_datetime = start_datetime
         self.end_datetime = end_datetime
-        
+
         self.files = []
         self.filtered_file_names = []
         self.filtered_files = []
+
+
+    def map_ip_to_host(self, ip):
+        mapping = {
+            '192.168.200.3' : 'activedir_host',
+            '192.168.200.4' : 'ceo_host',
+            '192.168.200.5' : 'finance_host',
+            '192.168.200.6' : 'hr_host',
+            '192.168.200.7' : 'intern_host',
+            '192.168.201.3' : 'database_host',
+        }
+
+        if ip in mapping:
+            return mapping[ip]
+        return ip
 
     def collect_files(self):
         """
@@ -96,7 +112,15 @@ class Collector():
                 date_str = file.split("metrics-")[1].split(".json")[0]
                 date = datetime.strptime(date_str, "%Y-%m-%d_%H-%M-%S")
                 if self.start_datetime <= date and date <= self.end_datetime:
-                    self.files.append(file)
+                    self.files.append(os.path.join(self.search_dir, file))
+        if self.include_dirs:
+            for include_dir in self.include_dirs:
+                for file in os.listdir(include_dir):
+                    if file.endswith(".json") and file.startswith("metrics-"):
+                        date_str = file.split("metrics-")[1].split(".json")[0]
+                        date = datetime.strptime(date_str, "%Y-%m-%d_%H-%M-%S")
+                        if self.start_datetime <= date and date <= self.end_datetime:
+                            self.files.append(os.path.join(include_dir, file))
 
     def filter_files(self, filters):
         """
@@ -104,15 +128,12 @@ class Collector():
         Filter files based on the given filters
         """
         for file in self.files:
-            with open(f"{self.search_dir}/{file}", 'r') as f:
+            with open(file, 'r') as f:
                 data = json.load(f)
                 if filters.check_all(data):
                     self.filtered_files.append(data)
                     self.filtered_file_names.append(file.split(".json")[0])
         self.filtered_file_names.sort()
-        print(f"Filtered {len(self.files)} files down to {len(self.filtered_files)} files.")
-        if len(self.filtered_file_names) > 0:
-            print(f"From {self.filtered_file_names[0]} to {self.filtered_file_names[-1]}")
 
     def _export_csv(self, filename):
         """
@@ -163,12 +184,17 @@ class Collector():
         max_root_flags_captured = max([len(data['root_flags_captured']) for data in self.filtered_files])
         min_root_flags_captured = min([len(data['root_flags_captured']) for data in self.filtered_files])
 
+
         flags_captured_count = {}
         root_flags_captured_count = {}
         total_time = sum([data['experiment_time'] for data in self.filtered_files])
 
         total_restores_per_host = { }
         total_host_restores = 0
+
+        total_decoys_deployed = 0
+        count_decoys_deployed = { }
+        
 
         for data in self.filtered_files:
             num_flags_captured = len(set(data['flags_captured']))
@@ -190,17 +216,31 @@ class Collector():
                         total_restores_per_host[host] = count
                     else:
                         total_restores_per_host[host] += count
+
+            if 'total_decoy_deployments' in data:
+                total_decoys_deployed += data['total_decoy_deployments']
+                if 'count_decoy_deployments' in data:
+                    for decoy, count in data['count_decoy_deployments'].items():
+                        if decoy not in count_decoys_deployed:
+                            count_decoys_deployed[decoy] = count
+                        else:
+                            count_decoys_deployed[decoy] += count
             
         
-        flags_captured_count = dict(sorted(flags_captured_count.items()))
-        root_flags_captured_count = dict(sorted(root_flags_captured_count.items()))
+        flags_captured_count = dict(sorted(flags_captured_count.items(), reverse=True))
+        root_flags_captured_count = dict(sorted(root_flags_captured_count.items(), reverse=True))
         
+        avg_exec_time_per_flag = { }
+        for flags_captured in flags_captured_count.keys():
+            avg_exec_time_per_flag[flags_captured] = round(sum([data['execution_time'] for data in self.filtered_files if len(data['flags_captured']) == flags_captured]) / flags_captured_count[flags_captured], 2)
+
         if len(total_restores_per_host.items()) > 0:
             total_host_restores = sum([data['total_host_restores'] for data in self.filtered_files])
             average_host_restores = round(total_host_restores / total_experiments, 2)
             total_restores_per_host = dict(sorted(total_restores_per_host.items()))
             average_restores_per_host = { host: round(count / total_experiments, 2) for host, count in total_restores_per_host.items() }
             average_restores_per_host = dict(sorted(average_restores_per_host.items()))
+
 
         print("")
         print("*"*80)
@@ -213,14 +253,17 @@ class Collector():
         print(f"Average Setup Time:        {avg_setup_time} seconds ({round(avg_setup_time/60, 2)} minutes)")
         print(f"Average Execution Time:    {avg_execution_time} seconds ({round(avg_execution_time/60, 2)} minutes)")
         print(f"Average Experiment Time:   {avg_experiment_time} seconds ({round(avg_experiment_time/60, 2)} minutes)")
-
         print("")
-        print(f"Min Flags Captured:        {min_flags_captured}")
-        print(f"Max Flags Captured:        {max_flags_captured}")
+        print(f"Average Execution Time Per Flag Captured:")
+        for num_flags_captured, avg_exec_time in avg_exec_time_per_flag.items():
+            print(f"\t{num_flags_captured} Flags: {avg_exec_time} seconds ({round(avg_exec_time/60, 2)} minutes)")
         print("")
-        print(f"Min Root Flags Captured:   {min_root_flags_captured}")
-        print(f"Max Root Flags Captured:   {max_root_flags_captured}")
-        print("")
+        # print(f"Min Flags Captured:        {min_flags_captured}")
+        # print(f"Max Flags Captured:        {max_flags_captured}")
+        # print("")
+        # print(f"Min Root Flags Captured:   {min_root_flags_captured}")
+        # print(f"Max Root Flags Captured:   {max_root_flags_captured}")
+        # print("")
 
         print("Flags Captured Count:")
         for num_flags_captured, count in flags_captured_count.items():
@@ -237,15 +280,35 @@ class Collector():
             print("")
             print("Total Restores Per Host:")
             for host, count in total_restores_per_host.items():
-                print(f"\t{host}: {count} restores")
+                print(f"\t{self.map_ip_to_host(host)}: {count} restores")
             print("")
             print("Average Restores Per Host:")
             for host, count in average_restores_per_host.items():
-                print(f"\t{host}: {count} restores")
+                print(f"\t{self.map_ip_to_host(host)}: {count} restores")
+
+        if total_decoys_deployed > 0:
+            print("")
+            print(f"Total Decoys Deployed:     {total_decoys_deployed}")
+            print(f"Average Decoys Deployed:   {round(total_decoys_deployed/total_experiments,2)}")
+            print("")
+            print("Average Decoys Deployed Per Host:")
+            for host, count in count_decoys_deployed.items():
+                print(f"\t{self.map_ip_to_host(host)}: {round(count/total_experiments, 2)} decoys")
         
         print("")
         print("*"*80)
         print("")
+
+        print(f"Searched directories '{self.search_dir}' for files between {self.start_datetime} and {self.end_datetime}...")
+
+        print(f"Filtered {len(self.files)} files down to {len(self.filtered_files)} files.")
+        if len(self.filtered_file_names) > 0:
+            print(f"From {self.filtered_file_names[0]} to {self.filtered_file_names[-1]}")
+        
+        if self.include_dirs:
+            print(f"Included directories: ")
+            for include_dir in self.include_dirs:
+                print(f"\t{include_dir}")
         # console.save_svg(f"{self.output_dir}/metrics.svg")
         
 
@@ -258,7 +321,9 @@ if __name__ == "__main__":
     argparser.add_argument('-f', '--filters', help='Filters to apply to collected files', required=False, nargs='*')
     
     argparser.add_argument('-d', '--subdir', help='Search a specific subdirectory', required=False)
+    argparser.add_argument('-i','--include', help='Include a specific subdirectory', required=False, nargs='*')
     argparser.add_argument('-r', '--rootdir', help='Search a specific root directory', required=False, default="metrics")
+
 
     argparser.add_argument('-v', '--verbose', help='Verbose output', required=False, action='store_true', default=False)
 
@@ -278,13 +343,16 @@ if __name__ == "__main__":
     if args.filters:
         filters.add_all_filters(args.filters)
 
+    root_dir = args.rootdir
 
     search_dir = args.rootdir
     output_dir = "results"
+    include_dirs = None
 
     if args.subdir:
         search_dir = os.path.join(args.rootdir, args.subdir)
         output_dir = os.path.join(output_dir, args.subdir)
+
 
     # Check tthat the directory exists
     if not os.path.isdir(search_dir):
@@ -292,13 +360,23 @@ if __name__ == "__main__":
 
     if not os.path.isdir(output_dir):
         os.mkdir(output_dir)
+    
+    if args.include is not None:
+        include_dirs = []
+        for include_dir in args.include:
+            include_dir_name = os.path.join(root_dir, include_dir)
+            if not os.path.isdir(include_dir_name):
+                raise Exception(f"Directory {include_dir_name} does not exist.")
+            else:
+                include_dirs.append(include_dir_name)
 
-    print(f"Will search directory '{search_dir}' for files between {start_datetime} and {end_datetime}...")
-    print(f"Will save results to '{output_dir}/{args.output}'...")
-
-    result_collector = Collector(start_datetime, end_datetime, search_dir, output_dir)
+    result_collector = Collector(start_datetime, end_datetime, search_dir, output_dir, include_dirs)
     result_collector.collect_files()
     result_collector.filter_files(filters)
     result_collector.export_file(args.output)
+    
+
     if args.verbose:
         result_collector.print_experiment_metrics()
+        print(f"Saved results to '{output_dir}/{args.output}'...")
+
