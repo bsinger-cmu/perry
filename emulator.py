@@ -43,6 +43,11 @@ class Emulator:
         self.scenario = None
         self.config = None
         self.output_subdir = None
+        self.quiet = False
+
+
+    def set_quiet(self, quiet):
+        self.quiet = quiet
 
     def set_config(self, config):
         self.config = config
@@ -100,7 +105,7 @@ class Emulator:
         # Initialize ansible
         ssh_key_path = config['ssh_key_path']
         ansible_dir = './ansible/'
-        ansible_runner = AnsibleRunner(ssh_key_path, None, ansible_dir)
+        ansible_runner = AnsibleRunner(ssh_key_path, None, ansible_dir, self.quiet)
 
         self.scenario = scenario
         self.config = config
@@ -231,7 +236,8 @@ class EmulatorInteractive():
 
         run_parser = subparsers.add_parser('run', help='run the attacker')
         run_parser.add_argument('-n', '--num', help='number of times to run attacker', type=int, default=1)
-        run_parser.add_argument('-s', '--silent', help='do not print metrics', default=False, action="store_true")
+        run_parser.add_argument('-s', '--suppress-metrics', help='do not print metrics', default=False, action="store_true")
+        run_parser.add_argument('-q', '--quiet', help='do not print any ansible information', default=False, action="store_true")
         run_parser.set_defaults(func=self.handle_run)
 
         help_parser = subparsers.add_parser('help', help='print help message')
@@ -252,11 +258,12 @@ class EmulatorInteractive():
         load_parser.set_defaults(func=self.handle_load)
 
         execute_parser = subparsers.add_parser('execute', help='execute loaded experiments')
-        execute_parser.add_argument('-s', '--silent', help='do not print metrics', default=False, action="store_true")
+        execute_parser.add_argument('-s', '--suppress-metrics', help='do not print metrics', default=False, action="store_true")
+        execute_parser.add_argument('-q', '--quiet', help='do not print any ansible information', default=False, action="store_true")
         execute_parser.set_defaults(func=self.handle_execute)
 
         view_parser = subparsers.add_parser('view', help='view current settings')
-        view_parser.add_argument('setting', choices=['config', 'scenario', 'experiments'])
+        view_parser.add_argument('setting', choices=['config', 'scenario', 'experiments', 'metrics'])
         view_parser.set_defaults(func=self.handle_view)
 
 
@@ -370,6 +377,8 @@ class EmulatorInteractive():
         if self.emulator.config is None or self.emulator.scenario is None:
             print("No config or scenario loaded. Run 'setup' command first")
             return
+        
+        self.emulator.set_quiet(args.quiet)
         # num = args.num
         trials = args.num
         all_metrics = []
@@ -401,7 +410,7 @@ class EmulatorInteractive():
         progress.remove_task(experiment_task)
         
         # Print metrics for multiple runs
-        if not args.silent:
+        if not args.suppress_metrics:
             self.print_all_metrics(all_metrics, trials, complete_count, error_count, exception_count)
     
 
@@ -417,14 +426,19 @@ class EmulatorInteractive():
             return
 
         num_exps = len(self.all_experiments)
+        num_trials = sum([exp['trials'] for exp in self.all_experiments])
+        all_trials_task = progress.add_task("[white]Total Trials Completed", start=False, total=num_trials)
         all_experiments_task = progress.add_task("[cyan]Running All Experiments", start=False, total=num_exps)
         experiment_task = progress.add_task(f"[yellow]Running Experiment", start=False, total=None)
         all_subtasks = []
         all_experiments_outcome = {}
 
+        self.emulator.set_quiet(args.quiet)
+
         # Use progress bar to show the progress of all experiments
         with progress:
             progress.start_task(all_experiments_task)
+            progress.start_task(all_trials_task)
             for experiment in self.all_experiments:
                 # Load/Setup each experiment
                 (config, scenario) = self.load_config_and_scenario(experiment['setup']['config'], experiment['setup']['scenario'])
@@ -484,6 +498,8 @@ class EmulatorInteractive():
                         break
 
                     progress.update(experiment_task, advance=1)
+                    progress.update(all_trials_task, advance=1)
+                    progress.update(all_experiments_task, advance=1/trials)    
                 
 
                 # set the outcome + metrics of the current experiment
@@ -498,14 +514,14 @@ class EmulatorInteractive():
                     progress.update(experiment_task, description=f"[red]Halted Experiment {exp_id}")
                 else:
                     progress.update(experiment_task, description=f"[green]Completed Experiment {exp_id}")
-                progress.update(all_experiments_task, advance=1)    
                 progress.reset(experiment_task, description=f"[yellow]Running Experiment {exp_id}", start=False)
 
         
         progress.remove_task(all_experiments_task)
+        progress.remove_task(all_trials_task)
         progress.remove_task(experiment_task)
 
-        if not args.silent:
+        if not args.suppress_metrics:
             print(f"\nCompleted all experiments from config {self.loaded_config}. Printing statuses...")
             for exp in self.all_experiments:
                 print(f"\nExperiment {exp['id']}")
@@ -542,6 +558,15 @@ class EmulatorInteractive():
                 print("No experiment config loaded")
                 return
             rprint(self.all_experiments)
+
+        elif args.setting == 'metrics':
+            if self.all_experiments is None:
+                print("No experiment config loaded")
+                return
+            rprint(self.all_experiments)
+        
+        else:
+            print("Invalid option")
 
     @staticmethod
     def get_fields_from_string(s):
@@ -594,7 +619,7 @@ class EmulatorInteractive():
                                 'settings.on_exception',     # Note: Retry is not implemented 
                                 'settings.max_retries',      # Note: Retry is not implemented
                                 ]
-
+        parent_names = ['setup', 'output', 'logging', 'flags', 'settings']
         all_experiment_ids = []
 
         for experiment in exp_config:
@@ -633,6 +658,15 @@ class EmulatorInteractive():
 
             # Add default values for missing optional fields
             new_experiment = {**defaults, **experiment}
+            for field in defaults.keys():
+                if field not in experiment:
+                    new_experiment[field] = defaults[field]
+                elif type(defaults[field]) == dict:
+                    for subfield in defaults[field].keys():
+                        if subfield not in experiment[field]:
+                            new_experiment[field][subfield] = defaults[field][subfield]
+
+
 
             # Find all the fields that have the default exp_id name and replace 
             # it with the experiment's id
@@ -755,8 +789,10 @@ if __name__ == "__main__":
         if args.redeploy_hosts:
             emulator.setup(config, scenario, redeploy_hosts=args.redeploy_hosts, redeploy_network=args.redeploy_network)
         
-        emulator.scenario = scenario
-        emulator.config = config
+        if args.scenario:
+            emulator.scenario = scenario
+        if args.config:
+            emulator.config = config
         EmulatorInteractive(emulator).start_interactive_emulator()
 
     else:
