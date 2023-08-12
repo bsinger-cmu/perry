@@ -16,7 +16,7 @@ class EnterpriseInstance(DeploymentInstance):
         # $ HR:           192.168.200.6
         # ! Intern:       192.168.200.7      <-- infected with attacker (SSH password login)
         # # Database:     192.168.201.3 FLAG <-- SSH password login, weak user password (or netcat reverse shell) -- script + shell command
-
+        print("Setting up EnterpriseInstance")
         if redeploy_hosts:
             if redeploy_network:
                 print("Redeploying network...")
