@@ -47,6 +47,7 @@ class EnterpriseDynamicDefender(Defender):
         new_events = self.telemetry_analysis.process_low_level_events()
         hosts_to_restore = []
         decoys_to_deploy = []
+        attacker_ip = None
 
         ips_to_shutdown = set()
         deploy_decoy = False
@@ -71,8 +72,13 @@ class EnterpriseDynamicDefender(Defender):
 
         if deploy_decoy and self.decoys < 6:
             decoy = self.decoy_datacenter
-            if self.decoys % 2 == 0:
+
+            # This method is smarter. Experiment folder: experiment_3_v2
+            if attacker_ip and attacker_ip.startswith('192.168.200'):
                 decoy = self.decoy_company
+            # Old Method. Experiment folder: experiment_3, experiment_3_test
+            # if self.decoys % 2 == 0:
+            #     decoy = self.decoy_company
             
             self.decoys += 1
             decoy_name = "decoy_" + str(self.decoys)
