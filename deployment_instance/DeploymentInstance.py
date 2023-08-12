@@ -187,6 +187,7 @@ class DeploymentInstance:
             self.load_snapshot(instance.private_v4, instance.name + "_image")
         
         # Wait for all instances to be active before doing anything else
+        active_instances = []
         if wait:
             rprint("Waiting for all instances to be active...")
             all_active = False
@@ -200,14 +201,18 @@ class DeploymentInstance:
                         color = Fore.GREEN if curr_instance.status == 'ACTIVE' else Fore.RED
                         color = Fore.YELLOW if curr_instance.status == 'REBUILD' else color
 
-                        print(f"{color}{curr_instance.status:<12}{Style.RESET_ALL}{curr_instance.name}")
-                        
+                        if curr_instance.status == 'ACTIVE' and curr_instance.name not in active_instances:
+                            print(f"{color}{curr_instance.status:<12}{Style.RESET_ALL}{curr_instance.name}")
+                            active_instances.append(curr_instance.name)
+
                         if curr_instance.status == 'ERROR':
                             print("ERROR: Instance in error state. Aborting...")
                             return 1 ## Failure to load snapshots
+                        elif curr_instance.status not in ['ACTIVE', 'REBUILD']:
+                            print(f"{color}{curr_instance.status:<12}{Style.RESET_ALL}{curr_instance.name}")
 
                     time.sleep(0.5)
-                time.sleep(7)
+                time.sleep(2)
         return 0
         # for instance in self.all_instances:
         #     curr_instance = self.openstack_conn.get_server_by_id(instance.id)
