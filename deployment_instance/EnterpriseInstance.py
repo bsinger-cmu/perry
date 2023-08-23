@@ -67,7 +67,7 @@ class EnterpriseInstance(DeploymentInstance):
             self.orchestrator.vulns.add_sshEnablePasswordLogin('192.168.200.4')
             self.orchestrator.vulns.add_writeablePassword('192.168.200.4')
             # Finance
-            # self.orchestrator.vulns.add_vsftpdBackdoor('192.168.200.5')
+            self.orchestrator.vulns.add_vsftpdBackdoor('192.168.200.5')
             self.orchestrator.vulns.add_netcatShell('192.168.200.5')
             # Intern
             self.orchestrator.vulns.add_sshEnablePasswordLogin('192.168.200.7')

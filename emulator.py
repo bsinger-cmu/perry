@@ -157,6 +157,7 @@ class Emulator:
         print('Main loop starting!')
         finished = False
         finish_counter = 0
+        instance_check_counter = 0
         try:
             while not finished:
                 self.defender.run()
@@ -165,6 +166,10 @@ class Emulator:
                     finish_counter = 0
                     # Check if attacker has finished
                     finished = self.finished()
+
+                if instance_check_counter > 60:
+                    instance_check_counter = 0
+                    self.check_all_instances()
 
                 time.sleep(.5)
                 finish_counter += 1
@@ -207,6 +212,20 @@ class Emulator:
     # Example: You want OpenAI gym to control the defender for learning a new policy
     def external_defender_steps(self, actions):
         return self.defender.run(actions)
+    
+    def check_all_instances(self):
+        all_servers = self.openstack_conn.list_servers()
+        all_active = True
+        for server in all_servers:
+            if server.status != 'ACTIVE':
+                print(f"{Fore.RED}Server {server.name} is in {server.status} state {Style.RESET_ALL}")
+                all_active = False
+
+            if server.status == 'ERROR':
+                print(f"An error has occured in server {server.name}.")
+                print(f"Server {server.name} is in ERROR state")
+                print(f"Placing warning in goalkeeper metrics")
+                self.goalkeeper.set_warning(f"server_error_state")
 
 
 
@@ -601,7 +620,7 @@ class EmulatorInteractive():
         id_name_fields = ['output.subdir', 'output.summary', 'output.results', 'logging.log_file']
         dir_fields = ['output.subdir']
         file_fields = ['setup.config', 'setup.scenario', 'output.summary', 'output.results', 'logging.log_file']
-        bool_fields = ['flags.use_subdir', 'flags.redeploy_hosts', 'flags.redeploy_network']
+        bool_fields = ['flags.use_subdir', 'flags.redeploy_hosts', 'flags.redeploy_network', 'flags.do_summary']
         int_fields = ['trials', 'settings.max_retries', 'settings.max_errors', 'settings.max_exceptions']
         custom_fields = {
                             'logging.log_type': ['console', 'file', 'both', 'none'],

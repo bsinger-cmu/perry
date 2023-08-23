@@ -22,9 +22,10 @@
     config: config_example.yml      # Config from /config
     scenario: scenario_example.yml  # Scanerio from /scenarios
   flags:                            # (OPTIONAL FIELD) Will use the shown defaults if not specified
-    use_subdir: true                # Defaults to true
-    redeploy_hosts: false           # Default is false
-    redeploy_network: false         # Default is false
+    use_subdir: true                # Defaults to true. Can be set to false if you want to use the root /metrics/ and /results/ directory
+    redeploy_hosts: false           # Default is false. Can be set to true if you want to redeploy hosts between trials
+    redeploy_network: false         # Default is false. Can be set to true if you want to redeploy network between trials
+    do_summary: true                # Defaults to true. Can be set to false if you don't want to create summary and results files
   output:                           # (OPTIONAL FIELD) Will use the shown defaults if not specified
     subdir: exp_id                  # Defaults to experiment ID. Will be created under /results/ and /metrics/
     summary: exp_id_summary.txt     # Defaults to experiment_id_summary.txt under /results/output_subdir/                            #TODO : IMPLEMENT

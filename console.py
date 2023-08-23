@@ -33,11 +33,11 @@ class TaskTimeElapsedColumn(ProgressColumn):
         if task.elapsed is None:
             return Text('-:--:--', style='white')
         
-        if task.completed > self.completed[task.id]:
+        if int(task.completed) > int(self.completed[task.id]):
             self.time_last_updated[task.id] = task.elapsed
             self.completed[task.id] = task.completed
 
-        if task.completed < self.completed[task.id] and task.completed == 0:
+        if int(task.completed) < int(self.completed[task.id]) and int(task.completed) == 0:
             self.time_last_updated[task.id] = 0
             self.completed[task.id] = 0
 

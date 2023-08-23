@@ -19,6 +19,9 @@ class GoalKeeper:
 
     def stop_setup_timer(self):
         self.setup_stop_time = time.time()
+
+    def set_warning(self, warning: str):
+        self.metrics['warning'] = warning
     
     def start_execution_timer(self):
         self.execution_start_time = time.time()

@@ -5,7 +5,10 @@ import json
 import os
 from abc import ABC, abstractmethod
 import csv
+import sys
 from rich import print as rprint
+
+import statistics
 
 from rich.console import Console
 from rich.table import Table
@@ -25,7 +28,8 @@ class Filters:
             "neq": self.NotEquals,
             "dne": self.DoesNotExist,
         }
-    
+
+
     # Add a filter to the list of filters
     def add_filter(self, filter_str):
         """
@@ -82,11 +86,22 @@ class Collector():
         self.include_dirs = include_dirs
         self.start_datetime = start_datetime
         self.end_datetime = end_datetime
-
         self.files = []
         self.filtered_file_names = []
         self.filtered_files = []
+        self.output_stream = sys.stdout
+    
+    def set_output_stream(self, output_stream):
+        """
+        Set the output stream for the collector
+        """
+        self.output_stream = output_stream
 
+    def set_output_file(self, output_file):
+        """
+        Set the output file for the collector
+        """
+        self.output_stream = open(output_file, 'w')
 
     def map_ip_to_host(self, ip):
         mapping = {
@@ -122,13 +137,31 @@ class Collector():
                         if self.start_datetime <= date and date <= self.end_datetime:
                             self.files.append(os.path.join(include_dir, file))
 
-    def filter_files(self, filters):
+    def massage_data(self):
+        for file in self.files:
+            massaged = False
+            with open(file, "r+") as f:
+                data = json.load(f)
+
+                if 'flags_captured' in data and ('count_flags_captured' not in data or len(data['flags_captured']) != data['count_flags_captured']):
+                    data['count_flags_captured'] = len(data['flags_captured'])
+                    massaged = True
+                if 'root_flags_captured' in data and ('count_root_flags_captured' not in data or len(data['root_flags_captured']) != data['count_root_flags_captured']):
+                    data['count_root_flags_captured'] = len(data['root_flags_captured'])
+                    massaged = True
+
+                if massaged:
+                    f.seek(0)
+                    json.dump(data, f)
+
+    def filter_files(self, filters: Filters):
         """
         filter_files
         Filter files based on the given filters
         """
+        self.massage_data()
         for file in self.files:
-            with open(file, 'r') as f:
+            with open(file, "r+") as f:
                 data = json.load(f)
                 if filters.check_all(data):
                     self.filtered_files.append(data)
@@ -145,13 +178,13 @@ class Collector():
         
         with open(filename, 'w') as f:
             fieldnames = list(self.filtered_files[0].keys())
-            fieldnames.append('count_flags_captured')
+            # fieldnames.append('count_flags_captured')
             
             writer = csv.DictWriter(f, fieldnames)
             writer.writeheader()
             for data in self.filtered_files:
-                data = {**data, 
-                        'count_flags_captured': len(data['flags_captured'])}
+                # data = {**data, 
+                #         'count_flags_captured': len(data['flags_captured'])}
                 writer.writerow(data)
 
     def export_file(self, filename):
@@ -166,7 +199,14 @@ class Collector():
         else:
             raise Exception(f"File type {filetype} not supported.")
     
-    def print_experiment_metrics(self):
+    def print_message(self, message):
+        """
+        print_message
+        Print a message to the given output stream
+        """
+        print(message, file=self.output_stream, flush=True)
+    
+    def print_summary(self, experiment_id="", experiment_name="", experiment_description="", summary_file=None):
         """
         print_experiment_metrics
         Print metrics for all experiments in the form of a summary
@@ -242,74 +282,99 @@ class Collector():
             average_restores_per_host = dict(sorted(average_restores_per_host.items()))
 
 
-        print("")
-        print("*"*80)
-        print("* Experiment Metrics")
-        print("*"*80)
-        print("")
-        print(f"Total Experiments:         {total_experiments}")
-        print(f"Total Time:                {round(total_time/3600, 2)} hours")
-        print("")
-        print(f"Average Setup Time:        {avg_setup_time} seconds ({round(avg_setup_time/60, 2)} minutes)")
-        print(f"Average Execution Time:    {avg_execution_time} seconds ({round(avg_execution_time/60, 2)} minutes)")
-        print(f"Average Experiment Time:   {avg_experiment_time} seconds ({round(avg_experiment_time/60, 2)} minutes)")
-        print("")
-        print(f"Average Execution Time Per Flag Captured:")
+        self.print_message("")
+        self.print_message("*"*80)
+        self.print_message("* Experiment Metrics")
+        self.print_message("*"*80)
+        self.print_message("")
+        self.print_message(f"Total Experiments:         {total_experiments}")
+        self.print_message(f"Total Time:                {round(total_time/3600, 2)} hours")
+        self.print_message("")
+        self.print_message(f"Average Setup Time:        {avg_setup_time} seconds ({round(avg_setup_time/60, 2)} minutes)")
+        self.print_message(f"Average Execution Time:    {avg_execution_time} seconds ({round(avg_execution_time/60, 2)} minutes)")
+        self.print_message(f"Average Experiment Time:   {avg_experiment_time} seconds ({round(avg_experiment_time/60, 2)} minutes)")
+        self.print_message("")
+        self.print_message("")
+        self.print_message(f"Median Setup Time:        {statistics.median([data['setup_time'] for data in self.filtered_files])} seconds ({round(avg_setup_time/60, 2)} minutes)")
+        self.print_message(f"Median Execution Time:    {statistics.median([data['execution_time'] for data in self.filtered_files])} seconds ({round(avg_execution_time/60, 2)} minutes)")
+        self.print_message(f"Median Experiment Time:   {statistics.median([data['experiment_time'] for data in self.filtered_files])} seconds ({round(avg_experiment_time/60, 2)} minutes)")
+        self.print_message("")
+        self.print_message(f"Average Execution Time Per Flag Captured:")
         for num_flags_captured, avg_exec_time in avg_exec_time_per_flag.items():
-            print(f"\t{num_flags_captured} Flags: {avg_exec_time} seconds ({round(avg_exec_time/60, 2)} minutes)")
-        print("")
-        # print(f"Min Flags Captured:        {min_flags_captured}")
-        # print(f"Max Flags Captured:        {max_flags_captured}")
-        # print("")
-        # print(f"Min Root Flags Captured:   {min_root_flags_captured}")
-        # print(f"Max Root Flags Captured:   {max_root_flags_captured}")
-        # print("")
+            self.print_message(f"\t{num_flags_captured} Flags: {avg_exec_time} seconds ({round(avg_exec_time/60, 2)} minutes)")
+        self.print_message("")
+        # self.print_message(f"Min Flags Captured:        {min_flags_captured}")
+        # self.print_message(f"Max Flags Captured:        {max_flags_captured}")
+        # self.print_message("")
+        # self.print_message(f"Min Root Flags Captured:   {min_root_flags_captured}")
+        # self.print_message(f"Max Root Flags Captured:   {max_root_flags_captured}")
+        # self.print_message("")
 
-        print("Flags Captured Count:")
+        self.print_message("Flags Captured Count:")
         for num_flags_captured, count in flags_captured_count.items():
-            print(f"\t{num_flags_captured} Flags: {count:<5} times ({round(count/total_experiments*100,2)}%)")
-        print("")
-        print("Root Flags Captured Count:")
+            self.print_message(f"\t{num_flags_captured} Flags: {count:<5} times ({round(count/total_experiments*100,2)}%)")
+        self.print_message("")
+        self.print_message("Root Flags Captured Count:")
         for num_flags_captured, count in root_flags_captured_count.items():
-            print(f"\t{num_flags_captured} Flags: {count:<5} times ({round(count/total_experiments*100,2)}%)")
+            self.print_message(f"\t{num_flags_captured} Flags: {count:<5} times ({round(count/total_experiments*100,2)}%)")
 
         if total_host_restores > 0:
-            print("")
-            print(f"Total Restores:   {total_host_restores}")
-            print(f"Average Restores:   {average_host_restores}")
-            print("")
-            print("Total Restores Per Host:")
+            self.print_message("")
+            self.print_message(f"Total Restores:   {total_host_restores}")
+            self.print_message(f"Average Restores:   {average_host_restores}")
+            self.print_message("")
+            self.print_message("Total Restores Per Host:")
             for host, count in total_restores_per_host.items():
-                print(f"\t{self.map_ip_to_host(host)}: {count} restores")
-            print("")
-            print("Average Restores Per Host:")
+                self.print_message(f"\t{self.map_ip_to_host(host)}: {count} restores")
+            self.print_message("")
+            self.print_message("Average Restores Per Host:")
             for host, count in average_restores_per_host.items():
-                print(f"\t{self.map_ip_to_host(host)}: {count} restores")
+                self.print_message(f"\t{self.map_ip_to_host(host)}: {count} restores")
 
         if total_decoys_deployed > 0:
-            print("")
-            print(f"Total Decoys Deployed:     {total_decoys_deployed}")
-            print(f"Average Decoys Deployed:   {round(total_decoys_deployed/total_experiments,2)}")
-            print("")
-            print("Average Decoys Deployed Per Host:")
+            self.print_message("")
+            self.print_message(f"Total Decoys Deployed:     {total_decoys_deployed}")
+            self.print_message(f"Average Decoys Deployed:   {round(total_decoys_deployed/total_experiments,2)}")
+            self.print_message("")
+            self.print_message("Total Decoys Deployed Per Subnet:")
             for host, count in count_decoys_deployed.items():
-                print(f"\t{self.map_ip_to_host(host)}: {round(count/total_experiments, 2)} decoys")
+                self.print_message(f"\t{self.map_ip_to_host(host)}: {count} decoys")
+            self.print_message("")
+            self.print_message("Percent Decoys Deployed Per Subnet:")
+            for host, count in count_decoys_deployed.items():
+                self.print_message(f"\t{self.map_ip_to_host(host)}: {round(count/sum(count_decoys_deployed.values())*100, 2)} %")
+            self.print_message("")
+            self.print_message("Average Decoys Deployed Per Subnet:")
+            for host, count in count_decoys_deployed.items():
+                self.print_message(f"\t{self.map_ip_to_host(host)}: {round(count/total_experiments, 2)} decoys")
         
-        print("")
-        print("*"*80)
-        print("")
+        self.print_message("")
+        self.print_message("*"*80)
+        self.print_message("")
 
-        print(f"Searched directories '{self.search_dir}' for files between {self.start_datetime} and {self.end_datetime}...")
+        self.print_message(f"Searched directories '{self.search_dir}' for files between {self.start_datetime} and {self.end_datetime}...")
 
-        print(f"Filtered {len(self.files)} files down to {len(self.filtered_files)} files.")
+        self.print_message(f"Filtered {len(self.files)} files down to {len(self.filtered_files)} files.")
         if len(self.filtered_file_names) > 0:
-            print(f"From {self.filtered_file_names[0]} to {self.filtered_file_names[-1]}")
+            self.print_message(f"From {self.filtered_file_names[0]} to {self.filtered_file_names[-1]}")
         
         if self.include_dirs:
-            print(f"Included directories: ")
+            self.print_message(f"Included directories: ")
             for include_dir in self.include_dirs:
-                print(f"\t{include_dir}")
+                self.print_message(f"\t{include_dir}")
         # console.save_svg(f"{self.output_dir}/metrics.svg")
+
+        if summary_file:
+            print(f"Saving summary to {summary_file}...")
+            with open(summary_file, "w") as f:
+                f.write("summarymetric,summaryvalue\n")
+                f.write(f"Total Trials,{total_experiments}\n")
+                f.write(f"Average Setup Time,{avg_setup_time}\n")
+                f.write(f"Average Execution Time,{avg_execution_time}\n")
+                for num_flags_captured, avg_exec_time in avg_exec_time_per_flag.items():
+                    f.write(f"Execution Time {num_flags_captured} Flags Captured,{avg_exec_time}\n")
+                for num_flags_captured, count in flags_captured_count.items():
+                    f.write(f"Number of Trials {num_flags_captured} Flags Captured,{count}\n")
         
 
 if __name__ == "__main__":
@@ -377,6 +442,6 @@ if __name__ == "__main__":
     
 
     if args.verbose:
-        result_collector.print_experiment_metrics()
+        result_collector.print_summary(summary_file=os.path.join(output_dir, "summary.csv"))
         print(f"Saved results to '{output_dir}/{args.output}'...")
 
