@@ -1,0 +1,8 @@
+---
+- id: experiment_1_example
+  name: experiment 1 name
+  description: this is a description
+  trials: 12
+  setup:
+    config: config.yml
+    scenario: enterprise_defender.yml
