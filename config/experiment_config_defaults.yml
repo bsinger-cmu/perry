@@ -40,11 +40,3 @@
     log_type: console               # Defaults to console. Options [both, console, file, none]                                       #TODO : IMPLEMENT
     log_file: exp_id.log            # Defaults to experiment_1.log under /logs/ . If set to null, will not log to file               #TODO : IMPLEMENT
     log_level: INFO                 # Defaults to INFO. Options [DEBUG, INFO, WARNING, ERROR, CRITICAL]                              #TODO : IMPLEMENT
-
-- id: experiment
-  trials: 1
-  setup:
-    config: config_example.yml
-    scenario: scenario_example.yml
-  flags:
-    use_subdir: false
