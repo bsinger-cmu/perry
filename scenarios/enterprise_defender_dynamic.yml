@@ -1,10 +1,10 @@
 defender: 
-  type: EnterpriseSimpleDefender
+  type: EnterpriseDynamicDefender
   arsenal:
     type: CountArsenal
     storage:
-      DeployDecoy: 3
-      StartHoneyService: 5
-      RestoreServer: 0
+      DeployDecoy: 15
+      StartHoneyService: 24
+      RestoreServer: 24
 attacker: EnterpriseAttacker
 deployment_instance: EnterpriseInstance

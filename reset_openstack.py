@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import time
 import openstack 
 import argparse
 import sys
@@ -14,6 +15,7 @@ class OpenstackResetter():
         print(f"[RESET ({self.current_index}/{self.total_items})]\t({index}/{total})\t{message}...")
 
     def list_all(self):
+        print(">---        Listing Openstack        ---<")
         self.initialize_lists()
         self.list_instances()
         self.list_floating_ips()
@@ -22,6 +24,8 @@ class OpenstackResetter():
         self.list_subnets()
         self.list_networks()
         self.list_sec_groups()
+        print(f"TOTAL ITEMS = {self.total_items}")
+        print(">---            Finished!            ---<")
 
     def reset(self):
         print(">---       Resetting Openstack       ---<")
@@ -102,7 +106,11 @@ class OpenstackResetter():
         for server in self.all_servers:
             current_server_index += 1
             self.print_message("Deleting instance %s" % server.name, current_server_index, self.total_instances)
-            self.conn.delete_server(server.id)
+            try:
+                self.conn.delete_server(server.id)
+            except Exception as e:
+                print(f"Exception {e} in deleting instance {server.name}")
+            time.sleep(0.1)
 
     def release_floating_ips(self):
         current_ip_index = 0
@@ -110,7 +118,11 @@ class OpenstackResetter():
             current_ip_index += 1 
             message = "Releasing floating IP (floating: %s, fixed: %s)..." % (ip.floating_ip_address, ip.fixed_ip_address)
             self.print_message(message, current_ip_index, self.total_floating_ips)
-            self.conn.delete_floating_ip(ip.id)
+            try:
+                self.conn.delete_floating_ip(ip.id)
+            except Exception as e:
+                print(f"Exception {e} in releasing ip {ip.floating_ip_address}")
+            time.sleep(0.1)
 
     def delete_interfaces(self, router):
         all_interfaces = self.conn.list_router_interfaces(router)
@@ -119,29 +131,45 @@ class OpenstackResetter():
             current_interface_index += 1
             self.print_message("Deleting interface %s" % interface.id, current_interface_index, len(all_interfaces), False)
             for fixed_ip in interface.fixed_ips:
-                self.conn.remove_router_interface(router, subnet_id=fixed_ip['subnet_id'])
+                try:
+                    self.conn.remove_router_interface(router, subnet_id=fixed_ip['subnet_id'])
+                except Exception as e:
+                    print(f"Exception {e} in deleting interface {interface.id}")
+                time.sleep(0.1)
 
     def delete_routers(self):
         current_router_index = 0
         for router in self.all_routers:
             current_router_index += 1
             self.print_message("Deleting router %s" % router.name, current_router_index, self.total_routers)
-            self.delete_interfaces(router)
+            try:
+                self.delete_interfaces(router)
+            except Exception as e:
+                print(f"Exception {e} in deleting router {router.name}")
             self.conn.delete_router(router.id)
+            time.sleep(0.1)
 
     def delete_network_ports(self):
         current_port_index = 0
         for port in self.all_ports:
             current_port_index += 1
             self.print_message("Deleting port %s" % port.name, current_port_index, self.total_ports)
-            self.conn.delete_port(port.id)
+            try:
+                self.conn.delete_port(port.id)
+            except Exception as e:
+                print(f"Exception {e} in deleting port {port.id}")
+            time.sleep(0.1)
     
     def delete_subnets(self):
         current_subnet_index = 0
         for subnet in self.all_subnets:
             current_subnet_index += 1
             self.print_message("Deleting subnet %s" % subnet.name, current_subnet_index, self.total_subnets)
-            self.conn.delete_subnet(subnet.id)
+            try:
+                self.conn.delete_subnet(subnet.id)
+            except Exception as e:
+                print(f"Exception {e} in deleting subnet {subnet.name}")
+            time.sleep(0.1)
 
     def delete_networks(self):
         current_network_index = 0
@@ -151,7 +179,11 @@ class OpenstackResetter():
                 self.print_message("Forbidden to delete network %s. Skipping" % network.name, current_network_index, self.total_networks)
                 continue
             self.print_message("Deleting network %s" % network.name, current_network_index, self.total_networks)
-            self.conn.delete_network(network.id)
+            try:
+                self.conn.delete_network(network.id)
+            except Exception as e:
+                print(f"Exception {e} in deleting network {network.name}")
+            time.sleep(0.1)
     
     def delete_sec_groups(self):
         current_sec_group_index = 0
@@ -161,7 +193,11 @@ class OpenstackResetter():
                 self.print_message("Forbidden to delete security group %s. Skipping" % sec_group.name, current_sec_group_index, self.total_sec_groups)
                 continue
             self.print_message("Deleting security group %s" % sec_group.name, current_sec_group_index, self.total_sec_groups)
-            self.conn.delete_security_group(sec_group.id)
+            try:
+                self.conn.delete_security_group(sec_group.id)
+            except Exception as e:
+                print(f"Exception {e} in deleting security group {sec_group.name}")
+            time.sleep(0.1)
 
 
 if __name__ == '__main__':

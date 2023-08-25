@@ -5,6 +5,7 @@ from deployment_instance.topology_orchestrator import deploy_network, destroy_ne
 from deployment_instance.MasterOrchestrator import MasterOrchestrator
 from colorama import Fore, Style
 from rich import print as rprint
+from openstack.connection import Connection
 
 public_ip = '10.20.20'
 # Finds management server that can be used to talk to other servers
@@ -21,11 +22,13 @@ def find_manage_server(conn):
 class DeploymentInstance:
     def __init__(self, ansible_runner, openstack_conn, caldera_ip):
         self.ansible_runner = ansible_runner
-        self.openstack_conn = openstack_conn
+        self.openstack_conn: Connection = openstack_conn
         self.ssh_key_path = './environment/ssh_keys/'
         self.caldera_ip = caldera_ip
         self.orchestrator = MasterOrchestrator(self.ansible_runner)
         self.all_instances = None
+
+        self.hosts = {}
 
         self.flags = {}
         self.root_flags = {}
@@ -145,9 +148,46 @@ class DeploymentInstance:
     def load_all_snapshots(self, wait=True):
         rprint("Loading all snapshots...")
         self._load_instances()
+        
+        # This is so that we do not try to load a snapshot while an instance is
+        # being rebuilt. 
+        waiting_for_rebuild = True
+        while waiting_for_rebuild:
+            waiting_for_rebuild = False
+            for instance in self.all_instances:
+                curr_instance = self.openstack_conn.get_server_by_id(instance.id)
+                if curr_instance and curr_instance.status == 'REBUILD':
+                    waiting_for_rebuild = True
+                    print(f"Instance {Fore.RED}{curr_instance.name}{Style.RESET_ALL} is being rebuilt. Waiting...")
+                time.sleep(0.5)
+            if not waiting_for_rebuild:
+                rprint("All instances are ready to be rebuilt.")
+            else:
+                time.sleep(7)
+
+        waiting_for_active = True
+        while waiting_for_active:
+            waiting_for_active = False
+            for instance in self.all_instances:
+                curr_instance = self.openstack_conn.get_server_by_id(instance.id)
+                if curr_instance.status == "SHUTOFF":
+                    waiting_for_active = True
+                    rprint(f"Starting instance {Fore.RED}{curr_instance.name}{Style.RESET_ALL}...")
+
+                    task_state = curr_instance.task_state
+                    if not task_state:
+                        self.openstack_conn.compute.start_server(curr_instance.id)
+                    else:
+                        rprint(f"Instance {curr_instance.name} has task_state {task_state}. Skipping for now...")
+                time.sleep(0.5)
+
+        # Load all snapshots
         for instance in self.all_instances:
+            print(instance.private_v4, instance.name)
             self.load_snapshot(instance.private_v4, instance.name + "_image")
         
+        # Wait for all instances to be active before doing anything else
+        active_instances = []
         if wait:
             rprint("Waiting for all instances to be active...")
             all_active = False
@@ -159,14 +199,20 @@ class DeploymentInstance:
                     if curr_instance:
                         all_active = all_active and curr_instance.status == 'ACTIVE'
                         color = Fore.GREEN if curr_instance.status == 'ACTIVE' else Fore.RED
-                        print(f"{color}{curr_instance.status:<12}{Style.RESET_ALL}{curr_instance.name}")
-                        
-                        
+                        color = Fore.YELLOW if curr_instance.status == 'REBUILD' else color
+
+                        if curr_instance.status == 'ACTIVE' and curr_instance.name not in active_instances:
+                            print(f"{color}{curr_instance.status:<12}{Style.RESET_ALL}{curr_instance.name}")
+                            active_instances.append(curr_instance.name)
+
                         if curr_instance.status == 'ERROR':
                             print("ERROR: Instance in error state. Aborting...")
                             return 1 ## Failure to load snapshots
+                        elif curr_instance.status not in ['ACTIVE', 'REBUILD']:
+                            print(f"{color}{curr_instance.status:<12}{Style.RESET_ALL}{curr_instance.name}")
 
-                time.sleep(10)
+                    time.sleep(0.5)
+                time.sleep(2)
         return 0
         # for instance in self.all_instances:
         #     curr_instance = self.openstack_conn.get_server_by_id(instance.id)

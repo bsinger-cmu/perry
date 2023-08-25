@@ -8,7 +8,7 @@ import time
 
 class EnterpriseInstance(DeploymentInstance):
     
-    def setup(self, already_deployed=False, new_flags=False):
+    def setup(self, redeploy_hosts=False, redeploy_network=False, new_flags=False):
         # Setup topology
         # # ActiveDir:    192.168.200.3      <-- Samba RCE vulnerability (or - currently - netcat reverse shell) -- shell command
         # # CEO:          192.168.200.4 FLAG <-- SSH password login, passwd writeable - currently weak passwd and ssh login -- 
@@ -16,11 +16,13 @@ class EnterpriseInstance(DeploymentInstance):
         # $ HR:           192.168.200.6
         # ! Intern:       192.168.200.7      <-- infected with attacker (SSH password login)
         # # Database:     192.168.201.3 FLAG <-- SSH password login, weak user password (or netcat reverse shell) -- script + shell command
-
-        if not already_deployed:
-            destroy_network('enterprise_network')
-            deploy_network('enterprise_network')
-            time.sleep(5)
+        print("Setting up EnterpriseInstance")
+        if redeploy_hosts:
+            if redeploy_network:
+                print("Redeploying network...")
+                destroy_network('enterprise_network')
+                deploy_network('enterprise_network')
+                time.sleep(5)
 
             # Update management ip for new network
             # TODO (copied from TwoPathInstance.py) have management server be fixed, and only deploy instance servers
@@ -66,6 +68,7 @@ class EnterpriseInstance(DeploymentInstance):
             self.orchestrator.vulns.add_writeablePassword('192.168.200.4')
             # Finance
             self.orchestrator.vulns.add_vsftpdBackdoor('192.168.200.5')
+            self.orchestrator.vulns.add_netcatShell('192.168.200.5')
             # Intern
             self.orchestrator.vulns.add_sshEnablePasswordLogin('192.168.200.7')
             # Database
@@ -74,7 +77,7 @@ class EnterpriseInstance(DeploymentInstance):
             self.orchestrator.vulns.add_netcatShell('192.168.201.3')
 
             time.sleep(10)
-            self.save_all_snapshots()
+            self.save_all_snapshots(wait=False)
         
         else:
             load = self.load_all_snapshots()
@@ -93,17 +96,8 @@ class EnterpriseInstance(DeploymentInstance):
         self.root_flags['192.168.201.3'] = self.orchestrator.goals.setup_root_flag('192.168.201.3')
         
         # Execute Processes
-        self.orchestrator.vulns.run_vsftpdBackdoor('192.168.200.5')
+        # self.orchestrator.vulns.run_vsftpdBackdoor('192.168.200.5')
 
-        # Check Flags
-        # self.orchestrator.common.check_file('192.168.200.4', '/home/ceo/flag.txt')
-        # self.orchestrator.common.check_file('192.168.200.5', '/home/finance/flag.txt')
-        # self.orchestrator.common.check_file('192.168.201.3', '/home/database/flag.txt')
-        # self.orchestrator.common.check_file('192.168.200.4', '/root/flag.txt')
-        # self.orchestrator.common.check_file('192.168.200.5', '/root/flag.txt')
-        # self.orchestrator.common.check_file('192.168.201.3', '/root/flag.txt')
-        
-        
         # Setup attacker on intern machine
         self.orchestrator.attacker.install_attacker('192.168.200.7', 'intern', self.caldera_ip)
 

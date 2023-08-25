@@ -4,10 +4,11 @@ from rich import print
 
 
 class AnsibleRunner:
-    def __init__(self, ssh_key_path, management_ip, ansible_dir):
+    def __init__(self, ssh_key_path, management_ip, ansible_dir, quiet=False):
         self.ssh_key_path = ssh_key_path
         self.management_ip = management_ip
         self.ansible_dir = ansible_dir
+        self.quiet = quiet
 
         self.ansible_vars_default = {'manage_ip': self.management_ip, 'ssh_key_path': self.ssh_key_path}
 
@@ -15,15 +16,18 @@ class AnsibleRunner:
         if playbook_params is None:
             playbook_params = {}
 
-        print(f"\n")
-        print(f"[RUNNING PLAYBOOK]    {playbook_name}")
-        print(f"[PLAYBOOK  PARAMS]    {playbook_params}")
+        if self.quiet is False:
+            print(f"\n")
+            print(f"[RUNNING PLAYBOOK]    {playbook_name}")
+            print(f"[PLAYBOOK  PARAMS]    {playbook_params}")
 
         # Merge default params with playbook specific params
         playbook_full_params = self.ansible_vars_default | playbook_params
-        ansible_result = ansible_runner.run(extravars=playbook_full_params, private_data_dir=self.ansible_dir,
+        ansible_result = ansible_runner.run(extravars=playbook_full_params, 
+                                            private_data_dir=self.ansible_dir,
                                             playbook=playbook_name,
-                                            cancel_callback=lambda: None)
+                                            cancel_callback=lambda: None,
+                                            quiet=self.quiet)
         return ansible_result
     
     def update_management_ip(self, new_ip):

@@ -113,6 +113,8 @@ ENV/
 env.bak/
 venv.bak/
 
+images/
+
 # Spyder project settings
 .spyderproject
 .spyproject
@@ -138,3 +140,7 @@ dmypy.json
 clouds.yaml
 
 temp_flags/
+results/
+metrics/
+.emulator_history
+metrics.tgz

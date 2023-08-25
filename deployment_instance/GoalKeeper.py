@@ -1,3 +1,4 @@
+from datetime import datetime
 import time
 import json
 import os
@@ -18,6 +19,9 @@ class GoalKeeper:
 
     def stop_setup_timer(self):
         self.setup_stop_time = time.time()
+
+    def set_warning(self, warning: str):
+        self.metrics['warning'] = warning
     
     def start_execution_timer(self):
         self.execution_start_time = time.time()
@@ -44,6 +48,9 @@ class GoalKeeper:
             if flag_value == flag:
                 return host
         return None
+    
+    def set_metric(self, metric_name, metric_value):
+        self.metrics[metric_name] = metric_value
 
     def calculate_metrics(self):
         # TODO: Make this an object
@@ -92,9 +99,31 @@ class GoalKeeper:
 
         return self.metrics
     
-    def save_metrics(self, file_name):
-        with open(os.path.join('results', file_name), 'w') as f:
+    def save_metrics(self, file_name=None, subdir=None):
+        metrics_file = file_name
+        if file_name is None:
+            now = datetime.now()
+            now_str = now.strftime("%Y-%m-%d_%H-%M-%S")
+            metrics_file = "metrics-" + now_str + ".json"
+            
+        if subdir is not None:
+            dir_path = os.path.join('metrics', subdir)
+        else:
+            dir_path = 'metrics'
+
+        if not os.path.exists(dir_path):
+            try:
+                os.makedirs(dir_path)
+            except OSError as e:
+                print(f"Error creating directory {dir_path}: {e}")
+                return
+
+        metrics_file = os.path.join(dir_path, metrics_file)
+
+        rprint(f"Saving metrics to {metrics_file}...")
+        with open(metrics_file, 'w') as f:
             json.dump(self.metrics, f)
+        print("Metrics saved.")
 
     def print_metrics(self):
         print("Metrics:")

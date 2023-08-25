@@ -1,2 +1,4 @@
 *.yml
 !config_example.yml
+!experiment_config_defaults.yml
+!experiment_config_example.yml

@@ -1,5 +1,5 @@
 defender: 
-  type: WaitAndSpotDefender
+  type: Defender
   arsenal:
     type: CountArsenal
     storage:

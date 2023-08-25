@@ -60,8 +60,7 @@ In a new terminal window:
 
 3. In `config/` create a configuration file (an example is in `config/config_example.yml`). Note that you will need to add the caldera API key and the Elasticsearch user's password.
 
-4. To run `python3 main.py -c CONFIG_FNAME` Note that CONFIG_FNAME is NOT the path to the file, rather simply the name of the config file.
-    - An example: `python3 emulator.py -c CONFIG_FNAME -s SCENARIO_NAME`
+4. To run, see section "Running the Emulator".
 
 # GUI locations
 
@@ -80,3 +79,31 @@ Full command with all three tunnels open `ssh <USERNAME>@gromit.andrew.cmu.edu -
 You can also use the openstack UI and create a snapshot
 
 - `openstack server image create INSTANCE_ID --name IMAGE_NAME`
+
+
+# Running the Emulator
+
+To run the emulator in interactive mode and gain access to the emulator's command line interface, run `python emulator.py -i`
+
+There are two pairs of emulator commands: 
+- `setup` and `run`
+- `load` and `execute`
+
+Commands and their arguments can be found by running `help` in the emulator CLI.
+
+Commands:
+
+- `setup -s scenario.yml -c config.yml` is used to manually setup a scenario with a given config
+    - Note that CONFIG_FNAME is NOT the path to the file, rather simply the name of the config file. The emulator will look for the config file in the `config/` directory and for the scenario file in the `scenarios/` directory automatically.
+- `run -n NUM` is used to run the loaded scenario NUM times
+- `load experiment_config.yml` is used to load an experiment configuration (see `config/experiment_config_example.yml` for an example)
+- `execute` is used to run the loaded experiment configuration
+    - Will continue running all experiments until completed or until stopped with `ctrl-c`. Note that stopping the emulator with `ctrl-c` during the Main Loop *will* save the results of the experiments and will thus need to be deleted.
+
+For an example of how to use the emulator, run the following commands in the emulator CLI:
+1. `load experiment_config_example.yml`
+2. `execute`
+
+There is also a `view` command that can be useful to view the configuration and loaded setup. For example, after running the `load` command, run `view experiments` to see the loaded experiment configuration.
+
+The emulator also catches exceptions and errors so that the emulator does not crash. If an error occurs, the emulator will print the error and continue running. If the error is fatal, the emulator will print the error and exit.

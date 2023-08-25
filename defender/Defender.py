@@ -16,6 +16,7 @@ class Defender:
         self.orchestrator = OpenstackOrchestrator(openstack_conn, ansible_runner, self.external_elasticsearch_server, self.elasticsearch_api_key)
 
         self.arsenal = arsenal
+        self.metrics = {}
 
     def start(self):
         return
