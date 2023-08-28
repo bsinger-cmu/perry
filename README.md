@@ -83,7 +83,7 @@ You can also use the openstack UI and create a snapshot
 
 # Running the Emulator
 
-To run the emulator in interactive mode and gain access to the emulator's command line interface, run `python emulator.py -i`
+To run the emulator in interactive mode and gain access to the emulator's command line interface, run `python InteractiveEmulator.py -i`
 
 There are two pairs of emulator commands: 
 - `setup` and `run`
