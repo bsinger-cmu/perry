@@ -76,10 +76,10 @@ class Emulator:
             for dir_to_make in dirs_to_make:
                 self.safe_create_dir(dir_to_make)
 
-    def setup(self, config, scenario, redeploy_hosts=False, new_flags=False, redeploy_network=True):
+    def setup(self, compile=False, network_only=False):
         # Setup connection to elasticsearch
-        elasticsearch_server = f"https://localhost:{config['elasticsearch']['port']}"
-        elasticsearch_api_key = config['elasticsearch']['api_key']
+        elasticsearch_server = f"https://localhost:{self.config['elasticsearch']['port']}"
+        elasticsearch_api_key = self.config['elasticsearch']['api_key']
 
         elasticsearch_conn = Elasticsearch(
             elasticsearch_server,
@@ -99,18 +99,15 @@ class Emulator:
             time.sleep(5)
 
         # Initialize ansible
-        ssh_key_path = config['ssh_key_path']
+        ssh_key_path = self.config['ssh_key_path']
         ansible_dir = './ansible/'
         ansible_runner = AnsibleRunner(
             ssh_key_path, None, ansible_dir, self.quiet)
 
-        self.scenario = scenario
-        self.config = config
-
         # Setup attacker
-        caldera_api_key = config['caldera']['api_key']
+        caldera_api_key = self.config['caldera']['api_key']
         self.caldera_api_key = caldera_api_key
-        attacker_ = getattr(attacker_module, scenario['attacker'])
+        attacker_ = getattr(attacker_module, self.scenario['attacker'])
         self.attacker = attacker_(caldera_api_key)
 
         # Setup GoalKeeper
@@ -119,14 +116,16 @@ class Emulator:
 
         # Deploy deployment instance
         deployment_instance_ = getattr(
-            deployment_instance_module, scenario['deployment_instance'])
+            deployment_instance_module, self.scenario['deployment_instance'])
         self.deployment_instance = deployment_instance_(
-            ansible_runner, self.openstack_conn, config['external_ip'])
+            ansible_runner, self.openstack_conn, self.config['external_ip'])
 
-        load = self.deployment_instance.setup(
-            redeploy_hosts=redeploy_hosts, redeploy_network=redeploy_network, new_flags=new_flags)
-        if load == 1:  # Failure to load snapshots
-            return load
+        # Compile deployment instance if needed
+        if compile:
+            self.deployment_instance.compile(network_only=network_only)
+        else:
+            # Do runtimesetup
+            self.deployment_instance.run()
 
         self.deployment_instance.print_all_flags()
 
@@ -134,13 +133,13 @@ class Emulator:
         self.goalkeeper.set_root_flags(self.deployment_instance.root_flags)
 
         # Setup initial defender
-        defender_ = getattr(defender_module, scenario['defender']['type'])
+        defender_ = getattr(defender_module, self.scenario['defender']['type'])
         arsenal_ = getattr(
-            defender_module, scenario['defender']['arsenal']['type'])
-        arsenal = arsenal_(scenario['defender']['arsenal'])
+            defender_module, self.scenario['defender']['arsenal']['type'])
+        arsenal = arsenal_(self.scenario['defender']['arsenal'])
 
         self.defender = defender_(ansible_runner, self.openstack_conn, elasticsearch_conn,
-                                  config['external_ip'], config['elasticsearch']['port'], config['elasticsearch']['api_key'], arsenal)
+                                  self.config['external_ip'], self.config['elasticsearch']['port'], self.config['elasticsearch']['api_key'], arsenal)
         # self.defender = Defender(ansible_runner, self.openstack_conn, elasticsearch_conn, config['external_ip'], config['elasticsearch']['port'], config['elasticsearch']['api_key'])
         self.defender.start()
         self.goalkeeper.stop_setup_timer()

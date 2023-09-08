@@ -15,7 +15,7 @@ from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
 
 
 class EmulatorInteractive():
-    def __init__(self, emulator, config=None, scenario=None):
+    def __init__(self, emulator: Emulator, config=None, scenario=None):
         self.emulator = emulator
         self.config = config
         self.scenario = scenario
@@ -74,6 +74,12 @@ class EmulatorInteractive():
             'setting', choices=['config', 'scenario', 'experiments', 'metrics'])
         view_parser.set_defaults(func=self.handle_view)
 
+        compile_parser = subparsers.add_parser(
+            'compile', help='compile deployment instance')
+        compile_parser.add_argument(
+            '-n', '--network-only', help='compiles just network', default=False, action="store_true")
+        compile_parser.set_defaults(func=self.handle_compile)
+
     def start_interactive_emulator(self):
         """
         start_interactive_emulator:
@@ -115,8 +121,7 @@ class EmulatorInteractive():
         """
         result = None
         try:
-            load = self.emulator.setup(
-                self.emulator.config, self.emulator.scenario)
+            load = self.emulator.setup()
         except Exception as e:
             print(f"{Back.RED}Failed with exception:{Style.RESET_ALL}")
             print(e)
@@ -178,6 +183,9 @@ class EmulatorInteractive():
         self.emulator.set_config(config)
         self.emulator.set_scenario(scenario)
         return
+
+    def handle_compile(self, args):
+        self.emulator.setup(compile=True, network_only=args.network_only)
 
     def handle_run(self, args):
         """

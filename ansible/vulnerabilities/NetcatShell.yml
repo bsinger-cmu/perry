@@ -16,4 +16,4 @@
 - name: Reboot machine
   ansible.builtin.import_playbook: ../common/reboot.yml
   vars:
-    timeout: 0
+    timeout: 30
