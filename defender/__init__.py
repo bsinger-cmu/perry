@@ -1,5 +1,5 @@
 from .WaitAndSpotDefender import WaitAndSpotDefender
-from .EnterpriseSimpleDefender import EnterpriseSimpleDefender
+from .EnterpriseRandomDefender import EnterpriseRandomDefender
 from .EnterpriseWaitAndSpotDefender import EnterpriseWaitAndSpotDefender
 from .EnterpriseDynamicDefender import EnterpriseDynamicDefender
 from .Defender import Defender

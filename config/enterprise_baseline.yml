@@ -1,0 +1,13 @@
+---
+- id: enterprise_baseline
+  name: Enterprise Baseline
+  description: this is a description
+  trials: 5
+  setup:
+    config: config.yml
+    scenario: enterprise_baseline.yml
+  flags: # (OPTIONAL FIELD) Will use the shown defaults if not specified
+    use_subdir: true # Defaults to true. Can be set to false if you want to use the root /metrics/ and /results/ directory
+    redeploy_hosts: false # Default is false. Can be set to true if you want to redeploy hosts between trials
+    redeploy_network: false # Default is false. Can be set to true if you want to redeploy network between trials
+    do_summary: true # Defaults to true. Can be set to false if you don't want to create summary and results files
