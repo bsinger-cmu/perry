@@ -1,0 +1,23 @@
+{
+    "operation_id": "ced762fc-fd79-43d5-a1a9-0b7df792f8eb",
+    "start_time": 1694306828.10519,
+    "experiment_time": 925.5730364322662,
+    "execution_time": 709.0756344795227,
+    "setup_time": 216.49740195274353,
+    "flags_captured": [
+        "192.168.200.5",
+        "192.168.200.4"
+    ],
+    "root_flags_captured": [
+        "192.168.200.5"
+    ],
+    "hosts_infected": [
+        "intern-host",
+        "activedir-host",
+        "finance-host",
+        "ceo-host"
+    ],
+    "deployment_instance": "EnterpriseInstance",
+    "attacker": "EnterpriseAttacker",
+    "defender": "EnterpriseSimpleDefender"
+}

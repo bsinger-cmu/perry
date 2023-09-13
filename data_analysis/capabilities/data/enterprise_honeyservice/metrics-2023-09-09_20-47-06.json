@@ -1,0 +1,26 @@
+{
+    "operation_id": "5d678574-710d-40bb-83d0-8bcf7bfb6bd4",
+    "start_time": 1694305694.3984144,
+    "experiment_time": 1126.6273667812347,
+    "execution_time": 946.0895643234253,
+    "setup_time": 180.53780245780945,
+    "flags_captured": [
+        "192.168.200.4",
+        "192.168.200.5",
+        "192.168.201.3"
+    ],
+    "root_flags_captured": [
+        "192.168.200.5",
+        "192.168.201.3"
+    ],
+    "hosts_infected": [
+        "intern-host",
+        "activedir-host",
+        "ceo-host",
+        "finance-host",
+        "database-host"
+    ],
+    "deployment_instance": "EnterpriseInstance",
+    "attacker": "EnterpriseAttacker",
+    "defender": "EnterpriseSimpleDefender"
+}

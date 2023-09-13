@@ -1,0 +1,15 @@
+{
+    "operation_id": "df97229d-4a1b-4aa3-939b-011ed0dc2805",
+    "start_time": 1694525860.2931752,
+    "experiment_time": 275.29522919654846,
+    "execution_time": 73.64601373672485,
+    "setup_time": 201.6492154598236,
+    "flags_captured": [],
+    "root_flags_captured": [],
+    "hosts_infected": [
+        "intern-host"
+    ],
+    "deployment_instance": "EnterpriseInstance",
+    "attacker": "EnterpriseAttacker",
+    "defender": "EnterpriseSimpleDefender"
+}
