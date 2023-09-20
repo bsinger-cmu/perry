@@ -5,7 +5,7 @@ import time
 class EnterpriseInstance(DeploymentInstance):
     def __init__(self, ansible_runner, openstack_conn, caldera_ip):
         super().__init__(ansible_runner, openstack_conn, caldera_ip)
-        self.topology = 'enterprise_network'
+        self.topology = "enterprise_network"
 
     def compile_setup(self):
         # Setup topology
@@ -20,29 +20,23 @@ class EnterpriseInstance(DeploymentInstance):
         # TODO (copied from TwoPathInstance.py) have management server be fixed, and only deploy instance servers
         self.find_management_server()
 
-        self.orchestrator.deployment.check_host_liveness('192.168.200.3')
+        self.orchestrator.deployment.check_host_liveness("192.168.200.3")
         time.sleep(3)
 
         # Install users on all hosts
-        self.orchestrator.common.create_user(
-            '192.168.200.3', 'activedir', 'ubuntu')
-        self.orchestrator.common.create_user(
-            '192.168.200.4', 'ceo', 'ubuntu')
-        self.orchestrator.common.create_user(
-            '192.168.200.5', 'finance', 'ubuntu')
-        self.orchestrator.common.create_user(
-            '192.168.200.6', 'hr', 'ubuntu')
-        self.orchestrator.common.create_user(
-            '192.168.200.7', 'intern', 'ubuntu')
-        self.orchestrator.common.create_user(
-            '192.168.201.3', 'database', 'ubuntu')
+        self.orchestrator.common.create_user("192.168.200.3", "activedir", "ubuntu")
+        self.orchestrator.common.create_user("192.168.200.4", "ceo", "ubuntu")
+        self.orchestrator.common.create_user("192.168.200.5", "finance", "ubuntu")
+        self.orchestrator.common.create_user("192.168.200.6", "hr", "ubuntu")
+        self.orchestrator.common.create_user("192.168.200.7", "intern", "ubuntu")
+        self.orchestrator.common.create_user("192.168.201.3", "database", "ubuntu")
 
-        self.orchestrator.deployment.install_base_packages('192.168.200.3')
-        self.orchestrator.deployment.install_base_packages('192.168.200.4')
-        self.orchestrator.deployment.install_base_packages('192.168.200.5')
-        self.orchestrator.deployment.install_base_packages('192.168.200.6')
-        self.orchestrator.deployment.install_base_packages('192.168.200.7')
-        self.orchestrator.deployment.install_base_packages('192.168.201.3')
+        self.orchestrator.deployment.install_base_packages("192.168.200.3")
+        self.orchestrator.deployment.install_base_packages("192.168.200.4")
+        self.orchestrator.deployment.install_base_packages("192.168.200.5")
+        self.orchestrator.deployment.install_base_packages("192.168.200.6")
+        self.orchestrator.deployment.install_base_packages("192.168.200.7")
+        self.orchestrator.deployment.install_base_packages("192.168.201.3")
 
         # Add Samba AD DC, create users/groups, and configure host machines to join AD
         # self.orchestrator.enterprise.samba_AD(
@@ -58,41 +52,47 @@ class EnterpriseInstance(DeploymentInstance):
 
         # Add vulnerabilities to hosts
         # Active Directory
-        self.orchestrator.vulns.add_netcatShell('192.168.200.3')
+        self.orchestrator.vulns.add_netcatShell("192.168.200.3")
         # CEO
         # self.orchestrator.vulns.add_weakUserPassword('192.168.200.4', 'ceo')
-        self.orchestrator.vulns.add_sshEnablePasswordLogin('192.168.200.4')
-        self.orchestrator.vulns.add_writeablePassword('192.168.200.4')
+        self.orchestrator.vulns.add_sshEnablePasswordLogin("192.168.200.4")
+        self.orchestrator.vulns.add_writeablePassword("192.168.200.4")
         # Finance
-        self.orchestrator.vulns.add_vsftpdBackdoor('192.168.200.5')
-        self.orchestrator.vulns.add_netcatShell('192.168.200.5')
+        self.orchestrator.vulns.add_vsftpdBackdoor("192.168.200.5")
+        self.orchestrator.vulns.add_netcatShell("192.168.200.5")
         # Intern
-        self.orchestrator.vulns.add_sshEnablePasswordLogin('192.168.200.7')
+        self.orchestrator.vulns.add_sshEnablePasswordLogin("192.168.200.7")
         # Database
-        self.orchestrator.vulns.add_weakUserPassword(
-            '192.168.201.3', 'database')
-        self.orchestrator.vulns.add_sshEnablePasswordLogin('192.168.201.3')
-        self.orchestrator.vulns.add_netcatShell('192.168.201.3')
+        self.orchestrator.vulns.add_weakUserPassword("192.168.201.3", "database")
+        self.orchestrator.vulns.add_sshEnablePasswordLogin("192.168.201.3")
+        self.orchestrator.vulns.add_netcatShell("192.168.201.3")
 
     def runtime_setup(self):
-        # Setup flags
-        self.flags['192.168.200.4'] = self.orchestrator.goals.setup_flag(
-            '192.168.200.4', '/home/ceo/flag.txt', 'ceo', 'root')
-        self.flags['192.168.200.5'] = self.orchestrator.goals.setup_flag(
-            '192.168.200.5', '/home/finance/flag.txt', 'finance', 'root')
-        self.flags['192.168.201.3'] = self.orchestrator.goals.setup_flag(
-            '192.168.201.3', '/home/database/flag.txt', 'database', 'root')
-
-        self.root_flags['192.168.200.4'] = self.orchestrator.goals.setup_root_flag(
-            '192.168.200.4')
-        self.root_flags['192.168.200.5'] = self.orchestrator.goals.setup_root_flag(
-            '192.168.200.5')
-        self.root_flags['192.168.201.3'] = self.orchestrator.goals.setup_root_flag(
-            '192.168.201.3')
-
         # Execute Processes
         # self.orchestrator.vulns.run_vsftpdBackdoor('192.168.200.5')
 
+        # Setup flags
+        self.flags["192.168.200.4"] = self.orchestrator.goals.setup_flag(
+            "192.168.200.4", "/home/ceo/flag.txt", "ceo", "root"
+        )
+        self.flags["192.168.200.5"] = self.orchestrator.goals.setup_flag(
+            "192.168.200.5", "/home/finance/flag.txt", "finance", "root"
+        )
+        self.flags["192.168.201.3"] = self.orchestrator.goals.setup_flag(
+            "192.168.201.3", "/home/database/flag.txt", "database", "root"
+        )
+
+        self.root_flags["192.168.200.4"] = self.orchestrator.goals.setup_root_flag(
+            "192.168.200.4"
+        )
+        self.root_flags["192.168.200.5"] = self.orchestrator.goals.setup_root_flag(
+            "192.168.200.5"
+        )
+        self.root_flags["192.168.201.3"] = self.orchestrator.goals.setup_root_flag(
+            "192.168.201.3"
+        )
+
         # Setup attacker on intern machine
         self.orchestrator.attacker.install_attacker(
-            '192.168.200.7', 'intern', self.caldera_ip)
+            "192.168.200.7", "intern", self.caldera_ip
+        )

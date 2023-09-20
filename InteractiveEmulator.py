@@ -14,70 +14,112 @@ from prompt_toolkit.history import FileHistory
 from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
 
 
-class EmulatorInteractive():
+class EmulatorInteractive:
     def __init__(self, emulator: Emulator, config=None, scenario=None):
         self.emulator = emulator
         self.config = config
         self.scenario = scenario
-        self.loaded_config = None
+        self.loaded_experiment = None
         self.all_experiments = []
 
-        self.session = PromptSession(history=FileHistory('.emulator_history'))
+        self.session = PromptSession(history=FileHistory(".emulator_history"))
 
         self.emulator_parser = ArgumentParser(
-            prog="emulator", add_help=False, exit_on_error=False,)
+            prog="emulator",
+            add_help=False,
+            exit_on_error=False,
+        )
         subparsers = self.emulator_parser.add_subparsers()
 
-        run_parser = subparsers.add_parser('run', help='run the attacker')
+        run_parser = subparsers.add_parser("run", help="run the attacker")
         run_parser.add_argument(
-            '-n', '--num', help='number of times to run attacker', type=int, default=1)
+            "-n", "--num", help="number of times to run attacker", type=int, default=1
+        )
         run_parser.add_argument(
-            '-s', '--suppress-metrics', help='do not print metrics', default=False, action="store_true")
+            "-s",
+            "--suppress-metrics",
+            help="do not print metrics",
+            default=False,
+            action="store_true",
+        )
         run_parser.add_argument(
-            '-q', '--quiet', help='do not print any ansible information', default=False, action="store_true")
+            "-q",
+            "--quiet",
+            help="do not print any ansible information",
+            default=False,
+            action="store_true",
+        )
         run_parser.set_defaults(func=self.handle_run)
 
-        help_parser = subparsers.add_parser('help', help='print help message')
+        help_parser = subparsers.add_parser("help", help="print help message")
         help_parser.set_defaults(func=self.handle_help)
 
-        exit_parser = subparsers.add_parser('exit', help='exit emulator')
+        exit_parser = subparsers.add_parser("exit", help="exit emulator")
         exit_parser.set_defaults(func=self.handle_exit)
 
-        setup_parser = subparsers.add_parser('setup', help='setup scenario')
+        setup_parser = subparsers.add_parser("setup", help="setup scenario")
         setup_parser.add_argument(
-            '-c', '--config', help='Name of configuration file', required=True)
+            "-c", "--config", help="Name of configuration file", required=True
+        )
         setup_parser.add_argument(
-            '-s', '--scenario', help='Name of scenario file', required=True)
+            "-s", "--scenario", help="Name of scenario file", required=True
+        )
         setup_parser.add_argument(
-            '-o', '--output', help='Output subdir for metrics', default=None)
+            "-o", "--output", help="Output subdir for metrics", default=None
+        )
         setup_parser.set_defaults(func=self.handle_setup)
 
         load_parser = subparsers.add_parser(
-            'load', help='load from experiment config file')
+            "load", help="load from experiment config file"
+        )
         load_parser.add_argument(
-            'file', help='Name of experiment config file', type=str)
+            "-c", "--config", help="Name of configuration file", required=True
+        )
+        load_parser.add_argument("file", help="Name of batch scenario file", type=str)
         load_parser.add_argument(
-            '-s', '--strict', help='Requires all experiments to have required, valid fields', action='store_true', default=False)
+            "-s",
+            "--strict",
+            help="Requires all experiments to have required, valid fields",
+            action="store_true",
+            default=False,
+        )
         load_parser.set_defaults(func=self.handle_load)
 
         execute_parser = subparsers.add_parser(
-            'execute', help='execute loaded experiments')
+            "execute", help="execute loaded experiments"
+        )
         execute_parser.add_argument(
-            '-s', '--suppress-metrics', help='do not print metrics', default=False, action="store_true")
+            "-s",
+            "--suppress-metrics",
+            help="do not print metrics",
+            default=False,
+            action="store_true",
+        )
         execute_parser.add_argument(
-            '-q', '--quiet', help='do not print any ansible information', default=False, action="store_true")
+            "-q",
+            "--quiet",
+            help="do not print any ansible information",
+            default=False,
+            action="store_true",
+        )
         execute_parser.set_defaults(func=self.handle_execute)
 
-        view_parser = subparsers.add_parser(
-            'view', help='view current settings')
+        view_parser = subparsers.add_parser("view", help="view current settings")
         view_parser.add_argument(
-            'setting', choices=['config', 'scenario', 'experiments', 'metrics'])
+            "setting", choices=["config", "scenario", "experiments", "metrics"]
+        )
         view_parser.set_defaults(func=self.handle_view)
 
         compile_parser = subparsers.add_parser(
-            'compile', help='compile deployment instance')
+            "compile", help="compile deployment instance"
+        )
         compile_parser.add_argument(
-            '-n', '--network-only', help='compiles just network', default=False, action="store_true")
+            "-n",
+            "--network-only",
+            help="compiles just network",
+            default=False,
+            action="store_true",
+        )
         compile_parser.set_defaults(func=self.handle_compile)
 
     def start_interactive_emulator(self):
@@ -89,13 +131,16 @@ class EmulatorInteractive():
         print("Type 'help' for a list of commands")
         while True:
             user_input = self.session.prompt(
-                "emulator> ", auto_suggest=AutoSuggestFromHistory())
+                "emulator> ", auto_suggest=AutoSuggestFromHistory()
+            )
 
             emulator_argv = user_input.split(" ")
 
             try:
                 args = self.emulator_parser.parse_args(emulator_argv)
-                if not ('--help' in emulator_argv or '-h' in emulator_argv) and hasattr(args, 'func'):
+                if not ("--help" in emulator_argv or "-h" in emulator_argv) and hasattr(
+                    args, "func"
+                ):
                     args.func(args)
             except argparse.ArgumentError as e:
                 print(e)
@@ -106,11 +151,11 @@ class EmulatorInteractive():
         load_config_and_scenario:
         Open the config and scenario files and return the yaml contents
         """
-        with open(path.join('config', config), 'r') as f:
+        with open(path.join("config", config), "r") as f:
             config = yaml.safe_load(f)
 
         # open yml config file
-        with open(path.join('scenarios', scenario), 'r') as f:
+        with open(path.join("scenarios", "single", scenario), "r") as f:
             scenario = yaml.safe_load(f)
         return (config, scenario)
 
@@ -143,42 +188,48 @@ class EmulatorInteractive():
             result = ("Success", metrics)
         return result
 
-    def print_all_metrics(self, all_metrics, trials, complete_count, error_count, exception_count):
+    def print_all_metrics(
+        self, all_metrics, trials, complete_count, error_count, exception_count
+    ):
         """
         print_all_metrics
-        Print all metrics for multiple runs of the experiment 
+        Print all metrics for multiple runs of the experiment
         """
         print(f"\nCompleted all experiment trials. Printing statuses...")
         for j in range(trials):
             metrics = all_metrics[j][0]
             if metrics == "Error":
-                print(
-                    f"Run {j+1}: {Fore.RED}Failed to load snapshots{Style.RESET_ALL}")
+                print(f"Run {j+1}: {Fore.RED}Failed to load snapshots{Style.RESET_ALL}")
             elif metrics == "Exception":
                 print(
-                    f"Run {j+1}: {Back.RED}Failed with exception:{Style.RESET_ALL}\n{all_metrics[j][1]}")
+                    f"Run {j+1}: {Back.RED}Failed with exception:{Style.RESET_ALL}\n{all_metrics[j][1]}"
+                )
             else:
                 print(
-                    f"Run {j+1}: {Fore.GREEN}Successfully ran to completion{Style.RESET_ALL}")
+                    f"Run {j+1}: {Fore.GREEN}Successfully ran to completion{Style.RESET_ALL}"
+                )
                 # rprint(metrics)
         print(
-            f"{Fore.CYAN}Total number of experiments runs:{Style.RESET_ALL}     {trials}")
+            f"{Fore.CYAN}Total number of experiments runs:{Style.RESET_ALL}     {trials}"
+        )
         print(
-            f"Times {Fore.GREEN}to completion:{Style.RESET_ALL}                  {complete_count}")
+            f"Times {Fore.GREEN}to completion:{Style.RESET_ALL}                  {complete_count}"
+        )
         if error_count > 0:
             print(
-                f"Times {Fore.RED}failed to load snapshots:{Style.RESET_ALL}       {error_count}")
+                f"Times {Fore.RED}failed to load snapshots:{Style.RESET_ALL}       {error_count}"
+            )
         if exception_count > 0:
             print(
-                f"Times {Back.RED}failed with exception:{Style.RESET_ALL}          {exception_count}")
+                f"Times {Back.RED}failed with exception:{Style.RESET_ALL}          {exception_count}"
+            )
 
     def handle_setup(self, args):
         """
         handle_setup
         This function will handle the setup command and load the config and scenario files.
         """
-        (config, scenario) = self.load_config_and_scenario(
-            args.config, args.scenario)
+        (config, scenario) = self.load_config_and_scenario(args.config, args.scenario)
         self.emulator.set_output_subdir(args.output)
         self.emulator.set_config(config)
         self.emulator.set_scenario(scenario)
@@ -208,7 +259,8 @@ class EmulatorInteractive():
         error_count = 0
         exception_count = 0
         experiment_task = progress.add_task(
-            "[yellow]Running Experiment Trials", start=False, total=trials)
+            "[yellow]Running Experiment Trials", start=False, total=trials
+        )
 
         with progress:
             progress.start_task(experiment_task)
@@ -226,15 +278,17 @@ class EmulatorInteractive():
 
                 all_metrics.append(result)
                 progress.update(experiment_task, refresh=True, advance=1)
-            progress.update(experiment_task,
-                            description="[green]Completed Experiment Trials")
+            progress.update(
+                experiment_task, description="[green]Completed Experiment Trials"
+            )
 
         progress.remove_task(experiment_task)
 
         # Print metrics for multiple runs
         if not args.suppress_metrics:
             self.print_all_metrics(
-                all_metrics, trials, complete_count, error_count, exception_count)
+                all_metrics, trials, complete_count, error_count, exception_count
+            )
 
     def handle_execute(self, args):
         """
@@ -242,18 +296,21 @@ class EmulatorInteractive():
         This function will handle the execute command.
         It will run all trials of all experiments loaded from the configuration file.
         """
-        if self.loaded_config is None:
+        if self.loaded_experiment is None:
             print("No experiments loaded. Load experiments first using 'load' command")
             return
 
         num_exps = len(self.all_experiments)
-        num_trials = sum([exp['trials'] for exp in self.all_experiments])
+        num_trials = sum([exp["trials"] for exp in self.all_experiments])
         all_trials_task = progress.add_task(
-            "[white]Total Trials Completed", start=False, total=num_trials)
+            "[white]Total Trials Completed", start=False, total=num_trials
+        )
         all_experiments_task = progress.add_task(
-            "[cyan]Running All Experiments", start=False, total=num_exps)
+            "[cyan]Running All Experiments", start=False, total=num_exps
+        )
         experiment_task = progress.add_task(
-            f"[yellow]Running Experiment", start=False, total=None)
+            f"[yellow]Running Experiment", start=False, total=None
+        )
         all_subtasks = []
         all_experiments_outcome = {}
 
@@ -266,36 +323,47 @@ class EmulatorInteractive():
             for experiment in self.all_experiments:
                 # Load/Setup each experiment
                 (config, scenario) = self.load_config_and_scenario(
-                    experiment['setup']['config'], experiment['setup']['scenario'])
+                    self.config, experiment["setup"]["scenario"]
+                )
                 self.emulator.set_config(config)
                 self.emulator.set_scenario(scenario)
-                if experiment['flags']['use_subdir'] == True:
-                    self.emulator.set_output_subdir(
-                        experiment['output']['subdir'])
+                if experiment["flags"]["use_subdir"] == True:
+                    self.emulator.set_output_subdir(experiment["output"]["subdir"])
 
                 # Reset trials and counts
-                trials = experiment['trials']
+                trials = experiment["trials"]
                 complete_count = 0
                 error_count = 0
                 exception_count = 0
                 all_metrics = []
 
                 is_halted = False
-                exp_id = experiment['id']
+                exp_id = experiment["id"]
 
-                max_exceptions = experiment['settings']['max_exceptions']
-                max_errors = experiment['settings']['max_errors']
-                max_retries = experiment['settings']['max_retries']
+                max_exceptions = experiment["settings"]["max_exceptions"]
+                max_errors = experiment["settings"]["max_errors"]
+                max_retries = experiment["settings"]["max_retries"]
 
                 all_subtasks.append(experiment_task)
 
-                if experiment['flags']['redeploy_hosts'] == True or experiment['flags']['redeploy_network'] == True:
-                    self.emulator.setup(self.emulator.config, self.emulator.scenario,
-                                        redeploy_hosts=experiment['flags']['redeploy_hosts'],
-                                        redeploy_network=experiment['flags']['redeploy_network'])
+                if (
+                    experiment["flags"]["redeploy_hosts"] == True
+                    or experiment["flags"]["redeploy_network"] == True
+                ):
+                    self.emulator.setup(
+                        self.emulator.config,
+                        self.emulator.scenario,
+                        redeploy_hosts=experiment["flags"]["redeploy_hosts"],
+                        redeploy_network=experiment["flags"]["redeploy_network"],
+                    )
 
                 progress.update(
-                    experiment_task, description=f"[yellow]Running Experiment {exp_id}", total=trials, start=False, completed=0)
+                    experiment_task,
+                    description=f"[yellow]Running Experiment {exp_id}",
+                    total=trials,
+                    start=False,
+                    completed=0,
+                )
                 progress.start_task(experiment_task)
                 for i in range(trials):
                     # Run each trial of the current experiment
@@ -313,38 +381,48 @@ class EmulatorInteractive():
 
                     if max_errors > 0 and error_count > max_errors:
                         print(
-                            f"{Fore.RED}Max {max_errors} errors exceeded in trial {i+1}. Halting experiment {exp_id}{Style.RESET_ALL}")
+                            f"{Fore.RED}Max {max_errors} errors exceeded in trial {i+1}. Halting experiment {exp_id}{Style.RESET_ALL}"
+                        )
                         progress.stop_task(experiment_task)
                         is_halted = True
                         break
 
                     if max_exceptions > 0 and exception_count > max_exceptions:
                         print(
-                            f"{Fore.RED}Max {max_exceptions} exceptions exceeded in trial {i+1}. Halting experiment {exp_id}{Style.RESET_ALL}")
+                            f"{Fore.RED}Max {max_exceptions} exceptions exceeded in trial {i+1}. Halting experiment {exp_id}{Style.RESET_ALL}"
+                        )
                         progress.stop_task(experiment_task)
                         is_halted = True
                         break
 
                     progress.update(experiment_task, advance=1)
                     progress.update(all_trials_task, advance=1)
-                    progress.update(all_experiments_task, advance=1/trials)
+                    progress.update(all_experiments_task, advance=1 / trials)
 
                 # set the outcome + metrics of the current experiment
-                all_experiments_outcome[exp_id] = {"all_metrics": all_metrics,
-                                                   "trials": trials,
-                                                   "complete_count": complete_count,
-                                                   "error_count": error_count,
-                                                   "exception_count": exception_count}
+                all_experiments_outcome[exp_id] = {
+                    "all_metrics": all_metrics,
+                    "trials": trials,
+                    "complete_count": complete_count,
+                    "error_count": error_count,
+                    "exception_count": exception_count,
+                }
 
                 # If experiment is halted, set the color of bar to red
                 if is_halted:
                     progress.update(
-                        experiment_task, description=f"[red]Halted Experiment {exp_id}")
+                        experiment_task, description=f"[red]Halted Experiment {exp_id}"
+                    )
                 else:
                     progress.update(
-                        experiment_task, description=f"[green]Completed Experiment {exp_id}")
+                        experiment_task,
+                        description=f"[green]Completed Experiment {exp_id}",
+                    )
                 progress.reset(
-                    experiment_task, description=f"[yellow]Running Experiment {exp_id}", start=False)
+                    experiment_task,
+                    description=f"[yellow]Running Experiment {exp_id}",
+                    start=False,
+                )
 
         progress.remove_task(all_experiments_task)
         progress.remove_task(all_trials_task)
@@ -352,13 +430,13 @@ class EmulatorInteractive():
 
         if not args.suppress_metrics:
             print(
-                f"\nCompleted all experiments from config {self.loaded_config}. Printing statuses...")
+                f"\nCompleted all experiments from config {self.loaded_experiment}. Printing statuses..."
+            )
             for exp in self.all_experiments:
                 print(f"\nExperiment {exp['id']}")
                 print(f"{exp['name']}: {exp['description']}")
-                if exp['id'] in all_experiments_outcome.keys():
-                    self.print_all_metrics(
-                        **all_experiments_outcome[exp['id']])
+                if exp["id"] in all_experiments_outcome.keys():
+                    self.print_all_metrics(**all_experiments_outcome[exp["id"]])
 
     def handle_exit(self, _):
         print("Exiting emulator...")
@@ -371,25 +449,25 @@ class EmulatorInteractive():
         """
         View current settings: config, scenario, experiments
         """
-        if args.setting == 'config':
+        if args.setting == "config":
             if self.emulator.config is None:
                 print("No config loaded")
                 return
             rprint(self.emulator.config)
 
-        elif args.setting == 'scenario':
+        elif args.setting == "scenario":
             if self.emulator.scenario is None:
                 print("No scenario loaded")
                 return
             rprint(self.emulator.scenario)
 
-        elif args.setting == 'experiments':
+        elif args.setting == "experiments":
             if self.all_experiments is None:
                 print("No experiment config loaded")
                 return
             rprint(self.all_experiments)
 
-        elif args.setting == 'metrics':
+        elif args.setting == "metrics":
             if self.all_experiments is None:
                 print("No experiment config loaded")
                 return
@@ -400,7 +478,7 @@ class EmulatorInteractive():
 
     @staticmethod
     def get_fields_from_string(s):
-        pattern = r'(\w+)(?:\.(\w+))?'
+        pattern = r"(\w+)(?:\.(\w+))?"
         match = re.match(pattern, s)
         if match:
             return match.groups()
@@ -414,46 +492,71 @@ class EmulatorInteractive():
         This also uses the default configuration file to fill in missing fields.
         """
         if args.file is None:
-            print("No file specified")
+            print("No experiment specified")
             return
 
-        self.loaded_config = args.file
-        with open(path.join('config', 'experiment_config_defaults.yml'), 'r') as default_config:
+        if args.config is None:
+            print("No config file specified")
+            return
+
+        self.loaded_experiment = args.file
+        self.config = args.config
+
+        with open(
+            path.join("scenarios", "batch", "experiment_config_defaults.yml"), "r"
+        ) as default_config:
             defaults_list = yaml.safe_load(default_config)
             default_values = defaults_list[0]
 
-        with open(path.join('config', args.file), 'r') as f:
+        with open(path.join("scenarios", "batch", args.file), "r") as f:
             exp_config = yaml.safe_load(f)
 
-        dirpattern = r'^[\w-]+$'
-        filepattern = r'^[\w\.-]+$'
-        required_fields = ['setup', 'setup.config', 'setup.scenario']
-        id_name_fields = ['output.subdir', 'output.summary',
-                          'output.results', 'logging.log_file']
-        dir_fields = ['output.subdir']
-        file_fields = ['setup.config', 'setup.scenario',
-                       'output.summary', 'output.results', 'logging.log_file']
-        bool_fields = ['flags.use_subdir', 'flags.redeploy_hosts',
-                       'flags.redeploy_network', 'flags.do_summary']
-        int_fields = ['trials', 'settings.max_retries',
-                      'settings.max_errors', 'settings.max_exceptions']
+        dirpattern = r"^[\w-]+$"
+        filepattern = r"^[\w\.-]+$"
+        required_fields = ["setup", "setup.scenario"]
+        id_name_fields = [
+            "output.subdir",
+            "output.summary",
+            "output.results",
+            "logging.log_file",
+        ]
+        dir_fields = ["output.subdir"]
+        file_fields = [
+            "setup.scenario",
+            "output.summary",
+            "output.results",
+            "logging.log_file",
+        ]
+        bool_fields = [
+            "flags.use_subdir",
+            "flags.redeploy_hosts",
+            "flags.redeploy_network",
+            "flags.do_summary",
+        ]
+        int_fields = [
+            "trials",
+            "settings.max_retries",
+            "settings.max_errors",
+            "settings.max_exceptions",
+        ]
         custom_fields = {
-            'logging.log_type': ['console', 'file', 'both', 'none'],
-            'logging.log_level': ['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'],
-            'settings.on_error': ['retry', 'skip', 'halt'],
-            'settings.on_exception': ['retry', 'skip', 'halt']
+            "logging.log_type": ["console", "file", "both", "none"],
+            "logging.log_level": ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
+            "settings.on_error": ["retry", "skip", "halt"],
+            "settings.on_exception": ["retry", "skip", "halt"],
         }
 
-        unimplemented_fields = ['output.summary',
-                                'output.results',
-                                'logging.log_file',          # Note: Logging is not implemented
-                                'logging.logging_type',      # Note: Logging is not implemented
-                                'logging.log_level',         # Note: Logging is not implemented
-                                'settings.on_error',         # Note: Retry is not implemented
-                                'settings.on_exception',     # Note: Retry is not implemented
-                                'settings.max_retries',      # Note: Retry is not implemented
-                                ]
-        parent_names = ['setup', 'output', 'logging', 'flags', 'settings']
+        unimplemented_fields = [
+            "output.summary",
+            "output.results",
+            "logging.log_file",  # Note: Logging is not implemented
+            "logging.logging_type",  # Note: Logging is not implemented
+            "logging.log_level",  # Note: Logging is not implemented
+            "settings.on_error",  # Note: Retry is not implemented
+            "settings.on_exception",  # Note: Retry is not implemented
+            "settings.max_retries",  # Note: Retry is not implemented
+        ]
+        parent_names = ["setup", "output", "logging", "flags", "settings"]
         all_experiment_ids = []
 
         for experiment in exp_config:
@@ -461,23 +564,27 @@ class EmulatorInteractive():
             invalid_experiment = False
 
             # Check that ID exists and is valid. This ignores strict mode
-            if 'id' not in experiment or not re.match(dirpattern, experiment['id']):
+            if "id" not in experiment or not re.match(dirpattern, experiment["id"]):
                 print(
-                    f"{Fore.RED}Invalid experiment ID for experiment {exp_id}{Style.RESET_ALL}")
+                    f"{Fore.RED}Invalid experiment ID for experiment {exp_id}{Style.RESET_ALL}"
+                )
                 print(
-                    f"{Fore.RED}All Experiments must have unique ID's. Aborting...{Style.RESET_ALL}")
+                    f"{Fore.RED}All Experiments must have unique ID's. Aborting...{Style.RESET_ALL}"
+                )
                 self.all_experiments = []
                 invalid_experiment = True
                 break
 
-            exp_id = experiment['id']
+            exp_id = experiment["id"]
 
             # Ensure no duplicate experiment id's. Also ignores strict mode
             if exp_id in all_experiment_ids:
                 print(
-                    f"{Fore.RED}Duplicate Experiment ID {exp_id} found.{Style.RESET_ALL}")
+                    f"{Fore.RED}Duplicate Experiment ID {exp_id} found.{Style.RESET_ALL}"
+                )
                 print(
-                    f"{Fore.RED}All Experiments must have unique ID's. Aborting...{Style.RESET_ALL}")
+                    f"{Fore.RED}All Experiments must have unique ID's. Aborting...{Style.RESET_ALL}"
+                )
                 self.all_experiments = []
                 invalid_experiment = True
                 break
@@ -489,11 +596,13 @@ class EmulatorInteractive():
                 (field, subfield) = self.get_fields_from_string(required_field)
                 if field not in experiment:
                     print(
-                        f"{Fore.RED}Experiment {exp_id} missing required field: {field}{Style.RESET_ALL}")
+                        f"{Fore.RED}Experiment {exp_id} missing required field: {field}{Style.RESET_ALL}"
+                    )
                     invalid_experiment = True
                 elif subfield is not None and subfield not in experiment[field]:
                     print(
-                        f"{Fore.RED}Experiment {exp_id} missing required subfield of field {field}: {subfield}{Style.RESET_ALL}")
+                        f"{Fore.RED}Experiment {exp_id} missing required subfield of field {field}: {subfield}{Style.RESET_ALL}"
+                    )
                     invalid_experiment = True
 
             # Add default values for missing optional fields
@@ -510,74 +619,103 @@ class EmulatorInteractive():
             # it with the experiment's id
             for id_name_field in id_name_fields:
                 (field, subfield) = self.get_fields_from_string(id_name_field)
-                if subfield is None and 'exp_id' in new_experiment[field]:
+                if subfield is None and "exp_id" in new_experiment[field]:
                     new_experiment[field] = new_experiment[field].replace(
-                        'exp_id', exp_id)
-                elif 'exp_id' in new_experiment[field][subfield]:
-                    new_experiment[field][subfield] = new_experiment[field][subfield].replace(
-                        'exp_id', exp_id)
+                        "exp_id", exp_id
+                    )
+                elif "exp_id" in new_experiment[field][subfield]:
+                    new_experiment[field][subfield] = new_experiment[field][
+                        subfield
+                    ].replace("exp_id", exp_id)
 
             # Validate all directories to be correct directory names (alphanumeric with dashes and underscores)
             for dir_field in dir_fields:
                 (field, subfield) = self.get_fields_from_string(dir_field)
-                item = new_experiment[field][subfield] if subfield is not None else new_experiment[field]
+                item = (
+                    new_experiment[field][subfield]
+                    if subfield is not None
+                    else new_experiment[field]
+                )
                 if not re.match(dirpattern, item):
                     print(
-                        f"{Fore.RED}Invalid directory name {item} for {dir_field} in experiment {exp_id}{Style.RESET_ALL}")
+                        f"{Fore.RED}Invalid directory name {item} for {dir_field} in experiment {exp_id}{Style.RESET_ALL}"
+                    )
                     invalid_experiment = True
 
             # Validate all files to be correct file names (alphanumeric with dashes, underscores, and dots)
             for file_field in file_fields:
                 (field, subfield) = self.get_fields_from_string(file_field)
-                item = new_experiment[field][subfield] if subfield is not None else new_experiment[field]
+                item = (
+                    new_experiment[field][subfield]
+                    if subfield is not None
+                    else new_experiment[field]
+                )
                 if not re.match(filepattern, item):
                     print(
-                        f"{Fore.RED}Invalid filename {item} for {file_field} in experiment {exp_id}{Style.RESET_ALL}")
+                        f"{Fore.RED}Invalid filename {item} for {file_field} in experiment {exp_id}{Style.RESET_ALL}"
+                    )
                     invalid_experiment = True
 
             # Validate all boolean fields to be boolean
             for bool_field in bool_fields:
                 (field, subfield) = self.get_fields_from_string(bool_field)
-                item = new_experiment[field][subfield] if subfield is not None else new_experiment[field]
+                item = (
+                    new_experiment[field][subfield]
+                    if subfield is not None
+                    else new_experiment[field]
+                )
                 if not type(item) == bool:
                     print(
-                        f"{Fore.RED}Invalid value {item} for {bool_field} in experiment {exp_id}; must be boolean{Style.RESET_ALL}")
+                        f"{Fore.RED}Invalid value {item} for {bool_field} in experiment {exp_id}; must be boolean{Style.RESET_ALL}"
+                    )
                     invalid_experiment = True
 
             # Validate all int fields to be int
             for int_field in int_fields:
                 (field, subfield) = self.get_fields_from_string(int_field)
-                item = new_experiment[field][subfield] if subfield is not None else new_experiment[field]
+                item = (
+                    new_experiment[field][subfield]
+                    if subfield is not None
+                    else new_experiment[field]
+                )
                 if not type(item) == int:
                     print(
-                        f"{Fore.RED}Invalid value {item} for {int_field} in experiment {exp_id}; must be integer{Style.RESET_ALL}")
+                        f"{Fore.RED}Invalid value {item} for {int_field} in experiment {exp_id}; must be integer{Style.RESET_ALL}"
+                    )
                     invalid_experiment = True
 
             # Validate all custom fields to be valid options based on the field's options
             for custom_field in custom_fields.keys():
                 (field, subfield) = self.get_fields_from_string(custom_field)
-                item = new_experiment[field][subfield] if subfield is not None else new_experiment[field]
+                item = (
+                    new_experiment[field][subfield]
+                    if subfield is not None
+                    else new_experiment[field]
+                )
                 if item not in custom_fields[custom_field]:
                     print(
-                        f"{Fore.RED}Invalid value {item} for {custom_field} in experiment {exp_id}; must be one of {custom_fields[custom_field]}{Style.RESET_ALL}")
+                        f"{Fore.RED}Invalid value {item} for {custom_field} in experiment {exp_id}; must be one of {custom_fields[custom_field]}{Style.RESET_ALL}"
+                    )
                     invalid_experiment = True
 
             # If the experiment is invalid, reach based on the strict flag
             if invalid_experiment:
-                if (args.strict):
+                if args.strict:
                     print(
-                        f"{Fore.YELLOW}Strict mode enabled! Halting...{Style.RESET_ALL}")
+                        f"{Fore.YELLOW}Strict mode enabled! Halting...{Style.RESET_ALL}"
+                    )
                     self.all_experiments = []
-                    print(
-                        f"{Fore.YELLOW}No experiments are loaded.{Style.RESET_ALL}")
+                    print(f"{Fore.YELLOW}No experiments are loaded.{Style.RESET_ALL}")
                     return
                 else:
                     print(
-                        f"{Fore.YELLOW}Skipping loading of experiment {exp_id} due to invalidity.{Style.RESET_ALL}")
+                        f"{Fore.YELLOW}Skipping loading of experiment {exp_id} due to invalidity.{Style.RESET_ALL}"
+                    )
                     continue
 
             print(
-                f"{Fore.GREEN}Sucessfully loaded experiment {exp_id}{Style.RESET_ALL}")
+                f"{Fore.GREEN}Sucessfully loaded experiment {exp_id}{Style.RESET_ALL}"
+            )
             self.all_experiments.append(new_experiment)
 
             rprint(new_experiment)
@@ -598,26 +736,50 @@ class ArgumentParser(argparse.ArgumentParser):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        '-c', '--config', help='Name of configuration file', required=False)
-    parser.add_argument('-s', '--scenario',
-                        help='Name of scenario file', required=False)
-
-    parser.add_argument('-i', '--interactive',
-                        help='Run emulator in interactive mode', action='store_true', default=False)
+        "-c", "--config", help="Name of configuration file", required=False
+    )
+    parser.add_argument(
+        "-s", "--scenario", help="Name of scenario file", required=False
+    )
 
     parser.add_argument(
-        '-o', '--output', help='Output subdir in metrics dir', default=None)
+        "-i",
+        "--interactive",
+        help="Run emulator in interactive mode",
+        action="store_true",
+        default=False,
+    )
 
-    parser.add_argument('-r', '--redeploy-hosts',
-                        help='Re-execute all setup tasks without using snapshots', action='store_true', default=False)
-    parser.add_argument('-R', '--redeploy-network',
-                        help='Redeploy network topology', action='store_true', default=False)
+    parser.add_argument(
+        "-o", "--output", help="Output subdir in metrics dir", default=None
+    )
 
-    parser.add_argument('-t', '--test', help='placeholder',
-                        action='store_true', default=False)
+    parser.add_argument(
+        "-r",
+        "--redeploy-hosts",
+        help="Re-execute all setup tasks without using snapshots",
+        action="store_true",
+        default=False,
+    )
+    parser.add_argument(
+        "-R",
+        "--redeploy-network",
+        help="Redeploy network topology",
+        action="store_true",
+        default=False,
+    )
 
-    parser.add_argument('-d', '--debug', help='(ALWAYS ON). debug mode',
-                        action='store_true', default=False)
+    parser.add_argument(
+        "-t", "--test", help="placeholder", action="store_true", default=False
+    )
+
+    parser.add_argument(
+        "-d",
+        "--debug",
+        help="(ALWAYS ON). debug mode",
+        action="store_true",
+        default=False,
+    )
     args = parser.parse_args()
 
     # if args.test:
@@ -630,19 +792,20 @@ if __name__ == "__main__":
     #     exit(0)
 
     print(
-        f"Starting emulator in {'' if args.interactive else 'non-'}interactive mode...")
+        f"Starting emulator in {'' if args.interactive else 'non-'}interactive mode..."
+    )
 
     if args.debug:
         rprint("This flag is currently inactive. Debug mode always on. Ignoring...")
 
     # open yml config file
     if args.config:
-        with open(path.join('config', args.config), 'r') as f:
+        with open(path.join("config", args.config), "r") as f:
             config = yaml.safe_load(f)
 
     # open yml config file
     if args.scenario:
-        with open(path.join('scenarios', args.scenario), 'r') as f:
+        with open(path.join("scenarios", args.scenario), "r") as f:
             scenario = yaml.safe_load(f)
 
     emulator = Emulator()
@@ -652,8 +815,12 @@ if __name__ == "__main__":
 
     if args.interactive:
         if args.redeploy_hosts:
-            emulator.setup(config, scenario, redeploy_hosts=args.redeploy_hosts,
-                           redeploy_network=args.redeploy_network)
+            emulator.setup(
+                config,
+                scenario,
+                redeploy_hosts=args.redeploy_hosts,
+                redeploy_network=args.redeploy_network,
+            )
 
         if args.scenario:
             emulator.scenario = scenario
@@ -662,8 +829,12 @@ if __name__ == "__main__":
         EmulatorInteractive(emulator).start_interactive_emulator()
 
     else:
-        emulator.setup(config, scenario, redeploy_hosts=args.redeploy_hosts,
-                       redeploy_network=args.redeploy_network)
+        emulator.setup(
+            config,
+            scenario,
+            redeploy_hosts=args.redeploy_hosts,
+            redeploy_network=args.redeploy_network,
+        )
         emulator.run()
 
         # Print metrics

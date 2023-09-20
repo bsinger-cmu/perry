@@ -1,0 +1,7 @@
+---
+- id: enterprise_decoy
+  name: Enterprise Decoy
+  description: this is a description
+  trials: 5
+  setup:
+    scenario: enterprise_decoy.yml
