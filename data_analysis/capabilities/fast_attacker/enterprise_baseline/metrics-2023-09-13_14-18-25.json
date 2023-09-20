@@ -1,0 +1,26 @@
+{
+    "operation_id": "cdd5731c-3482-4705-bef3-e0c980389cde",
+    "start_time": 1694628523.9161978,
+    "experiment_time": 576.053548336029,
+    "execution_time": 503.110657453537,
+    "setup_time": 72.94289088249207,
+    "flags_captured": [
+        "192.168.200.5",
+        "192.168.200.4",
+        "192.168.201.3"
+    ],
+    "root_flags_captured": [
+        "192.168.200.5",
+        "192.168.201.3"
+    ],
+    "hosts_infected": [
+        "intern-host",
+        "finance-host",
+        "ceo-host",
+        "activedir-host",
+        "database-host"
+    ],
+    "deployment_instance": "EnterpriseInstance",
+    "attacker": "EnterpriseAttacker",
+    "defender": "Defender"
+}
