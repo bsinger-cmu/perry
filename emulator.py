@@ -27,15 +27,15 @@ from datetime import datetime
 
 # Dynamically import modules
 import importlib
-deployment_instance_module = importlib.import_module('deployment_instance')
-defender_module = importlib.import_module('defender')
-attacker_module = importlib.import_module('attacker')
+
+deployment_instance_module = importlib.import_module("deployment_instance")
+defender_module = importlib.import_module("defender")
+attacker_module = importlib.import_module("attacker")
 
 
 class Emulator:
-
     def __init__(self):
-        self.openstack_conn = openstack.connect(cloud='default')
+        self.openstack_conn = openstack.connect(cloud="default")
 
         self.scenario = None
         self.config = None
@@ -70,28 +70,32 @@ class Emulator:
         """
         if subdir is not None:
             self.output_subdir = subdir
-            dirs_to_make = [os.path.join(
-                'results', subdir), os.path.join('metrics', subdir)]
+            dirs_to_make = [
+                os.path.join("results", subdir),
+                os.path.join("metrics", subdir),
+            ]
 
             for dir_to_make in dirs_to_make:
                 self.safe_create_dir(dir_to_make)
 
     def setup(self, compile=False, network_only=False):
         # Setup connection to elasticsearch
-        elasticsearch_server = f"https://localhost:{self.config['elasticsearch']['port']}"
-        elasticsearch_api_key = self.config['elasticsearch']['api_key']
+        elasticsearch_server = (
+            f"https://localhost:{self.config['elasticsearch']['port']}"
+        )
+        elasticsearch_api_key = self.config["elasticsearch"]["api_key"]
 
         elasticsearch_conn = Elasticsearch(
             elasticsearch_server,
             basic_auth=("elastic", elasticsearch_api_key),
-            verify_certs=False
+            verify_certs=False,
         )
 
         # Delete all decoy instances on openstack
         all_servers = self.openstack_conn.list_servers()
         deleted_decoys = False
         for server in all_servers:
-            if 'decoy' in server.name:
+            if "decoy" in server.name:
                 print(f"Deleting decoy server: {server.name}")
                 self.openstack_conn.delete_server(server.id)
                 deleted_decoys = True
@@ -99,15 +103,14 @@ class Emulator:
             time.sleep(5)
 
         # Initialize ansible
-        ssh_key_path = self.config['ssh_key_path']
-        ansible_dir = './ansible/'
-        ansible_runner = AnsibleRunner(
-            ssh_key_path, None, ansible_dir, self.quiet)
+        ssh_key_path = self.config["ssh_key_path"]
+        ansible_dir = "./ansible/"
+        ansible_runner = AnsibleRunner(ssh_key_path, None, ansible_dir, self.quiet)
 
         # Setup attacker
-        caldera_api_key = self.config['caldera']['api_key']
+        caldera_api_key = self.config["caldera"]["api_key"]
         self.caldera_api_key = caldera_api_key
-        attacker_ = getattr(attacker_module, self.scenario['attacker'])
+        attacker_ = getattr(attacker_module, self.scenario["attacker"])
         self.attacker = attacker_(caldera_api_key)
 
         # Setup GoalKeeper
@@ -116,9 +119,11 @@ class Emulator:
 
         # Deploy deployment instance
         deployment_instance_ = getattr(
-            deployment_instance_module, self.scenario['deployment_instance'])
+            deployment_instance_module, self.scenario["deployment_instance"]
+        )
         self.deployment_instance = deployment_instance_(
-            ansible_runner, self.openstack_conn, self.config['external_ip'])
+            ansible_runner, self.openstack_conn, self.config["external_ip"]
+        )
 
         # Compile deployment instance if needed
         if compile:
@@ -133,13 +138,21 @@ class Emulator:
         self.goalkeeper.set_root_flags(self.deployment_instance.root_flags)
 
         # Setup initial defender
-        defender_ = getattr(defender_module, self.scenario['defender']['type'])
+        defender_ = getattr(defender_module, self.scenario["defender"]["type"])
         arsenal_ = getattr(
-            defender_module, self.scenario['defender']['arsenal']['type'])
-        arsenal = arsenal_(self.scenario['defender']['arsenal'])
+            defender_module, self.scenario["defender"]["arsenal"]["type"]
+        )
+        arsenal = arsenal_(self.scenario["defender"]["arsenal"])
 
-        self.defender = defender_(ansible_runner, self.openstack_conn, elasticsearch_conn,
-                                  self.config['external_ip'], self.config['elasticsearch']['port'], self.config['elasticsearch']['api_key'], arsenal)
+        self.defender = defender_(
+            ansible_runner,
+            self.openstack_conn,
+            elasticsearch_conn,
+            self.config["external_ip"],
+            self.config["elasticsearch"]["port"],
+            self.config["elasticsearch"]["api_key"],
+            arsenal,
+        )
         # self.defender = Defender(ansible_runner, self.openstack_conn, elasticsearch_conn, config['external_ip'], config['elasticsearch']['port'], config['elasticsearch']['api_key'])
         self.defender.start()
         self.goalkeeper.stop_setup_timer()
@@ -154,7 +167,7 @@ class Emulator:
         return not self.attacker.still_running()
 
     def start_main_loop(self):
-        print('Main loop starting!')
+        print("Main loop starting!")
         finished = False
         finish_counter = 0
         instance_check_counter = 0
@@ -171,7 +184,7 @@ class Emulator:
                     instance_check_counter = 0
                     self.check_all_instances()
 
-                time.sleep(.5)
+                time.sleep(0.5)
                 finish_counter += 1
 
         except KeyboardInterrupt:
@@ -192,10 +205,10 @@ class Emulator:
         # Once finished calculate have goalkeeper measure final success metrics
         self.goalkeeper.calculate_metrics()
         self.goalkeeper.set_metric(
-            'deployment_instance', self.scenario['deployment_instance'])
-        self.goalkeeper.set_metric('attacker', self.scenario['attacker'])
-        self.goalkeeper.set_metric(
-            'defender', self.scenario['defender']['type'])
+            "deployment_instance", self.scenario["deployment_instance"]
+        )
+        self.goalkeeper.set_metric("attacker", self.scenario["attacker"])
+        self.goalkeeper.set_metric("defender", self.scenario["defender"]["type"])
 
         self.goalkeeper.metrics = self.goalkeeper.metrics | self.defender.metrics
 
@@ -219,12 +232,13 @@ class Emulator:
         all_servers = self.openstack_conn.list_servers()
         all_active = True
         for server in all_servers:
-            if server.status != 'ACTIVE':
+            if server.status != "ACTIVE":
                 print(
-                    f"{Fore.RED}Server {server.name} is in {server.status} state {Style.RESET_ALL}")
+                    f"{Fore.RED}Server {server.name} is in {server.status} state {Style.RESET_ALL}"
+                )
                 all_active = False
 
-            if server.status == 'ERROR':
+            if server.status == "ERROR":
                 print(f"An error has occured in server {server.name}.")
                 print(f"Server {server.name} is in ERROR state")
                 print(f"Placing warning in goalkeeper metrics")

@@ -103,7 +103,7 @@ class GoalKeeper:
 
         return self.metrics
 
-    def save_metrics(self, file_name, subdir=None):
+    def save_metrics(self, file_name=None, subdir=None):
         metrics_file = file_name
 
         if file_name is None:

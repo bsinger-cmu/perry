@@ -1,0 +1,10 @@
+defender:
+  type: EnterpriseRandomDefender
+  arsenal:
+    type: CountArsenal
+    storage:
+      DeployDecoy: 0
+      HoneyService: 3
+      RestoreServer: 0
+attacker: EnterpriseAttacker
+deployment_instance: EnterpriseInstance
