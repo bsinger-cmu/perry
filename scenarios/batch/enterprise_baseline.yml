@@ -2,6 +2,6 @@
 - id: enterprise_baseline
   name: Enterprise Baseline
   description: this is a description
-  trials: 3
+  trials: 10
   setup:
     scenario: enterprise_baseline.yml

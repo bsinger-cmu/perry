@@ -12,6 +12,7 @@ class GoalKeeper:
         self.root_flags = {}
         self.operation_id = None
         self.metrics = {}
+        self.operation_log = None
 
     def start_setup_timer(self):
         self.setup_start_time = time.time()
@@ -54,6 +55,7 @@ class GoalKeeper:
     def calculate_metrics(self):
         # TODO: Make this an object
         self.metrics = {}
+        self.operation_log = self.attacker.get_operation_details()
 
         # Calculate time elapsed
         execution_time = self.execution_stop_time - self.execution_start_time
@@ -67,9 +69,9 @@ class GoalKeeper:
         self.metrics["execution_time"] = execution_time
         self.metrics["setup_time"] = setup_time
 
-        print("Flags")
+        rprint("Flags")
         rprint(self.flags)
-        print("Root Flags")
+        rprint("Root Flags")
         rprint(self.root_flags)
 
         # Record flags captured
@@ -85,10 +87,21 @@ class GoalKeeper:
                 host_root_flag_captured = self.check_root_flag(
                     relationship["target"]["value"]
                 )
+                flag_created_on = relationship["source"]["created"]
+                flag_data = {
+                    "flag": relationship["target"]["value"],
+                    "host": None,
+                    "type": None,
+                    "created_on": flag_created_on,
+                }
                 if host_flag_captured is not None:
-                    flags_captured.append(host_flag_captured)
+                    flag_data["host"] = host_flag_captured
+                    flag_data["type"] = "user"
+                    flags_captured.append(flag_data)
                 if host_root_flag_captured is not None:
-                    root_flags_captured.append(host_root_flag_captured)
+                    flag_data["host"] = host_root_flag_captured
+                    flag_data["type"] = "root"
+                    root_flags_captured.append(flag_data)
 
         self.metrics["flags_captured"] = flags_captured
         self.metrics["root_flags_captured"] = root_flags_captured
@@ -105,11 +118,13 @@ class GoalKeeper:
 
     def save_metrics(self, file_name=None, subdir=None):
         metrics_file = file_name
+        now = datetime.now()
+        now_str = now.strftime("%Y-%m-%d_%H-%M-%S")
 
         if file_name is None:
-            now = datetime.now()
-            now_str = now.strftime("%Y-%m-%d_%H-%M-%S")
             metrics_file = "metrics-" + now_str + ".json"
+
+        operation_log_file_name = "operation_log-" + now_str + ".json"
 
         if subdir is not None:
             dir_path = os.path.join("output", "metrics", subdir)
@@ -124,10 +139,14 @@ class GoalKeeper:
                 return
 
         metrics_file = os.path.join(dir_path, metrics_file)
+        operation_log_file = os.path.join(dir_path, operation_log_file_name)
 
         rprint(f"Saving metrics to {metrics_file}...")
         with open(metrics_file, "w") as f:
             json.dump(self.metrics, f)
+        with open(operation_log_file, "w") as f:
+            json.dump(self.operation_log, f)
+
         print("Metrics saved.")
 
     def print_metrics(self):

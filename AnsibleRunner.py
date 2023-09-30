@@ -27,7 +27,7 @@ class AnsibleRunner:
             print(f"[RUNNING PLAYBOOK]    {playbook_name}")
             print(f"[PLAYBOOK  PARAMS]    {playbook_params}")
 
-        with open(path.join("output", "logs", "ansible_log.txt"), "a") as f:
+        with open(path.join("output", "logs", "ansible_log.ansi"), "a") as f:
             with redirect_stdout(f):
                 # Merge default params with playbook specific params
                 playbook_full_params = self.ansible_vars_default | playbook_params
