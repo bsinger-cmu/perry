@@ -101,10 +101,9 @@ class GoalKeeper:
                 if host_root_flag_captured is not None:
                     flag_data["host"] = host_root_flag_captured
                     flag_data["type"] = "root"
-                    root_flags_captured.append(flag_data)
+                    flags_captured.append(flag_data)
 
         self.metrics["flags_captured"] = flags_captured
-        self.metrics["root_flags_captured"] = root_flags_captured
 
         # Record hosts infected
         hosts_infected = []

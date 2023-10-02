@@ -11,7 +11,7 @@ resource "openstack_networking_secgroup_rule_v2" "manage_ssh_in" {
   port_range_min    = 22
   port_range_max    = 22
   remote_ip_prefix  = "192.168.198.0/24"
-  security_group_id = "${openstack_networking_secgroup_v2.talk_to_manage.id}"
+  security_group_id = openstack_networking_secgroup_v2.talk_to_manage.id
 }
 
 resource "openstack_networking_secgroup_rule_v2" "manage_ssh_out" {
@@ -21,7 +21,7 @@ resource "openstack_networking_secgroup_rule_v2" "manage_ssh_out" {
   port_range_min    = 22
   port_range_max    = 22
   remote_ip_prefix  = "192.168.198.0/24"
-  security_group_id = "${openstack_networking_secgroup_v2.talk_to_manage.id}"
+  security_group_id = openstack_networking_secgroup_v2.talk_to_manage.id
 }
 resource "openstack_networking_secgroup_v2" "manage_freedom" {
   name        = "manage_freedom"
@@ -35,7 +35,7 @@ resource "openstack_networking_secgroup_rule_v2" "manage_freedom_ssh_out" {
   port_range_min    = 22
   port_range_max    = 22
   remote_ip_prefix  = "0.0.0.0/0"
-  security_group_id = "${openstack_networking_secgroup_v2.manage_freedom.id}"
+  security_group_id = openstack_networking_secgroup_v2.manage_freedom.id
 }
 resource "openstack_networking_secgroup_rule_v2" "manage_freedom_ssh_in" {
   direction         = "ingress"
@@ -44,7 +44,7 @@ resource "openstack_networking_secgroup_rule_v2" "manage_freedom_ssh_in" {
   port_range_min    = 22
   port_range_max    = 22
   remote_ip_prefix  = "0.0.0.0/0"
-  security_group_id = "${openstack_networking_secgroup_v2.manage_freedom.id}"
+  security_group_id = openstack_networking_secgroup_v2.manage_freedom.id
 }
 
 ### Company Network Rules ###
@@ -89,7 +89,7 @@ resource "openstack_networking_secgroup_rule_v2" "tcp_in_datacenter" {
   port_range_min    = 1
   port_range_max    = 65535
   remote_ip_prefix  = "192.168.201.0/24"
-  security_group_id = "${openstack_networking_secgroup_v2.company.id}"
+  security_group_id = openstack_networking_secgroup_v2.company.id
 }
 resource "openstack_networking_secgroup_rule_v2" "tcp_out_datacenter" {
   direction         = "egress"
@@ -98,7 +98,7 @@ resource "openstack_networking_secgroup_rule_v2" "tcp_out_datacenter" {
   port_range_min    = 1
   port_range_max    = 65535
   remote_ip_prefix  = "192.168.201.0/24"
-  security_group_id = "${openstack_networking_secgroup_v2.company.id}"
+  security_group_id = openstack_networking_secgroup_v2.company.id
 }
 
 resource "openstack_networking_secgroup_rule_v2" "intracompany_tcp_in" {
@@ -108,7 +108,7 @@ resource "openstack_networking_secgroup_rule_v2" "intracompany_tcp_in" {
   port_range_min    = 1
   port_range_max    = 65535
   remote_ip_prefix  = "192.168.200.0/24"
-  security_group_id = "${openstack_networking_secgroup_v2.company.id}"
+  security_group_id = openstack_networking_secgroup_v2.company.id
 }
 resource "openstack_networking_secgroup_rule_v2" "intracompany_tcp_out" {
   direction         = "egress"
@@ -117,7 +117,7 @@ resource "openstack_networking_secgroup_rule_v2" "intracompany_tcp_out" {
   port_range_min    = 1
   port_range_max    = 65535
   remote_ip_prefix  = "192.168.200.0/24"
-  security_group_id = "${openstack_networking_secgroup_v2.company.id}"
+  security_group_id = openstack_networking_secgroup_v2.company.id
 }
 
 
@@ -132,15 +132,15 @@ resource "openstack_networking_secgroup_v2" "datacenter" {
   description = "datacenter security group"
 }
 
-# Datacenter Network talks to Company Network
+# Active directory can only talk to datacenter subnet
 resource "openstack_networking_secgroup_rule_v2" "tcp_in_company" {
   direction         = "ingress"
   ethertype         = "IPv4"
   protocol          = "tcp"
   port_range_min    = 1
   port_range_max    = 65535
-  remote_ip_prefix  = "192.168.200.0/24"
-  security_group_id = "${openstack_networking_secgroup_v2.datacenter.id}"
+  remote_ip_prefix  = "192.168.200.3"
+  security_group_id = openstack_networking_secgroup_v2.datacenter.id
 }
 resource "openstack_networking_secgroup_rule_v2" "tcp_out_company" {
   direction         = "egress"
@@ -148,10 +148,11 @@ resource "openstack_networking_secgroup_rule_v2" "tcp_out_company" {
   protocol          = "tcp"
   port_range_min    = 1
   port_range_max    = 65535
-  remote_ip_prefix  = "192.168.200.0/24"
-  security_group_id = "${openstack_networking_secgroup_v2.datacenter.id}"
+  remote_ip_prefix  = "192.168.200.3"
+  security_group_id = openstack_networking_secgroup_v2.datacenter.id
 }
 
+# Everyone in datacenter can talk to each other
 resource "openstack_networking_secgroup_rule_v2" "intradatacenter_tcp_in" {
   direction         = "ingress"
   ethertype         = "IPv4"
@@ -159,7 +160,7 @@ resource "openstack_networking_secgroup_rule_v2" "intradatacenter_tcp_in" {
   port_range_min    = 1
   port_range_max    = 65535
   remote_ip_prefix  = "192.168.201.0/24"
-  security_group_id = "${openstack_networking_secgroup_v2.datacenter.id}"
+  security_group_id = openstack_networking_secgroup_v2.datacenter.id
 }
 
 resource "openstack_networking_secgroup_rule_v2" "intradatacenter_tcp_out" {
@@ -169,7 +170,7 @@ resource "openstack_networking_secgroup_rule_v2" "intradatacenter_tcp_out" {
   port_range_min    = 1
   port_range_max    = 65535
   remote_ip_prefix  = "192.168.201.0/24"
-  security_group_id = "${openstack_networking_secgroup_v2.datacenter.id}"
+  security_group_id = openstack_networking_secgroup_v2.datacenter.id
 }
 # resource "openstack_networking_secgroup_rule_v2" "datacenter_ssh_out" {
 #   direction         = "egress"
@@ -189,7 +190,7 @@ resource "openstack_networking_secgroup_rule_v2" "udp_in_activedir" {
   port_range_min    = 53
   port_range_max    = 53
   remote_ip_prefix  = "192.168.200.0/23"
-  security_group_id = "${openstack_networking_secgroup_v2.activedir.id}"
+  security_group_id = openstack_networking_secgroup_v2.activedir.id
 }
 
 resource "openstack_networking_secgroup_rule_v2" "tcp_in_activedir_389" {
@@ -199,7 +200,7 @@ resource "openstack_networking_secgroup_rule_v2" "tcp_in_activedir_389" {
   port_range_min    = 389
   port_range_max    = 389
   remote_ip_prefix  = "192.168.200.0/23"
-  security_group_id = "${openstack_networking_secgroup_v2.activedir.id}"
+  security_group_id = openstack_networking_secgroup_v2.activedir.id
 }
 
 resource "openstack_networking_secgroup_rule_v2" "tcp_in_activedir_636" {
@@ -209,7 +210,7 @@ resource "openstack_networking_secgroup_rule_v2" "tcp_in_activedir_636" {
   port_range_min    = 636
   port_range_max    = 636
   remote_ip_prefix  = "192.168.200.0/23"
-  security_group_id = "${openstack_networking_secgroup_v2.activedir.id}"
+  security_group_id = openstack_networking_secgroup_v2.activedir.id
 }
 
 resource "openstack_networking_secgroup_rule_v2" "tcp_in_activedir_88" {
@@ -219,5 +220,5 @@ resource "openstack_networking_secgroup_rule_v2" "tcp_in_activedir_88" {
   port_range_min    = 88
   port_range_max    = 88
   remote_ip_prefix  = "192.168.200.0/23"
-  security_group_id = "${openstack_networking_secgroup_v2.activedir.id}"
+  security_group_id = openstack_networking_secgroup_v2.activedir.id
 }
