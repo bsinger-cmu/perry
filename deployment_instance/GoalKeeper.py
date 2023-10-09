@@ -130,15 +130,23 @@ class GoalKeeper:
         else:
             dir_path = os.path.join("output", "metrics")
 
-        if not os.path.exists(dir_path):
-            try:
+        # Create directories if needed
+        try:
+            if not os.path.exists(dir_path):
                 os.makedirs(dir_path)
-            except OSError as e:
-                print(f"Error creating directory {dir_path}: {e}")
-                return
+            metrics_dir_path = os.path.join(dir_path, "metrics")
+            operation_dir_path = os.path.join(dir_path, "operation_log")
+            if not os.path.exists(operation_dir_path):
+                os.makedirs(operation_dir_path)
+            if not os.path.exists(metrics_dir_path):
+                os.makedirs(metrics_dir_path)
 
-        metrics_file = os.path.join(dir_path, metrics_file)
-        operation_log_file = os.path.join(dir_path, operation_log_file_name)
+        except OSError as e:
+            print(f"Error creating directory {dir_path}: {e}")
+            return
+
+        metrics_file = os.path.join(metrics_dir_path, metrics_file)
+        operation_log_file = os.path.join(operation_dir_path, operation_log_file_name)
 
         rprint(f"Saving metrics to {metrics_file}...")
         with open(metrics_file, "w") as f:

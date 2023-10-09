@@ -642,20 +642,6 @@ class EmulatorInteractive:
                     )
                     invalid_experiment = True
 
-            # Validate all files to be correct file names (alphanumeric with dashes, underscores, and dots)
-            for file_field in file_fields:
-                (field, subfield) = self.get_fields_from_string(file_field)
-                item = (
-                    new_experiment[field][subfield]
-                    if subfield is not None
-                    else new_experiment[field]
-                )
-                if not re.match(filepattern, item):
-                    print(
-                        f"{Fore.RED}Invalid filename {item} for {file_field} in experiment {exp_id}{Style.RESET_ALL}"
-                    )
-                    invalid_experiment = True
-
             # Validate all boolean fields to be boolean
             for bool_field in bool_fields:
                 (field, subfield) = self.get_fields_from_string(bool_field)
