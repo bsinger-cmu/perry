@@ -1,29 +1,17 @@
-from colorama import Fore, Back, Style
+from colorama import Fore, Style
 from elasticsearch import Elasticsearch
-import yaml
 from os import path
-import re
-import rich.progress as rpg
-from rich.progress import track
-from console import console, progress
+
 from rich import print as rprint
-from defender import WaitAndSpotDefender, Defender
-from attacker import Attacker, TwoPathAttacker
-import argparse
-import copy
 import os
-from typing import NoReturn
-from prompt_toolkit import PromptSession
-from prompt_toolkit.history import FileHistory
-from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
 
 from AnsibleRunner import AnsibleRunner
-from deployment_instance import SimpleInstanceV1, GoalKeeper
+from deployment_instance import GoalKeeper
 
 import openstack
 
 import time
-from datetime import datetime
+
 
 # Dynamically import modules
 import importlib

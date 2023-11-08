@@ -1,0 +1,21 @@
+{
+  "operation_id": "590644d3-e954-4e2a-84cb-9b8ce6d91881",
+  "start_time": 1696898014.8512328,
+  "experiment_time": 543.9716603755951,
+  "execution_time": 203.297678232193,
+  "setup_time": 340.6739821434021,
+  "flags_captured": [
+    {
+      "flag": "5SYWLRG0X80HQ9JZL6FNNVVKJ9X4H1HA",
+      "host": "192.168.200.4",
+      "type": "user",
+      "created_on": "2023-10-10T00:41:47Z"
+    }
+  ],
+  "hosts_infected": ["intern-host", "ceo-host"],
+  "deployment_instance": "EnterpriseInstance",
+  "attacker": "EnterpriseAttacker",
+  "defender": "EnterpriseWaitAndSpotDefender",
+  "total_host_restores": 1,
+  "count_host_restores": { "192.168.200.7": 1 }
+}

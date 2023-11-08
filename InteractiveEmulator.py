@@ -8,6 +8,10 @@ from console import progress
 from rich import print as rprint
 import argparse
 import copy
+import logging
+
+logging.basicConfig(filename="example.log", encoding="utf-8", level=logging.DEBUG)
+
 from typing import NoReturn
 from prompt_toolkit import PromptSession
 from prompt_toolkit.history import FileHistory

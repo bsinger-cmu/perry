@@ -1,0 +1,14 @@
+{
+  "operation_id": "cb1f6e7d-4ff8-4f95-9448-d26b5eec8d0c",
+  "start_time": 1696896154.10455,
+  "experiment_time": 421.9664237499237,
+  "execution_time": 138.4360113143921,
+  "setup_time": 283.5304124355316,
+  "flags_captured": [],
+  "hosts_infected": ["intern-host"],
+  "deployment_instance": "EnterpriseInstance",
+  "attacker": "EnterpriseAttacker",
+  "defender": "EnterpriseWaitAndSpotDefender",
+  "total_host_restores": 1,
+  "count_host_restores": { "192.168.200.7": 1 }
+}

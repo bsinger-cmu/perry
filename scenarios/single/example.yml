@@ -1,0 +1,10 @@
+defender:
+  telemetryAnalysis: DeceptionAlerts 
+  strategy: RandomPlacement
+  capabilities:
+    type: Count
+    storage:
+      DeployDecoy: 3
+      HoneyService: 4
+      # Unlimited restore actions
+      RestoreServer: -1

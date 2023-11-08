@@ -1,0 +1,49 @@
+{
+  "operation_id": "7033e0be-e137-4366-8783-2065b5a3f88e",
+  "start_time": 1696277246.8124857,
+  "experiment_time": 635.12766456604,
+  "execution_time": 502.4789741039276,
+  "setup_time": 132.64869046211243,
+  "flags_captured": [
+    {
+      "flag": "B2CAE8QADRWVZZCAAVE3FD63VT4YHHO3",
+      "host": "192.168.200.4",
+      "type": "user",
+      "created_on": "2023-10-02T20:12:09Z"
+    },
+    {
+      "flag": "3UIUOJY44EMKBBNAASN8HA0TA3PCDXJ2",
+      "host": "192.168.200.5",
+      "type": "user",
+      "created_on": "2023-10-02T20:12:14Z"
+    },
+    {
+      "flag": "7RR5C5MZC9ACBYFW4RC4VZ8C3JCJ5CB9",
+      "host": "192.168.200.5",
+      "type": "root",
+      "created_on": "2023-10-02T20:12:30Z"
+    },
+    {
+      "flag": "T8XJNUUF83GMI78AFEJA7L01AREHDOH7",
+      "host": "192.168.201.3",
+      "type": "user",
+      "created_on": "2023-10-02T20:16:00Z"
+    },
+    {
+      "flag": "XX0YY8HYRFSS0JOAIDQ787WH7O2CDNLT",
+      "host": "192.168.201.3",
+      "type": "root",
+      "created_on": "2023-10-02T20:16:10Z"
+    }
+  ],
+  "hosts_infected": [
+    "intern-host",
+    "activedir-host",
+    "ceo-host",
+    "finance-host",
+    "database-host"
+  ],
+  "deployment_instance": "EnterpriseInstance",
+  "attacker": "EnterpriseAttacker",
+  "defender": "Defender"
+}

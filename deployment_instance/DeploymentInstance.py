@@ -70,6 +70,8 @@ class DeploymentInstance:
                 rprint("Error setting up instance. Retrying...")
                 rprint(e)
 
+        raise Exception("Error loading snapshots. Aborting...")
+
     def deploy_topology(self):
         destroy_network(self.topology)
         deploy_network(self.topology)

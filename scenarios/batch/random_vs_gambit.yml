@@ -1,0 +1,13 @@
+---
+- id: gambit
+  name: Gambit vs WaitAndStop
+  description: this is a description
+  trials: 5
+  setup:
+    scenario: gambit/enterprise_gambit.yml
+- id: random
+  name: Random vs WaitAndStop
+  description: this is a description
+  trials: 5
+  setup:
+    scenario: gambit/enterprise_random.yml

@@ -1,1 +1,26 @@
-{"operation_id": "f3a078a7-c08f-4f02-91a5-d304cf2cd0a6", "start_time": 1695353421.0000775, "experiment_time": 702.2570366859436, "execution_time": 578.5464100837708, "setup_time": 123.71062660217285, "flags_captured": ["192.168.200.5", "192.168.201.3", "192.168.200.4"], "root_flags_captured": ["192.168.200.5", "192.168.201.3"], "hosts_infected": ["intern-host", "finance-host", "database-host", "activedir-host", "ceo-host"], "deployment_instance": "EnterpriseInstance", "attacker": "EnterpriseAttacker", "defender": "EnterpriseRandomDefender"}
+{
+    "operation_id": "f3a078a7-c08f-4f02-91a5-d304cf2cd0a6",
+    "start_time": 1695353421.0000775,
+    "experiment_time": 702.2570366859436,
+    "execution_time": 578.5464100837708,
+    "setup_time": 123.71062660217285,
+    "flags_captured": [
+        "192.168.200.5",
+        "192.168.201.3",
+        "192.168.200.4"
+    ],
+    "root_flags_captured": [
+        "192.168.200.5",
+        "192.168.201.3"
+    ],
+    "hosts_infected": [
+        "intern-host",
+        "finance-host",
+        "database-host",
+        "activedir-host",
+        "ceo-host"
+    ],
+    "deployment_instance": "EnterpriseInstance",
+    "attacker": "EnterpriseAttacker",
+    "defender": "EnterpriseRandomDefender"
+}

@@ -1,0 +1,27 @@
+{
+  "operation_id": "c240d172-8413-40da-a5f8-0d653bc09030",
+  "start_time": 1696888102.9051557,
+  "experiment_time": 413.7137839794159,
+  "execution_time": 254.74329257011414,
+  "setup_time": 158.97049140930176,
+  "flags_captured": [
+    {
+      "flag": "5TRWHJ1BINZO9VYK5ZMDF73PZN0WFHS4",
+      "host": "192.168.200.5",
+      "type": "user",
+      "created_on": "2023-10-09T21:53:58Z"
+    },
+    {
+      "flag": "AZOKAD60HDVV63ZY0GHONX2K45IJTR4W",
+      "host": "192.168.200.5",
+      "type": "root",
+      "created_on": "2023-10-09T21:54:08Z"
+    }
+  ],
+  "hosts_infected": ["intern-host", "finance-host"],
+  "deployment_instance": "EnterpriseInstance",
+  "attacker": "EnterpriseAttacker",
+  "defender": "EnterpriseWaitAndSpotDefender",
+  "total_host_restores": 1,
+  "count_host_restores": { "192.168.200.7": 1 }
+}
