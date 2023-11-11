@@ -1,12 +1,18 @@
 from time import sleep
-import uuid
 import requests
 import logging
 
 
 class Attacker:
-    def __init__(self, caldera_api_key):
+    operation_id: str
+
+    def __init__(self, caldera_api_key, operation_id=None):
         self.caldera_api_key = caldera_api_key
+
+        if operation_id is not None:
+            self.operation_id = operation_id
+        else:
+            self.operation_id = str(uuid.uuid4())
 
         self.api_headers = {
             "key": self.caldera_api_key,
@@ -20,8 +26,6 @@ class Attacker:
 
         # Wait for a trusted agent to appear
         self.wait_for_trusted_agent()
-
-        self.operation_id = str(uuid.uuid4())
 
         json_data = {
             "name": "Test Operation",

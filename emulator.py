@@ -4,9 +4,11 @@ from os import path
 
 from rich import print as rprint
 import os
+import uuid
 
 from AnsibleRunner import AnsibleRunner
 from deployment_instance import GoalKeeper
+from utility.logging.logging import setup_logger_for_emulation
 
 import openstack
 
@@ -16,9 +18,13 @@ import time
 # Dynamically import modules
 import importlib
 
+from defender.orchestrator import OpenstackOrchestrator
+
 deployment_instance_module = importlib.import_module("deployment_instance")
-defender_module = importlib.import_module("defender")
 attacker_module = importlib.import_module("attacker")
+defender_module = importlib.import_module("defender")
+strategy_module = importlib.import_module("defender.strategy")
+telemetry_module = importlib.import_module("defender.telemetry")
 
 
 class Emulator:
@@ -95,11 +101,15 @@ class Emulator:
         ansible_dir = "./ansible/"
         ansible_runner = AnsibleRunner(ssh_key_path, None, ansible_dir, self.quiet)
 
+        experiment_id = str(uuid.uuid4())
         # Setup attacker
         caldera_api_key = self.config["caldera"]["api_key"]
         self.caldera_api_key = caldera_api_key
         attacker_ = getattr(attacker_module, self.scenario["attacker"])
-        self.attacker = attacker_(caldera_api_key)
+        self.attacker = attacker_(caldera_api_key, experiment_id)
+
+        # Setup defender logging
+        setup_logger_for_emulation(experiment_id)
 
         # Setup GoalKeeper
         self.goalkeeper = GoalKeeper(self.attacker)
@@ -127,21 +137,33 @@ class Emulator:
 
         # Setup initial defender
         defender_ = getattr(defender_module, self.scenario["defender"]["type"])
+        ### Telemetry ###
+        telemetry_ = getattr(telemetry_module, self.scenario["defender"]["telemetry"])
+        telemetry = telemetry_(elasticsearch_conn)
+
+        ### Arsenal ###
         arsenal_ = getattr(
             defender_module, self.scenario["defender"]["arsenal"]["type"]
         )
         arsenal = arsenal_(self.scenario["defender"]["arsenal"])
 
-        self.defender = defender_(
-            ansible_runner,
+        ### Strategy ###
+        strategy_ = getattr(strategy_module, self.scenario["defender"]["strategy"])
+        strategy = strategy_(arsenal)
+
+        ### Orchestration ###
+        external_ip = self.config["external_ip"]
+        elastic_search_port = self.config["elasticsearch"]["port"]
+        external_elasticsearch_server = f"https://{external_ip}:{elastic_search_port}"
+        orchestrator = OpenstackOrchestrator(
             self.openstack_conn,
-            elasticsearch_conn,
-            self.config["external_ip"],
-            self.config["elasticsearch"]["port"],
+            ansible_runner,
+            external_elasticsearch_server,
             self.config["elasticsearch"]["api_key"],
-            arsenal,
         )
-        # self.defender = Defender(ansible_runner, self.openstack_conn, elasticsearch_conn, config['external_ip'], config['elasticsearch']['port'], config['elasticsearch']['api_key'])
+
+        self.defender = defender_(arsenal, strategy, telemetry, orchestrator)
+
         self.defender.start()
         self.goalkeeper.stop_setup_timer()
 

@@ -1,4 +1,3 @@
-import uuid
 import requests
 
 from .Attacker import Attacker
@@ -6,8 +5,6 @@ from .Attacker import Attacker
 
 class GambitAttacker(Attacker):
     def start_operation(self):
-        self.operation_id = str(uuid.uuid4())
-
         json_data = {
             "name": "Gambit Operation",
             "id": self.operation_id,

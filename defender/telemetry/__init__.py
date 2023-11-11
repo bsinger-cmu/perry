@@ -1,1 +1,2 @@
+from .TelemetryAnalysis import TelemetryAnalysis
 from .SimpleTelemetryAnalysis import SimpleTelemetryAnalysis

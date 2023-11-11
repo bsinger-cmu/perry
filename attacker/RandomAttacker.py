@@ -1,22 +1,10 @@
-import uuid
 import requests
 
 from .Attacker import Attacker
 
 
 class RandomAttacker(Attacker):
-    def __init__(self, caldera_api_key):
-        self.caldera_api_key = caldera_api_key
-
-        self.api_headers = {
-            "key": self.caldera_api_key,
-            "Content-Type": "application/json",
-        }
-        return
-
     def start_operation(self):
-        self.operation_id = str(uuid.uuid4())
-
         json_data = {
             "name": "Enterprise Operation",
             "id": self.operation_id,

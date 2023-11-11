@@ -8,9 +8,9 @@ from console import progress
 from rich import print as rprint
 import argparse
 import copy
-import logging
+from utility.logging import get_logger, log_event
 
-logging.basicConfig(filename="example.log", encoding="utf-8", level=logging.DEBUG)
+logger = get_logger()
 
 from typing import NoReturn
 from prompt_toolkit import PromptSession
@@ -175,6 +175,9 @@ class EmulatorInteractive:
             print(f"{Back.RED}Failed with exception:{Style.RESET_ALL}")
             print(e)
             result = ("Exception", e)
+
+            logger.error("Failed to run experiment", exc_info=True)
+            log_event("FAILURE", str(e))
 
         if load == 1:  # Failed to load snapshots. Skip this run
             print(f"{Fore.RED}Failed to load snapshots{Style.RESET_ALL}")
