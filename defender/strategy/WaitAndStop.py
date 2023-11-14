@@ -37,7 +37,7 @@ class WaitAndStop(object):
 
     # Run actions before the scenario starts
     def initialize(self) -> list[Action]:
-        self.logger.info("Initializing WaitAndStop strategy")
+        log_event("WaitAndStop", "Initializing WaitAndStop strategy")
         actions = randomly_place_deception(self.arsenal, hosts, networks)
         return actions
 

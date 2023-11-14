@@ -8,7 +8,7 @@ import uuid
 
 from AnsibleRunner import AnsibleRunner
 from deployment_instance import GoalKeeper
-from utility.logging.logging import setup_logger_for_emulation
+from utility.logging.logging import setup_logger_for_emulation, log_event
 
 import openstack
 
@@ -73,6 +73,10 @@ class Emulator:
                 self.safe_create_dir(dir_to_make)
 
     def setup(self, compile=False, network_only=False):
+        experiment_id = str(uuid.uuid4())
+        # Setup defender logging
+        setup_logger_for_emulation(experiment_id)
+
         # Setup connection to elasticsearch
         elasticsearch_server = (
             f"https://localhost:{self.config['elasticsearch']['port']}"
@@ -84,6 +88,10 @@ class Emulator:
             basic_auth=("elastic", elasticsearch_api_key),
             verify_certs=False,
         )
+
+        log_event("Emulator setup", "Setting up elastic search connection")
+        log_event("Emulator setup", f"Elastic search server: {elasticsearch_server}")
+        log_event("Emulator setup", f"Elastic search api key: {elasticsearch_api_key}")
 
         # Delete all decoy instances on openstack
         all_servers = self.openstack_conn.list_servers()
@@ -101,15 +109,11 @@ class Emulator:
         ansible_dir = "./ansible/"
         ansible_runner = AnsibleRunner(ssh_key_path, None, ansible_dir, self.quiet)
 
-        experiment_id = str(uuid.uuid4())
         # Setup attacker
         caldera_api_key = self.config["caldera"]["api_key"]
         self.caldera_api_key = caldera_api_key
         attacker_ = getattr(attacker_module, self.scenario["attacker"])
         self.attacker = attacker_(caldera_api_key, experiment_id)
-
-        # Setup defender logging
-        setup_logger_for_emulation(experiment_id)
 
         # Setup GoalKeeper
         self.goalkeeper = GoalKeeper(self.attacker)

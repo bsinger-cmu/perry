@@ -3,10 +3,10 @@ defender:
   arsenal:
     type: CountArsenal
     storage:
-      DeployDecoy: 0
+      DeployDecoy: 3
       HoneyService: 0
-      RestoreServer: 0
+      RestoreServer: 3
   strategy: WaitAndStop
   telemetry: SimpleTelemetryAnalysis
-attacker: GambitAttacker
+attacker: RandomAttacker
 deployment_instance: EnterpriseInstance

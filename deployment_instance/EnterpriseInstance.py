@@ -6,6 +6,16 @@ class EnterpriseInstance(DeploymentInstance):
     def __init__(self, ansible_runner, openstack_conn, caldera_ip):
         super().__init__(ansible_runner, openstack_conn, caldera_ip)
         self.topology = "enterprise_network"
+        self.flags = {}
+        self.root_flags = {}
+
+        self.flags["192.168.200.4"] = "ceo-user-flag"
+        self.flags["192.168.200.5"] = "finance-user-flag"
+        self.flags["192.168.201.3"] = "database-user-flag"
+
+        self.root_flags["192.168.200.4"] = "ceo-root-flag"
+        self.root_flags["192.168.200.5"] = "finance-root-flag"
+        self.root_flags["192.168.201.3"] = "database-root-flag"
 
     def compile_setup(self):
         # Setup topology
@@ -67,32 +77,48 @@ class EnterpriseInstance(DeploymentInstance):
         self.orchestrator.vulns.add_sshEnablePasswordLogin("192.168.201.3")
         self.orchestrator.vulns.add_netcatShell("192.168.201.3")
 
+        self.setup_flags()
+
+    def setup_flags(self):
+        self.orchestrator.goals.setup_flag(
+            "192.168.200.4",
+            "/home/ceo/flag.txt",
+            self.flags["192.168.200.4"],
+            "ceo",
+            "root",
+        )
+        self.orchestrator.goals.setup_flag(
+            "192.168.200.5",
+            "/home/finance/flag.txt",
+            self.flags["192.168.200.5"],
+            "finance",
+            "root",
+        )
+        self.orchestrator.goals.setup_flag(
+            "192.168.201.3",
+            "/home/database/flag.txt",
+            self.flags["192.168.201.3"],
+            "database",
+            "root",
+        )
+
+        self.orchestrator.goals.setup_root_flag(
+            "192.168.200.4", self.root_flags["192.168.200.4"]
+        )
+        self.orchestrator.goals.setup_root_flag(
+            "192.168.200.5", self.root_flags["192.168.200.5"]
+        )
+        self.orchestrator.goals.setup_root_flag(
+            "192.168.201.3", self.root_flags["192.168.201.3"]
+        )
+
     def runtime_setup(self):
         # Execute Processes
         # self.orchestrator.vulns.run_vsftpdBackdoor('192.168.200.5')
-
-        # Setup flags
-        self.flags["192.168.200.4"] = self.orchestrator.goals.setup_flag(
-            "192.168.200.4", "/home/ceo/flag.txt", "ceo", "root"
-        )
-        self.flags["192.168.200.5"] = self.orchestrator.goals.setup_flag(
-            "192.168.200.5", "/home/finance/flag.txt", "finance", "root"
-        )
-        self.flags["192.168.201.3"] = self.orchestrator.goals.setup_flag(
-            "192.168.201.3", "/home/database/flag.txt", "database", "root"
-        )
-
-        self.root_flags["192.168.200.4"] = self.orchestrator.goals.setup_root_flag(
-            "192.168.200.4"
-        )
-        self.root_flags["192.168.200.5"] = self.orchestrator.goals.setup_root_flag(
-            "192.168.200.5"
-        )
-        self.root_flags["192.168.201.3"] = self.orchestrator.goals.setup_root_flag(
-            "192.168.201.3"
-        )
 
         # Setup attacker on intern machine
         self.orchestrator.attacker.install_attacker(
             "192.168.200.7", "intern", self.caldera_ip
         )
+
+        # TODO Start sysflow
