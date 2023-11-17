@@ -3,9 +3,9 @@ defender:
   arsenal:
     type: CountArsenal
     storage:
-      DeployDecoy: 3
+      DeployDecoy: 0
       HoneyService: 0
-      RestoreServer: 3
+      RestoreServer: 0
   strategy: WaitAndStop
   telemetry: SimpleTelemetryAnalysis
 attacker: RandomAttacker

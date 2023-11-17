@@ -10,10 +10,12 @@ def get_logger():
     return plugin_logger
 
 
-def setup_logger_for_emulation(emulation_id: str):
-    plugin_logger_handler = RotatingFileHandler(
-        f"output/logs/{emulation_id}.log", maxBytes=5 * 1024 * 1024
-    )
+def setup_logger_for_emulation(experiment_output_dir: str):
+    # join paths
+    log_filename = f"perry_log.log"
+    log_path = os.path.join(experiment_output_dir, log_filename)
+
+    plugin_logger_handler = RotatingFileHandler(log_path, maxBytes=5 * 1024 * 1024)
     plugin_logger_formatter = logging.Formatter("%(asctime)s %(levelname)s:%(message)s")
     plugin_logger_handler.setFormatter(plugin_logger_formatter)
     plugin_logger_handler.setLevel(logging.DEBUG)

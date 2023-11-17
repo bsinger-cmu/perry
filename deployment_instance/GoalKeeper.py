@@ -6,13 +6,14 @@ from rich import print as rprint
 
 
 class GoalKeeper:
-    def __init__(self, attacker):
+    def __init__(self, attacker, output_dir):
         self.attacker = attacker
         self.flags = {}
         self.root_flags = {}
         self.operation_id = None
         self.metrics = {}
         self.operation_log = None
+        self.output_dir = output_dir
 
     def start_setup_timer(self):
         self.setup_start_time = time.time()
@@ -115,46 +116,17 @@ class GoalKeeper:
 
         return self.metrics
 
-    def save_metrics(self, file_name=None, subdir=None):
-        metrics_file = file_name
-        now = datetime.now()
-        now_str = now.strftime("%Y-%m-%d_%H-%M-%S")
+    def save_metrics(self):
+        metrics_file = "metrics.json"
+        operation_log_file_name = "operation_log.json"
 
-        if file_name is None:
-            metrics_file = "metrics-" + now_str + ".json"
+        metrics_file = os.path.join(self.output_dir, metrics_file)
+        operation_log_file = os.path.join(self.output_dir, operation_log_file_name)
 
-        operation_log_file_name = "operation_log-" + now_str + ".json"
-
-        if subdir is not None:
-            dir_path = os.path.join("output", "metrics", subdir)
-        else:
-            dir_path = os.path.join("output", "metrics")
-
-        # Create directories if needed
-        try:
-            if not os.path.exists(dir_path):
-                os.makedirs(dir_path)
-            metrics_dir_path = os.path.join(dir_path, "metrics")
-            operation_dir_path = os.path.join(dir_path, "operation_log")
-            if not os.path.exists(operation_dir_path):
-                os.makedirs(operation_dir_path)
-            if not os.path.exists(metrics_dir_path):
-                os.makedirs(metrics_dir_path)
-
-        except OSError as e:
-            print(f"Error creating directory {dir_path}: {e}")
-            return
-
-        metrics_file = os.path.join(metrics_dir_path, metrics_file)
-        operation_log_file = os.path.join(operation_dir_path, operation_log_file_name)
-
-        rprint(f"Saving metrics to {metrics_file}...")
         with open(metrics_file, "w") as f:
             json.dump(self.metrics, f)
         with open(operation_log_file, "w") as f:
             json.dump(self.operation_log, f)
-
-        print("Metrics saved.")
 
     def print_metrics(self):
         print("Metrics:")

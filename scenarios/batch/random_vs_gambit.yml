@@ -2,12 +2,12 @@
 - id: random
   name: Random vs WaitAndStop
   description: this is a description
-  trials: 5
+  trials: 2
   setup:
     scenario: gambit/enterprise_random.yml
 - id: gambit
   name: Gambit vs WaitAndStop
   description: this is a description
-  trials: 5
+  trials: 2
   setup:
     scenario: gambit/enterprise_gambit.yml

@@ -8,6 +8,9 @@ import uuid
 
 from AnsibleRunner import AnsibleRunner
 from deployment_instance import GoalKeeper
+from scenarios.Scenario import Scenario
+from defender.arsenal import CountArsenal
+from defender import Defender
 from utility.logging.logging import setup_logger_for_emulation, log_event
 
 import openstack
@@ -28,12 +31,11 @@ telemetry_module = importlib.import_module("defender.telemetry")
 
 
 class Emulator:
+    scenario: Scenario
+
     def __init__(self):
         self.openstack_conn = openstack.connect(cloud="default")
-
-        self.scenario = None
         self.config = None
-        self.output_subdir = None
         self.quiet = False
 
     def set_quiet(self, quiet):
@@ -45,37 +47,19 @@ class Emulator:
     def set_scenario(self, scenario):
         self.scenario = scenario
 
-    def safe_create_dir(self, dir_path):
-        """
-        safely create a directory
-        """
-        if not path.exists(dir_path):
-            print(f"Creating directory {dir_path}")
-            try:
-                os.makedirs(dir_path)
-            except OSError as e:
-                print(f"Error creating directory {dir_path}: {e}")
-                return
+    def setup(self, output_dir=None, compile=False, network_only=False):
+        if output_dir is None:
+            output_dir = "./output/misc"
 
-    def set_output_subdir(self, subdir):
-        """
-        set the output directory and ensure that the results and metrics directories exist
-        If not, create them
-        """
-        if subdir is not None:
-            self.output_subdir = subdir
-            dirs_to_make = [
-                os.path.join("results", subdir),
-                os.path.join("metrics", subdir),
-            ]
-
-            for dir_to_make in dirs_to_make:
-                self.safe_create_dir(dir_to_make)
-
-    def setup(self, compile=False, network_only=False):
         experiment_id = str(uuid.uuid4())
+        experiment_dir = path.join(output_dir, experiment_id)
+
+        # Create experiment directory
+        if not os.path.exists(experiment_dir):
+            os.makedirs(experiment_dir)
+
         # Setup defender logging
-        setup_logger_for_emulation(experiment_id)
+        setup_logger_for_emulation(experiment_dir)
 
         # Setup connection to elasticsearch
         elasticsearch_server = (
@@ -107,21 +91,23 @@ class Emulator:
         # Initialize ansible
         ssh_key_path = self.config["ssh_key_path"]
         ansible_dir = "./ansible/"
-        ansible_runner = AnsibleRunner(ssh_key_path, None, ansible_dir, self.quiet)
+        ansible_runner = AnsibleRunner(
+            ssh_key_path, None, ansible_dir, experiment_dir, self.quiet
+        )
 
         # Setup attacker
         caldera_api_key = self.config["caldera"]["api_key"]
         self.caldera_api_key = caldera_api_key
-        attacker_ = getattr(attacker_module, self.scenario["attacker"])
+        attacker_ = getattr(attacker_module, self.scenario.attacker.name)
         self.attacker = attacker_(caldera_api_key, experiment_id)
 
         # Setup GoalKeeper
-        self.goalkeeper = GoalKeeper(self.attacker)
+        self.goalkeeper = GoalKeeper(self.attacker, experiment_dir)
         self.goalkeeper.start_setup_timer()
 
         # Deploy deployment instance
         deployment_instance_ = getattr(
-            deployment_instance_module, self.scenario["deployment_instance"]
+            deployment_instance_module, self.scenario.deployment_instance.name
         )
         self.deployment_instance = deployment_instance_(
             ansible_runner, self.openstack_conn, self.config["external_ip"]
@@ -140,19 +126,15 @@ class Emulator:
         self.goalkeeper.set_root_flags(self.deployment_instance.root_flags)
 
         # Setup initial defender
-        defender_ = getattr(defender_module, self.scenario["defender"]["type"])
         ### Telemetry ###
-        telemetry_ = getattr(telemetry_module, self.scenario["defender"]["telemetry"])
+        telemetry_ = getattr(telemetry_module, self.scenario.defender.telemetry)
         telemetry = telemetry_(elasticsearch_conn)
 
         ### Arsenal ###
-        arsenal_ = getattr(
-            defender_module, self.scenario["defender"]["arsenal"]["type"]
-        )
-        arsenal = arsenal_(self.scenario["defender"]["arsenal"])
+        arsenal = CountArsenal(self.scenario.defender.capabilities)
 
         ### Strategy ###
-        strategy_ = getattr(strategy_module, self.scenario["defender"]["strategy"])
+        strategy_ = getattr(strategy_module, self.scenario.defender.strategy)
         strategy = strategy_(arsenal)
 
         ### Orchestration ###
@@ -166,7 +148,7 @@ class Emulator:
             self.config["elasticsearch"]["api_key"],
         )
 
-        self.defender = defender_(arsenal, strategy, telemetry, orchestrator)
+        self.defender = Defender(arsenal, strategy, telemetry, orchestrator)
 
         self.defender.start()
         self.goalkeeper.stop_setup_timer()
@@ -234,7 +216,7 @@ class Emulator:
         self.attacker.cleanup()
 
         print("Saving metrics...")
-        self.goalkeeper.save_metrics(subdir=self.output_subdir)
+        self.goalkeeper.save_metrics()
         return self.goalkeeper.metrics
 
     # Call if using an external stepper for the defender

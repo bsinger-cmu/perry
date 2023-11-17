@@ -20,3 +20,4 @@ dependencies:
     - prompt-toolkit
     - rich
     - console
+    - pydantic
