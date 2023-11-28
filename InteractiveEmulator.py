@@ -123,8 +123,15 @@ class EmulatorInteractive:
         )
         compile_parser.add_argument(
             "-n",
-            "--network-only",
-            help="compiles just network",
+            "--network-disable",
+            help="Does not setup network",
+            default=False,
+            action="store_true",
+        )
+        compile_parser.add_argument(
+            "-hd",
+            "--host-disable",
+            help="Does not setup network",
             default=False,
             action="store_true",
         )
@@ -242,13 +249,16 @@ class EmulatorInteractive:
         This function will handle the setup command and load the config and scenario files.
         """
         (config, scenario) = self.load_config_and_scenario(args.config, args.scenario)
-        self.emulator.set_output_subdir(args.output)
         self.emulator.set_config(config)
         self.emulator.set_scenario(scenario)
         return
 
     def handle_compile(self, args):
-        self.emulator.setup(compile=True, network_only=args.network_only)
+        self.emulator.setup(
+            compile=True,
+            network_setup=(not args.network_disable),
+            host_setup=(not args.host_disable),
+        )
 
     def handle_run(self, args):
         """

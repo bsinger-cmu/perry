@@ -6,7 +6,7 @@ from rich import print as rprint
 import os
 import uuid
 
-from AnsibleRunner import AnsibleRunner
+from ansible.AnsibleRunner import AnsibleRunner
 from deployment_instance import GoalKeeper
 from scenarios.Scenario import Scenario
 from defender.arsenal import CountArsenal
@@ -47,7 +47,9 @@ class Emulator:
     def set_scenario(self, scenario):
         self.scenario = scenario
 
-    def setup(self, output_dir=None, compile=False, network_only=False):
+    def setup(
+        self, output_dir=None, compile=False, network_setup=True, host_setup=True
+    ):
         if output_dir is None:
             output_dir = "./output/misc"
 
@@ -115,7 +117,9 @@ class Emulator:
 
         # Compile deployment instance if needed
         if compile:
-            self.deployment_instance.compile(network_only=network_only)
+            self.deployment_instance.compile(
+                setup_network=network_setup, setup_hosts=host_setup
+            )
         else:
             # Do runtimesetup
             self.deployment_instance.run()
@@ -163,7 +167,7 @@ class Emulator:
         return not self.attacker.still_running()
 
     def start_main_loop(self):
-        print("Main loop starting!")
+        log_event("Emulator", "Main loop starting!")
         finished = False
         finish_counter = 0
         instance_check_counter = 0
@@ -208,15 +212,17 @@ class Emulator:
 
         self.goalkeeper.metrics = self.goalkeeper.metrics | self.defender.metrics
 
-        print("Attacker finished!")
+        log_event("Emulator", "Attacker finished")
         self.goalkeeper.print_metrics()
         # Cleanup
 
-        print("Cleaning up attacker...")
+        log_event("Emulator", "Cleaning up attacker...")
         self.attacker.cleanup()
 
-        print("Saving metrics...")
+        log_event("Emulator", "Saving metrics...")
         self.goalkeeper.save_metrics()
+
+        log_event("Emulator", "Emulation finished!")
         return self.goalkeeper.metrics
 
     # Call if using an external stepper for the defender
