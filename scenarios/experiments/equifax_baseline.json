@@ -1,0 +1,7 @@
+[
+  {
+    "name": "EquifaxBaseline",
+    "trials": 5,
+    "scenario": "equifax.json"
+  }
+]

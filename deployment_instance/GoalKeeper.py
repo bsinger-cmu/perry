@@ -4,6 +4,8 @@ import json
 import os
 from rich import print as rprint
 
+from utility.logging import log_event
+
 
 class GoalKeeper:
     def __init__(self, attacker, output_dir):
@@ -122,6 +124,9 @@ class GoalKeeper:
 
         metrics_file = os.path.join(self.output_dir, metrics_file)
         operation_log_file = os.path.join(self.output_dir, operation_log_file_name)
+
+        log_event("GoalKeeper", f"Saving metrics to file: {metrics_file}")
+        log_event("GoalKeeper", f"Saving operations to file: {operation_log_file}")
 
         with open(metrics_file, "w") as f:
             json.dump(self.metrics, f)

@@ -6,6 +6,7 @@ from deployment_instance.MasterOrchestrator import MasterOrchestrator
 from colorama import Fore, Style
 from rich import print as rprint
 from openstack.connection import Connection
+from ansible.AnsibleRunner import AnsibleRunner
 
 public_ip = "10.20.20"
 
@@ -23,8 +24,8 @@ def find_manage_server(conn):
 
 
 class DeploymentInstance:
-    def __init__(self, ansible_runner, openstack_conn, caldera_ip):
-        self.ansible_runner = ansible_runner
+    def __init__(self, ansible_runner: AnsibleRunner, openstack_conn, caldera_ip):
+        self.ansible_runner: AnsibleRunner = ansible_runner
         self.openstack_conn: Connection = openstack_conn
         self.ssh_key_path = "./environment/ssh_keys/"
         self.caldera_ip = caldera_ip
@@ -46,12 +47,13 @@ class DeploymentInstance:
     def runtime_setup(self):
         return
 
-    def compile(self, network_only=False):
-        # Redeploy entire network
-        self.deploy_topology()
-        time.sleep(5)
+    def compile(self, setup_network=True, setup_hosts=True):
+        if setup_network:
+            # Redeploy entire network
+            self.deploy_topology()
+            time.sleep(5)
 
-        if not network_only:
+        if setup_hosts:
             # Setup instances
             self.compile_setup()
             # Save instance
