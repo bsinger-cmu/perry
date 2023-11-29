@@ -11,7 +11,8 @@ from ansible.deployment_instance import (
     SetupServerSSHKeys,
 )
 from ansible.common import CreateUser
-from ansible.vulnerabilities import EquifaxSSHConfig
+from ansible.vulnerabilities import EquifaxSSHConfig, SSHEnablePasswordLogin
+from ansible.goals import AddData
 
 
 class EquifaxInstance(DeploymentInstance):
@@ -60,20 +61,20 @@ class EquifaxInstance(DeploymentInstance):
             CreateUser("192.168.201.6", "databaseB", "ubuntu")
         )
 
-        # self.ansible_runner.run_playbook(
-        #     InstallBasePackages(
-        #         [
-        #             "192.168.200.3",
-        #             "192.168.200.4",
-        #             "192.168.200.5",
-        #             "192.168.201.3",
-        #             "192.168.201.4",
-        #             "192.168.201.5",
-        #             "192.168.201.6",
-        #             "192.168.202.3",
-        #         ]
-        #     )
-        # )
+        self.ansible_runner.run_playbook(
+            InstallBasePackages(
+                [
+                    "192.168.200.3",
+                    "192.168.200.4",
+                    "192.168.200.5",
+                    "192.168.201.3",
+                    "192.168.201.4",
+                    "192.168.201.5",
+                    "192.168.201.6",
+                    "192.168.202.3",
+                ]
+            )
+        )
 
         ssh_playbooks: list[AnsiblePlaybook] = [
             SetupServerSSHKeys(
@@ -95,36 +96,11 @@ class EquifaxInstance(DeploymentInstance):
             EquifaxSSHConfig("192.168.200.5", "webserverC")
         )
 
-        # # Add vulnerabilities to hosts
-        # # CEO
-        # self.orchestrator.vulns.add_sshEnablePasswordLogin("192.168.201.3")
-        # self.orchestrator.vulns.add_sshEnablePasswordLogin("192.168.201.4")
-        # self.orchestrator.vulns.add_sshEnablePasswordLogin("192.168.201.5")
-        # self.orchestrator.vulns.add_sshEnablePasswordLogin("192.168.201.6")
+        self.ansible_runner.run_playbook(AddData("192.168.201.5", "databaseA", "~/"))
 
-        # self.orchestrator.vulns.add_writeablePassword("192.168.201.5")
-        # self.orchestrator.vulns.add_writeablePassword("192.168.201.6")
-
-        # self.setup_flags()
-
-    def setup_flags(self):
-        self.orchestrator.goals.setup_flag(
-            "192.168.201.5",
-            "/home/database_A/flag.txt",
-            self.flags["192.168.201.5"],
-            "database_A",
-            "root",
-        )
-        self.orchestrator.goals.setup_flag(
-            "192.168.201.6",
-            "/home/database_B/flag.txt",
-            self.flags["192.168.201.6"],
-            "database_B",
-            "root",
-        )
-
-        for host in self.root_flags:
-            self.orchestrator.goals.setup_root_flag(host, self.root_flags[host])
+        self.ansible_runner.run_playbook(SSHEnablePasswordLogin("192.168.200.3"))
+        self.ansible_runner.run_playbook(SSHEnablePasswordLogin("192.168.200.4"))
+        self.ansible_runner.run_playbook(SSHEnablePasswordLogin("192.168.200.5"))
 
     def runtime_setup(self):
         # Execute Processes
