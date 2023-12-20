@@ -9,10 +9,15 @@ from ansible.deployment_instance import (
     InstallBasePackages,
     CheckIfHostUp,
     SetupServerSSHKeys,
+    CreateSSHKey,
 )
 from ansible.common import CreateUser
-from ansible.vulnerabilities import EquifaxSSHConfig, SSHEnablePasswordLogin
+from ansible.vulnerabilities import (
+    EquifaxSSHConfig,
+    SetupStrutsVulnerability,
+)
 from ansible.goals import AddData
+from ansible.caldera import InstallAttacker
 
 
 class EquifaxInstance(DeploymentInstance):
@@ -76,39 +81,37 @@ class EquifaxInstance(DeploymentInstance):
             )
         )
 
+        self.ansible_runner.run_playbook(SetupStrutsVulnerability("192.168.200.3"))
+        self.ansible_runner.run_playbook(SetupStrutsVulnerability("192.168.200.4"))
+        self.ansible_runner.run_playbook(SetupStrutsVulnerability("192.168.200.5"))
+
         ssh_playbooks: list[AnsiblePlaybook] = [
-            SetupServerSSHKeys(
-                "192.168.200.5", "webserverC", "192.168.201.3", "employeeA"
-            ),
-            SetupServerSSHKeys(
-                "192.168.200.5", "webserverC", "192.168.201.4", "employeeB"
-            ),
-            SetupServerSSHKeys(
-                "192.168.200.5", "webserverC", "192.168.201.5", "databaseA"
-            ),
-            SetupServerSSHKeys(
-                "192.168.200.5", "webserverC", "192.168.201.6", "databaseB"
-            ),
+            SetupServerSSHKeys("192.168.200.5", "tomcat", "192.168.201.3", "employeeA"),
+            SetupServerSSHKeys("192.168.200.5", "tomcat", "192.168.201.4", "employeeB"),
+            SetupServerSSHKeys("192.168.200.5", "tomcat", "192.168.201.5", "databaseA"),
+            SetupServerSSHKeys("192.168.200.5", "tomcat", "192.168.201.6", "databaseB"),
         ]
         self.ansible_runner.run_playbooks(ssh_playbooks)
 
+        self.ansible_runner.run_playbook(EquifaxSSHConfig("192.168.200.5", "tomcat"))
+
         self.ansible_runner.run_playbook(
-            EquifaxSSHConfig("192.168.200.5", "webserverC")
+            AddData("192.168.201.5", "databaseA", "~/data1.json")
+        )
+        self.ansible_runner.run_playbook(
+            AddData("192.168.201.6", "databaseB", "~/data2.json")
         )
 
-        self.ansible_runner.run_playbook(AddData("192.168.201.5", "databaseA", "~/"))
-
-        self.ansible_runner.run_playbook(SSHEnablePasswordLogin("192.168.200.3"))
-        self.ansible_runner.run_playbook(SSHEnablePasswordLogin("192.168.200.4"))
-        self.ansible_runner.run_playbook(SSHEnablePasswordLogin("192.168.200.5"))
+        # Create SSH key for attacker
+        self.ansible_runner.run_playbook(CreateSSHKey("192.168.202.3", "root"))
 
     def runtime_setup(self):
         # Execute Processes
         # self.orchestrator.vulns.run_vsftpdBackdoor('192.168.200.5')
 
         # Setup attacker on intern machine
-        self.orchestrator.attacker.install_attacker(
-            "192.168.200.7", "intern", self.caldera_ip
+        self.ansible_runner.run_playbook(
+            InstallAttacker("192.168.202.3", "root", self.caldera_ip)
         )
 
         # TODO Start sysflow

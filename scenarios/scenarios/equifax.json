@@ -10,7 +10,7 @@
     }
   },
   "attacker": {
-    "name": "RandomAttacker"
+    "name": "EquifaxBaselineAttacker"
   },
   "deployment_instance": {
     "name": "EquifaxInstance"

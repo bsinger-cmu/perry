@@ -1,2 +1,4 @@
 from .ssh.equifax_ssh_config.EquifaxSSHConfig import EquifaxSSHConfig
 from .ssh.SSHEnablePasswordLogin import SSHEnablePasswordLogin
+
+from .apacheStruts.SetupStrutsVulnerability import SetupStrutsVulnerability

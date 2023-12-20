@@ -28,7 +28,7 @@ class AnsibleRunner:
             print(f"[RUNNING PLAYBOOK]    {playbook.name}")
             print(f"[PLAYBOOK  PARAMS]    {playbook.params}")
 
-        log_path = path.join(self.log_path, "ansible_log.ansi")
+        log_path = path.join(self.log_path, "ansible_log.log")
 
         with open(log_path, "a") as f:
             with redirect_stdout(f):

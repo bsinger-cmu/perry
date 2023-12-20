@@ -135,6 +135,13 @@ class EmulatorInteractive:
             default=False,
             action="store_true",
         )
+        compile_parser.add_argument(
+            "-r",
+            "--runtime",
+            help="Runs runtime setup",
+            default=False,
+            action="store_true",
+        )
         compile_parser.set_defaults(func=self.handle_compile)
 
     def start_interactive_emulator(self):
@@ -184,10 +191,7 @@ class EmulatorInteractive:
         try:
             load = self.emulator.setup(experiment_output_dir)
         except Exception as e:
-            print(f"{Back.RED}Failed with exception:{Style.RESET_ALL}")
-            print(e)
-            result = ("Exception", e)
-
+            rprint(f"Failed with exception: {e}")
             logger.error("Failed to run experiment", exc_info=True)
             log_event("FAILURE", str(e))
 
@@ -199,8 +203,9 @@ class EmulatorInteractive:
             try:
                 metrics = self.emulator.run()
             except Exception as e:
-                print(f"{Back.RED}Failed with exception:{Style.RESET_ALL}")
-                print(e)
+                rprint(f"Failed with exception: {e}")
+                logger.error("Failed to run experiment", exc_info=True)
+                log_event("FAILURE", str(e))
                 result = ("Exception", e)
 
         if result is None:
@@ -259,6 +264,9 @@ class EmulatorInteractive:
             network_setup=(not args.network_disable),
             host_setup=(not args.host_disable),
         )
+
+        if args.runtime:
+            self.emulator.deployment_instance.runtime_setup()
 
     def handle_run(self, args):
         """

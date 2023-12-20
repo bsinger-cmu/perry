@@ -5,6 +5,8 @@ import os
 from rich import print as rprint
 
 from utility.logging import log_event
+from .Result import ExperimentResult, FlagInformation, FlagType
+from scenarios.Scenario import Scenario
 
 
 class GoalKeeper:
@@ -12,8 +14,7 @@ class GoalKeeper:
         self.attacker = attacker
         self.flags = {}
         self.root_flags = {}
-        self.operation_id = None
-        self.metrics = {}
+        self.operation_id = ""
         self.operation_log = None
         self.output_dir = output_dir
 
@@ -22,9 +23,6 @@ class GoalKeeper:
 
     def stop_setup_timer(self):
         self.setup_stop_time = time.time()
-
-    def set_warning(self, warning: str):
-        self.metrics["warning"] = warning
 
     def start_execution_timer(self):
         self.execution_start_time = time.time()
@@ -52,12 +50,8 @@ class GoalKeeper:
                 return host
         return None
 
-    def set_metric(self, metric_name, metric_value):
-        self.metrics[metric_name] = metric_value
-
-    def calculate_metrics(self):
+    def calculate_metrics(self, scenario: Scenario):
         # TODO: Make this an object
-        self.metrics = {}
         self.operation_log = self.attacker.get_operation_details()
 
         # Calculate time elapsed
@@ -65,21 +59,10 @@ class GoalKeeper:
         setup_time = self.setup_stop_time - self.setup_start_time
         experiment_time = setup_time + execution_time
 
-        self.metrics["operation_id"] = self.operation_id
-        self.metrics["start_time"] = self.setup_start_time
-
-        self.metrics["experiment_time"] = experiment_time
-        self.metrics["execution_time"] = execution_time
-        self.metrics["setup_time"] = setup_time
-
-        rprint("Flags")
-        rprint(self.flags)
-        rprint("Root Flags")
-        rprint(self.root_flags)
-
         # Record flags captured
-        flags_captured = []
-        root_flags_captured = []
+        flags_captured: list[FlagInformation] = []
+        data_exfiltrated = []
+
         relationships = self.attacker.get_relationships()
         for relationship in relationships:
             if (
@@ -91,22 +74,26 @@ class GoalKeeper:
                     relationship["target"]["value"]
                 )
                 flag_created_on = relationship["source"]["created"]
-                flag_data = {
-                    "flag": relationship["target"]["value"],
-                    "host": None,
-                    "type": None,
-                    "created_on": flag_created_on,
-                }
-                if host_flag_captured is not None:
-                    flag_data["host"] = host_flag_captured
-                    flag_data["type"] = "user"
-                    flags_captured.append(flag_data)
-                if host_root_flag_captured is not None:
-                    flag_data["host"] = host_root_flag_captured
-                    flag_data["type"] = "root"
-                    flags_captured.append(flag_data)
+                flag_name = relationship["target"]["value"]
 
-        self.metrics["flags_captured"] = flags_captured
+                if host_flag_captured is not None:
+                    flag = FlagInformation(
+                        flag=flag_name,
+                        host=host_flag_captured,
+                        type=FlagType.USER,
+                        time_found=flag_created_on,
+                    )
+                    flags_captured.append(flag)
+                if host_root_flag_captured is not None:
+                    flag = FlagInformation(
+                        flag=flag_name,
+                        host=host_root_flag_captured,
+                        type=FlagType.ROOT,
+                        time_found=flag_created_on,
+                    )
+                    flags_captured.append(flag)
+            if "results.data" in relationship["source"]["trait"]:
+                data_exfiltrated.append(relationship["source"]["value"])
 
         # Record hosts infected
         hosts_infected = []
@@ -114,25 +101,36 @@ class GoalKeeper:
         for action in operation_report["chain"]:
             if action["host"] not in hosts_infected:
                 hosts_infected.append(action["host"])
-        self.metrics["hosts_infected"] = hosts_infected
 
-        return self.metrics
+        self.results = ExperimentResult(
+            scenario=scenario,
+            experiment_time=experiment_time,
+            execution_time=execution_time,
+            setup_time=setup_time,
+            flags_captured=flags_captured,
+            data_exfiltrated=data_exfiltrated,
+            hosts_infected=hosts_infected,
+            operation_id=self.operation_id,
+        )
+
+        return self.results
 
     def save_metrics(self):
-        metrics_file = "metrics.json"
+        result_file = "result.json"
         operation_log_file_name = "operation_log.json"
 
-        metrics_file = os.path.join(self.output_dir, metrics_file)
+        result_file = os.path.join(self.output_dir, result_file)
         operation_log_file = os.path.join(self.output_dir, operation_log_file_name)
 
-        log_event("GoalKeeper", f"Saving metrics to file: {metrics_file}")
+        log_event("GoalKeeper", f"Saving results to file: {result_file}")
         log_event("GoalKeeper", f"Saving operations to file: {operation_log_file}")
 
-        with open(metrics_file, "w") as f:
-            json.dump(self.metrics, f)
+        with open(result_file, "w") as f:
+            result_data = self.results.model_dump()
+            json.dump(result_data, f)
         with open(operation_log_file, "w") as f:
             json.dump(self.operation_log, f)
 
     def print_metrics(self):
         print("Metrics:")
-        rprint(self.metrics)
+        rprint(self.results)

@@ -31,12 +31,11 @@ telemetry_module = importlib.import_module("defender.telemetry")
 
 
 class Emulator:
-    scenario: Scenario
-
     def __init__(self):
         self.openstack_conn = openstack.connect(cloud="default")
         self.config = None
         self.quiet = False
+        self.scenario = None
 
     def set_quiet(self, quiet):
         self.quiet = quiet
@@ -53,8 +52,13 @@ class Emulator:
         if output_dir is None:
             output_dir = "./output/misc"
 
+        if self.scenario is None:
+            raise Exception("Scenario not set")
+
         experiment_id = str(uuid.uuid4())
         experiment_dir = path.join(output_dir, experiment_id)
+
+        rprint(f"Experiment ID: {experiment_id}")
 
         # Create experiment directory
         if not os.path.exists(experiment_dir):
@@ -195,6 +199,10 @@ class Emulator:
         start running the emulator.
         This does the setup and then runs the attacker and main loop
         """
+        log_event("Emulator", "Starting emulation!")
+        if self.scenario is None:
+            raise Exception("Scenario not set")
+
         time.sleep(5)
         self.goalkeeper.start_execution_timer()
 
@@ -203,14 +211,7 @@ class Emulator:
         self.start_main_loop()
         self.goalkeeper.stop_execution_timer()
         # Once finished calculate have goalkeeper measure final success metrics
-        self.goalkeeper.calculate_metrics()
-        self.goalkeeper.set_metric(
-            "deployment_instance", self.scenario["deployment_instance"]
-        )
-        self.goalkeeper.set_metric("attacker", self.scenario["attacker"])
-        self.goalkeeper.set_metric("defender", self.scenario["defender"]["type"])
-
-        self.goalkeeper.metrics = self.goalkeeper.metrics | self.defender.metrics
+        result = self.goalkeeper.calculate_metrics(self.scenario)
 
         log_event("Emulator", "Attacker finished")
         self.goalkeeper.print_metrics()
@@ -223,12 +224,7 @@ class Emulator:
         self.goalkeeper.save_metrics()
 
         log_event("Emulator", "Emulation finished!")
-        return self.goalkeeper.metrics
-
-    # Call if using an external stepper for the defender
-    # Example: You want OpenAI gym to control the defender for learning a new policy
-    def external_defender_steps(self, actions):
-        return self.defender.run(actions)
+        return result
 
     def check_all_instances(self):
         all_servers = self.openstack_conn.list_servers()

@@ -1,4 +1,4 @@
-from .orchestrator import Orchestrator, OrchestrationTask
+from .orchestrator import Orchestrator, OrcehstratorTask
 import random
 import string
 
@@ -19,7 +19,7 @@ class GoalOrchestrator(Orchestrator):
     def add_flag(
         self, host: str, flag_path: str, flag_contents: str, user: str, user_group: str
     ):
-        task = OrchestrationTask(host, "addFlag")
+        task = OrcehstratorTask(host, "addFlag")
         task.set_params(
             {
                 "owner_user": user,

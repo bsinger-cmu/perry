@@ -80,6 +80,7 @@ class DeploymentInstance:
 
     def find_management_server(self):
         manage_server, manage_ip = find_manage_server(self.openstack_conn)
+        rprint(f"Found management server: {manage_ip}")
         self.ansible_runner.update_management_ip(manage_ip)
 
     def check_flag(self, flag):

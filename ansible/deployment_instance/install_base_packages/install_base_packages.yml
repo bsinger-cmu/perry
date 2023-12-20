@@ -3,11 +3,16 @@
   remote_user: root
 
   tasks:
-  - name: Base dependencies
-    apt:
-      pkg:
-        - sshpass
-        - nmap
-        - ncat
-      state: present
-      update_cache: yes
+    - name: Remove automatic updates
+      apt:
+        name: unattended-upgrades
+        state: absent
+
+    - name: Base dependencies
+      apt:
+        pkg:
+          - sshpass
+          - nmap
+          - ncat
+        state: present
+        update_cache: yes
