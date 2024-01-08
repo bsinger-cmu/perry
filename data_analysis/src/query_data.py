@@ -1,25 +1,25 @@
 import pandas as pd
 from statistics import mean
 
+from deployment_instance import ExperimentResult, FlagInformation, DataExfiltrated
 
-def get_flags_captured(data):
-    flags_captured = None
 
-    for experiment_type in data.keys():
-        experiment_type_data = data[experiment_type]
-        num_flags = []
+def get_flags_captured(data: list[ExperimentResult]):
+    flags_data: list[list[FlagInformation]] = []
 
-        for experiment in experiment_type_data:
-            num_experiment_flags = len(experiment["flags_captured"])
-            num_flags.append(num_experiment_flags)
+    for experiment in data:
+        flags_data.append(experiment.flags_captured)
 
-        num_flags = pd.DataFrame(num_flags, columns=[experiment_type])
-        if flags_captured is None:
-            flags_captured = num_flags
-        else:
-            flags_captured = pd.concat([flags_captured, num_flags], axis=1)
+    return flags_data
 
-    return flags_captured
+
+def get_data_exfiltrated(data: list[ExperimentResult]):
+    data_exfiltrated: list[list[DataExfiltrated]] = []
+
+    for experiment in data:
+        data_exfiltrated.append(experiment.data_exfiltrated)
+
+    return data_exfiltrated
 
 
 # For each experiment get runtime data

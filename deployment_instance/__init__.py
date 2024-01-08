@@ -5,3 +5,4 @@ from .EnterpriseInstance import EnterpriseInstance
 from .EquifaxInstance import EquifaxInstance
 
 from .GoalKeeper import GoalKeeper
+from .Result import ExperimentResult, FlagInformation, FlagType, DataExfiltrated

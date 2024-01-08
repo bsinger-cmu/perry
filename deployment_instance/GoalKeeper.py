@@ -5,7 +5,7 @@ import os
 from rich import print as rprint
 
 from utility.logging import log_event
-from .Result import ExperimentResult, FlagInformation, FlagType
+from .Result import ExperimentResult, FlagInformation, FlagType, DataExfiltrated
 from scenarios.Scenario import Scenario
 
 
@@ -93,7 +93,15 @@ class GoalKeeper:
                     )
                     flags_captured.append(flag)
             if "results.data" in relationship["source"]["trait"]:
-                data_exfiltrated.append(relationship["source"]["value"])
+                if relationship["edge"] == "has_timestamp":
+                    filename = relationship["source"]["value"]
+                    timestamp = relationship["target"]["value"]
+                    time_exfiltrated = timestamp - self.execution_start_time
+                    data_exfiltrated.append(
+                        DataExfiltrated(
+                            name=filename, time_exfiltrated=time_exfiltrated
+                        )
+                    )
 
         # Record hosts infected
         hosts_infected = []

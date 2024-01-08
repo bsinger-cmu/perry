@@ -1,0 +1,35 @@
+{
+  "scenario": {
+    "name": "Equifax",
+    "defender": {
+      "telemetry": "NoTelemetry",
+      "strategy": "DoNothing",
+      "capabilities": {
+        "DeployDecoy": 0,
+        "HoneyService": 0,
+        "RestoreServer": 0
+      }
+    },
+    "attacker": { "name": "EquifaxBaselineAttacker" },
+    "deployment_instance": { "name": "EquifaxInstance" }
+  },
+  "experiment_time": 338.4310042858124,
+  "execution_time": 286.826429605484,
+  "setup_time": 51.60457468032837,
+  "flags_captured": [],
+  "data_exfiltrated": [
+    { "name": "data1.json", "time_exfiltrated": 199.6898958683014 },
+    { "name": "data2.json", "time_exfiltrated": 235.6898958683014 }
+  ],
+  "hosts_infected": [
+    "attacker",
+    "webserver-a",
+    "webserver-b",
+    "webserver-c",
+    "database-a",
+    "database-b",
+    "employee-a",
+    "employee-b"
+  ],
+  "operation_id": "ff62ee27-b0ae-4a88-8a67-87c78ad62fd8"
+}

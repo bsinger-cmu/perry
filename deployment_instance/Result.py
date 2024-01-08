@@ -15,12 +15,17 @@ class FlagInformation(BaseModel):
     time_found: float
 
 
+class DataExfiltrated(BaseModel):
+    name: str
+    time_exfiltrated: float
+
+
 class ExperimentResult(BaseModel):
     scenario: Scenario
     experiment_time: float
     execution_time: float
     setup_time: float
     flags_captured: list[FlagInformation]
-    data_exfiltrated: list[str]
+    data_exfiltrated: list[DataExfiltrated]
     hosts_infected: list[str]
     operation_id: str

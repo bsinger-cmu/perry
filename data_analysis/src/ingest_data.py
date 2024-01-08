@@ -2,6 +2,7 @@ import os
 import json
 import dateutil.parser as time_parser
 from collections import OrderedDict
+from deployment_instance import ExperimentResult
 
 
 # merge json files in a directory into one object
@@ -44,18 +45,30 @@ def pre_process_data(data):
     return data
 
 
+# Load experiment results from a directory
+def ingest_experiment_results(dir_path):
+    subdirectories = os.listdir(dir_path)
+    experiment_results: list[ExperimentResult] = []
+
+    for execution_dir in subdirectories:
+        if os.path.isdir(os.path.join(dir_path, execution_dir)):
+            result_file = os.path.join(dir_path, execution_dir, "result.json")
+            with open(result_file, "r") as f:
+                experiment_results.append(ExperimentResult(**json.load(f)))
+
+    return experiment_results
+
+
 # merge subdirectories into a dictionary
 def ingest_data_dir(dir_path):
     subdirectories = os.listdir(dir_path)
     data = {}
+
     # Go through each subdirectory and merge json files
     for subdirectory in subdirectories:
         if os.path.isdir(os.path.join(dir_path, subdirectory)):
-            data[subdirectory] = merge_json_files(os.path.join(dir_path, subdirectory))
-
-    data = pre_process_data(data)
-
-    # Sort data by experiment name
-    data = OrderedDict(sorted(data.items()))
+            data[subdirectory] = ingest_experiment_results(
+                os.path.join(dir_path, subdirectory)
+            )
 
     return data
