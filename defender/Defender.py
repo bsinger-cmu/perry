@@ -3,6 +3,8 @@ from .arsenal import Arsenal
 from .strategy import Strategy
 from .telemetry import TelemetryAnalysis
 
+from deployment_instance.network import Network
+
 from queue import Queue
 
 
@@ -11,6 +13,7 @@ class Defender:
     telemetryAnalysis: TelemetryAnalysis
     arsenal: Arsenal
     orchestrator: OpenstackOrchestrator
+    network: Network
 
     def __init__(
         self,
@@ -18,12 +21,14 @@ class Defender:
         strategy: Strategy,
         telemetryAnalysis: TelemetryAnalysis,
         orchestrator: OpenstackOrchestrator,
+        network: Network,
     ):
         self.metrics = {}
         self.arsenal = arsenal
         self.strategy = strategy
         self.telemetry_analysis = telemetryAnalysis
         self.orchestrator = orchestrator
+        self.network = network
 
     def start(self):
         # Run initial strategy setup

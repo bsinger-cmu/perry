@@ -1,0 +1,7 @@
+[
+  {
+    "name": "EquifaxRandom",
+    "trials": 5,
+    "scenario": "equifax_random.json"
+  }
+]

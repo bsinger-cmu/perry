@@ -1,1 +1,0 @@
-{"operation_id": "be0a4c3a-ab45-4cd8-83e0-1d60d2f78d2a", "start_time": 1696386366.547685, "experiment_time": 415.57728815078735, "execution_time": 73.11407685279846, "setup_time": 342.4632112979889, "flags_captured": [], "hosts_infected": ["intern-host"], "deployment_instance": "EnterpriseInstance", "attacker": "EnterpriseAttacker", "defender": "EnterpriseRandomDefender"}

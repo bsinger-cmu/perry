@@ -19,6 +19,8 @@ from ansible.vulnerabilities import (
 from ansible.goals import AddData
 from ansible.caldera import InstallAttacker
 
+from .network import Network, Host, Subnet
+
 
 class EquifaxInstance(DeploymentInstance):
     def __init__(self, ansible_runner: AnsibleRunner, openstack_conn, caldera_ip):
@@ -32,6 +34,26 @@ class EquifaxInstance(DeploymentInstance):
 
         self.root_flags["192.168.201.5"] = "database-A-root-flag"
         self.root_flags["192.168.201.6"] = "database-B-root-flag"
+
+        webserverA = Host("webserverA", "192.168.200.3", ["webserverA"])
+        webserverB = Host("webserverB", "192.168.200.4", ["webserverB"])
+        webserverC = Host("webserverC", "192.168.200.5", ["webserverC"])
+
+        employeeA = Host("employeeA", "192.168.201.3", ["employeeA"])
+        employeeB = Host("employeeB", "192.168.201.4", ["employeeB"])
+        databaseA = Host("databaseA", "192.168.201.5", ["databaseA"])
+        databaseB = Host("databaseB", "192.168.201.6", ["databaseB"])
+
+        webserverSubnet = Subnet(
+            "webserver_network", [webserverA, webserverB, webserverC], "webserver"
+        )
+        corportateSubnet = Subnet(
+            "critical_company_network",
+            [employeeA, employeeB, databaseA, databaseB],
+            "critical_company",
+        )
+
+        self.network = Network("equifax_network", [webserverSubnet, corportateSubnet])
 
     def compile_setup(self):
         log_event("Deployment Instace", "Setting up Equifax Instance")

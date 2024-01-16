@@ -141,10 +141,6 @@ class Emulator:
         ### Arsenal ###
         arsenal = CountArsenal(self.scenario.defender.capabilities)
 
-        ### Strategy ###
-        strategy_ = getattr(strategy_module, self.scenario.defender.strategy)
-        strategy = strategy_(arsenal)
-
         ### Orchestration ###
         external_ip = self.config["external_ip"]
         elastic_search_port = self.config["elasticsearch"]["port"]
@@ -156,7 +152,13 @@ class Emulator:
             self.config["elasticsearch"]["api_key"],
         )
 
-        self.defender = Defender(arsenal, strategy, telemetry, orchestrator)
+        ### Strategy ###
+        strategy_ = getattr(strategy_module, self.scenario.defender.strategy)
+        strategy = strategy_(arsenal, self.deployment_instance.network, orchestrator)
+
+        self.defender = Defender(
+            arsenal, strategy, telemetry, orchestrator, self.deployment_instance.network
+        )
 
         self.defender.start()
         self.goalkeeper.stop_setup_timer()

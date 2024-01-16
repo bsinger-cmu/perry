@@ -1,4 +1,5 @@
 from .ShutdownServer import ShutdownServer
-from .StartHoneyService import StartHoneyService
+from .AddHoneyCredentials import AddHoneyCredentials
 from .DeployDecoy import DeployDecoy
 from .RestoreServer import RestoreServer
+from .StartHoneyService import StartHoneyService

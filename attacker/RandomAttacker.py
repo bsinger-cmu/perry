@@ -6,13 +6,13 @@ from .Attacker import Attacker
 class RandomAttacker(Attacker):
     def start_operation(self):
         json_data = {
-            "name": "Enterprise Operation",
+            "name": "Random attacker",
             "id": self.operation_id,
             "adversary": {
                 "adversary_id": "deception_enterprise",
             },
             "planner": {
-                "id": "deception_enterprise",
+                "id": "random_planner",
             },
             "source": {
                 "id": "ed32b9c3-9593-4c33-b0db-e2007315096b",

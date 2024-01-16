@@ -1,13 +1,19 @@
-from defender.arsenal import Arsenal
+from defender.arsenal import CountArsenal
 from defender.capabilities import Action
 from defender.telemetry.events import HighLevelEvent
+from deployment_instance.network import Network
+from defender.orchestrator import Orchestrator
+from utility.logging import get_logger
 
 
 class Strategy(object):
-    arsenal: Arsenal
-
-    def __init__(self, arsenal: Arsenal):
+    def __init__(
+        self, arsenal: CountArsenal, network: Network, orchestrator: Orchestrator
+    ):
         self.arsenal = arsenal
+        self.network = network
+        self.orchestrator = orchestrator
+        self.logger = get_logger()
 
     # Run actions before the scenario starts
     def initialize(self) -> list[Action]:
