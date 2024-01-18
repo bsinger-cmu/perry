@@ -35,9 +35,9 @@ class EquifaxInstance(DeploymentInstance):
         self.root_flags["192.168.201.5"] = "database-A-root-flag"
         self.root_flags["192.168.201.6"] = "database-B-root-flag"
 
-        webserverA = Host("webserverA", "192.168.200.3", ["webserverA"])
-        webserverB = Host("webserverB", "192.168.200.4", ["webserverB"])
-        webserverC = Host("webserverC", "192.168.200.5", ["webserverC"])
+        webserverA = Host("webserverA", "192.168.200.3", ["tomcat"])
+        webserverB = Host("webserverB", "192.168.200.4", ["tomcat"])
+        webserverC = Host("webserverC", "192.168.200.5", ["tomcat"])
 
         employeeA = Host("employeeA", "192.168.201.3", ["employeeA"])
         employeeB = Host("employeeB", "192.168.201.4", ["employeeB"])
@@ -115,7 +115,7 @@ class EquifaxInstance(DeploymentInstance):
         ]
         self.ansible_runner.run_playbooks(ssh_playbooks)
 
-        self.ansible_runner.run_playbook(EquifaxSSHConfig("192.168.200.5", "tomcat"))
+        # self.ansible_runner.run_playbook(EquifaxSSHConfig("192.168.200.5", "tomcat"))
 
         self.ansible_runner.run_playbook(
             AddData("192.168.201.5", "databaseA", "~/data1.json")

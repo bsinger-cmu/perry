@@ -11,6 +11,9 @@ class CountArsenal(Arsenal):
         return self.storage.keys()
 
     def get_max_capability_count(self, capability):
+        if capability not in self.storage:
+            return 0
+
         return self.storage[capability]
 
     # Define by subclass

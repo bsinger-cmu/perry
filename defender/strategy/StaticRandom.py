@@ -20,16 +20,13 @@ class StaticRandom(Strategy):
         # Initialize decoys so we can setup fake credentials
         self.orchestrator.run(decoy_actions)
 
-        for subnet in self.network.subnets:
-            if len(subnet.decoys) > 0:
-                random.shuffle(subnet.decoys)
-                random.shuffle(subnet.hosts)
-
-                decoy = subnet.decoys[0]
-                host = subnet.hosts[0]
-
-                # Add fake credentials to decoy
-                self.orchestrator.run([AddHoneyCredentials(host, decoy)])
+        # Add fake credentials to all hosts
+        if self.arsenal.get_max_capability_count("HoneyCredentials") != 0:
+            for subnet in self.network.subnets:
+                for host in subnet.hosts:
+                    decoy = self.network.get_random_decoy()
+                    # Add fake credentials to decoy
+                    self.orchestrator.run([AddHoneyCredentials(host, decoy)])
 
         return []
 

@@ -22,6 +22,33 @@ def get_data_exfiltrated(data: list[ExperimentResult]):
     return data_exfiltrated
 
 
+def get_data_exfiltration_times(data: list[ExperimentResult]):
+    data_exfiltrated = get_data_exfiltrated(data)
+    time_exiltrated_all_data = []
+
+    for experiment_result in data_exfiltrated:
+        data_exfiltration_times = []
+        for data_exfiltrated in experiment_result:
+            data_exfiltration_times.append(data_exfiltrated.time_exfiltrated)
+
+        if len(data_exfiltration_times) == 0:
+            continue
+
+        time_exiltrated_all_data.append(max(data_exfiltration_times))
+
+    return time_exiltrated_all_data
+
+
+def percent_of_data_exfiltrated(data: list[ExperimentResult], expected_files: int = 2):
+    data_exfiltrated = get_data_exfiltrated(data)
+    percent_exfiltrated_all_data = []
+
+    for experiment_result in data_exfiltrated:
+        percent_exfiltrated_all_data.append(len(experiment_result) / expected_files)
+
+    return mean(percent_exfiltrated_all_data) * 100
+
+
 # For each experiment get runtime data
 def get_runtime_data(experiment_data):
     runtime_data = {}

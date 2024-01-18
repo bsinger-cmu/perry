@@ -291,12 +291,13 @@ class EmulatorInteractive:
         experiment_task = progress.add_task(
             "[yellow]Running Experiment Trials", start=False, total=trials
         )
+        experiment_output_dir = path.join("output", "debug")
 
         with progress:
             progress.start_task(experiment_task)
             for i in range(trials):
                 rprint(f"Starting trial... {i+1}/{trials}")
-                result = self.run_experiment_trial()
+                result = self.run_experiment_trial(experiment_output_dir)
 
                 status = result[0]
                 if status == "Success":
