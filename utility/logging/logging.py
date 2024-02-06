@@ -16,12 +16,18 @@ def setup_logger_for_emulation(experiment_output_dir: str):
     log_path = os.path.join(experiment_output_dir, log_filename)
 
     plugin_logger_handler = RotatingFileHandler(log_path, maxBytes=5 * 1024 * 1024)
-    plugin_logger_formatter = logging.Formatter("%(asctime)s %(levelname)s:%(message)s")
+    plugin_logger_formatter = logging.Formatter(
+        "%(asctime)s {%(filename)s:%(lineno)d} %(levelname)s:%(message)s"
+    )
     plugin_logger_handler.setFormatter(plugin_logger_formatter)
     plugin_logger_handler.setLevel(logging.DEBUG)
 
     plugin_logger.handlers.clear()
     plugin_logger.addHandler(plugin_logger_handler)
+
+
+def log(message: str):
+    plugin_logger.debug(message)
 
 
 def log_event(event: str, message: str):

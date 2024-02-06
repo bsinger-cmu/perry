@@ -22,14 +22,19 @@ def get_data_exfiltrated(data: list[ExperimentResult]):
     return data_exfiltrated
 
 
-def get_data_exfiltration_times(data: list[ExperimentResult]):
+def get_data_exfiltration_times(
+    data: list[ExperimentResult], convert_to_minutes: bool = True
+):
     data_exfiltrated = get_data_exfiltrated(data)
     time_exiltrated_all_data = []
 
     for experiment_result in data_exfiltrated:
         data_exfiltration_times = []
         for data_exfiltrated in experiment_result:
-            data_exfiltration_times.append(data_exfiltrated.time_exfiltrated)
+            if convert_to_minutes:
+                data_exfiltration_times.append(data_exfiltrated.time_exfiltrated / 60)
+            else:
+                data_exfiltration_times.append(data_exfiltrated.time_exfiltrated)
 
         if len(data_exfiltration_times) == 0:
             continue

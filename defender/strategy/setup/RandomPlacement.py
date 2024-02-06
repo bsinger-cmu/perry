@@ -10,12 +10,15 @@ def randomly_place_deception(arsenal: CountArsenal, network: Network):
     num_honeyservice = arsenal.storage["HoneyService"]
     num_decoys = arsenal.storage["DeployDecoy"]
 
-    # Randomly deploy honey service hosts
+    ### Randomly deploy honey service hosts ###
+    # Get hosts in network and shuffle them
     network_hosts = network.get_all_hosts()
     random.shuffle(network_hosts)
 
     actions = []
+    # For each honeyservice, deploy it on a host
     for i in range(0, num_honeyservice):
+        # End if we run out of hosts
         if i >= len(network_hosts):
             break
 

@@ -25,13 +25,13 @@
         dest: tmp/
         flat: yes
 
-    - name: Ensure ssh config exists
-      become: true
-      become_user: "{{ host_user }}"
-      file:
-        path: "~/.ssh/config"
-        state: touch
-        mode: "0600"
+    # - name: Ensure ssh config exists
+    #   become: true
+    #   become_user: "{{ host_user }}"
+    #   file:
+    #     path: "~/.ssh/config"
+    #     state: present
+    #     mode: "0600"
 
     - name: add to ssh config
       become: true
@@ -45,6 +45,9 @@
             HostName {{ follower }}
             User {{ follower_user }}
             IdentityFile ~/.ssh/id_rsa
+        create: true
+        mode: "0600"
+        marker: ""
 
 - hosts: "{{ follower }}"
   tasks:

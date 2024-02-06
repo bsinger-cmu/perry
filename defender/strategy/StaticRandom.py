@@ -21,12 +21,15 @@ class StaticRandom(Strategy):
         self.orchestrator.run(decoy_actions)
 
         # Add fake credentials to all hosts
-        if self.arsenal.get_max_capability_count("HoneyCredentials") != 0:
+        num_honeycreds = self.arsenal.get_max_capability_count("HoneyCredentials")
+        if num_honeycreds != 0:
             for subnet in self.network.subnets:
                 for host in subnet.hosts:
                     decoy = self.network.get_random_decoy()
                     # Add fake credentials to decoy
-                    self.orchestrator.run([AddHoneyCredentials(host, decoy)])
+                    self.orchestrator.run(
+                        [AddHoneyCredentials(host, decoy, num_honeycreds)]
+                    )
 
         return []
 

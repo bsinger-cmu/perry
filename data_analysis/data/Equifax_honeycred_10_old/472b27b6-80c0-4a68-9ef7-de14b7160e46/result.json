@@ -1,0 +1,35 @@
+{
+  "scenario": {
+    "name": "Equifax_HoneyCredential_10",
+    "defender": {
+      "telemetry": "NoTelemetry",
+      "strategy": "StaticRandom",
+      "capabilities": {
+        "DeployDecoy": 2,
+        "HoneyService": 2,
+        "RestoreServer": 0,
+        "HoneyCredentials": 10
+      }
+    },
+    "attacker": { "name": "EquifaxBaselineAttacker" },
+    "deployment_instance": { "name": "EquifaxInstance" }
+  },
+  "experiment_time": 1172.6659331321716,
+  "execution_time": 249.6311333179474,
+  "setup_time": 923.0347998142242,
+  "flags_captured": [],
+  "data_exfiltrated": [
+    { "name": "data1.json", "time_exfiltrated": 175.78166675567627 },
+    { "name": "data2.json", "time_exfiltrated": 230.78166675567627 }
+  ],
+  "hosts_infected": [
+    "attacker",
+    "webserver-c",
+    "decoy-0",
+    "database-a",
+    "employee-a",
+    "database-b",
+    "employee-b"
+  ],
+  "operation_id": "472b27b6-80c0-4a68-9ef7-de14b7160e46"
+}

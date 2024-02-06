@@ -47,6 +47,15 @@ class Attacker:
             json=json_data,
         )
 
+    def stop_operation(self):
+        # Send patch request
+        json_data = {"state": "stop"}
+        response = requests.patch(
+            f"http://localhost:8888/api/v2/operations/{self.operation_id}",
+            headers=self.api_headers,
+            json=json_data,
+        )
+
     def get_operation_details(self):
         response = requests.get(
             f"http://localhost:8888/api/v2/operations/{self.operation_id}",

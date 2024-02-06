@@ -11,11 +11,13 @@ from deployment_instance import GoalKeeper
 from scenarios.Scenario import Scenario
 from defender.arsenal import CountArsenal
 from defender import Defender
-from utility.logging.logging import setup_logger_for_emulation, log_event
+from utility.logging.logging import setup_logger_for_emulation, log_event, get_logger
 
 import openstack
 
 import time
+
+logger = get_logger()
 
 
 # Dynamically import modules
@@ -172,13 +174,17 @@ class Emulator:
     def finished(self):
         return not self.attacker.still_running()
 
-    def start_main_loop(self):
+    def start_main_loop(self, timeout_minutes=30):
         log_event("Emulator", "Main loop starting!")
+
+        # Create timer
+        timeout = time.time() + 60 * timeout_minutes
+
         finished = False
         finish_counter = 0
         instance_check_counter = 0
         try:
-            while not finished:
+            while not finished and time.time() < timeout:
                 self.defender.run()
 
                 if finish_counter > 5:
@@ -192,6 +198,15 @@ class Emulator:
 
                 time.sleep(0.5)
                 finish_counter += 1
+
+            self.attacker.stop_operation()
+
+            if time.time() >= timeout:
+                logger.info(
+                    f"Timeout reached!",
+                )
+                self.attacker.stop_operation()
+                time.sleep(60 * timeout_minutes)
 
         except KeyboardInterrupt:
             pass

@@ -5,6 +5,9 @@ from ansible.deployment_instance import SetupServerSSHKeys
 from ansible.common import CreateUser
 
 from faker import Faker
+from utility.logging import get_logger
+
+logger = get_logger()
 
 
 class AddHoneyCredentials(OpenstackActuator):
@@ -15,6 +18,10 @@ class AddHoneyCredentials(OpenstackActuator):
             name = fake.name()
             username = name.replace(" ", "")
             password = fake.password()
+
+            logger.debug(
+                f"Adding honey credentials for {name} on {action.credential_host.name}",
+            )
 
             # Create user on honey computer
             create_user_pb = CreateUser(action.honey_host.ip, username, password)

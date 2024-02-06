@@ -1,0 +1,12 @@
+[
+  {
+    "name": "Equifax_honeycred_5",
+    "trials": 15,
+    "scenario": "equifax/honeycred_5.json"
+  },
+  {
+    "name": "Equifax_honeycred_10",
+    "trials": 15,
+    "scenario": "equifax/honeycred_10.json"
+  }
+]

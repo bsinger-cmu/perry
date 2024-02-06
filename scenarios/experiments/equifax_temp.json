@@ -1,7 +1,7 @@
 [
   {
-    "name": "Equifax_StaticRandomDefender",
-    "trials": 5,
-    "scenario": "equifax_staticRandom.json"
+    "name": "Equifax_Greedy",
+    "trials": 10,
+    "scenario": "equifax/equifax_greedy.json"
   }
 ]
