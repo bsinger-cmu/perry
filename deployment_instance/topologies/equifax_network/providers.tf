@@ -35,6 +35,11 @@ variable "openstack_region" {
   description = "Openstack region"
 }
 
+variable "perry_key_name" {
+  type        = string
+  description = "Name of the keypair to use for the Perry instance"
+}
+
 # Configure the OpenStack Provider
 provider "openstack" {
   user_name   = var.openstack_username

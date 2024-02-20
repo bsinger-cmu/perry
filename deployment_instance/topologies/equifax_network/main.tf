@@ -228,7 +228,7 @@ resource "openstack_compute_instance_v2" "manage_host" {
   name        = "manage_host"
   image_name  = "ubuntu20_pip"
   flavor_name = "m1.small"
-  key_pair    = "cage"
+  key_pair    = var.perry_key_name
 
   network {
     port = openstack_networking_port_v2.manage_port_host.id
@@ -249,7 +249,7 @@ resource "openstack_compute_instance_v2" "webserver_A" {
   name        = "webserver_A"
   image_name  = "ubuntu20_sysflow"
   flavor_name = "m1.small"
-  key_pair    = "cage"
+  key_pair    = var.perry_key_name
 
   network {
     port = openstack_networking_port_v2.webserver_A_port.id
@@ -260,7 +260,7 @@ resource "openstack_compute_instance_v2" "webserver_B" {
   name        = "webserver_B"
   image_name  = "ubuntu20_sysflow"
   flavor_name = "m1.small"
-  key_pair    = "cage"
+  key_pair    = var.perry_key_name
 
   network {
     port = openstack_networking_port_v2.webserver_B_port.id
@@ -271,7 +271,7 @@ resource "openstack_compute_instance_v2" "webserver_C" {
   name        = "webserver_C"
   image_name  = "ubuntu20_sysflow"
   flavor_name = "m1.small"
-  key_pair    = "cage"
+  key_pair    = var.perry_key_name
 
   network {
     port = openstack_networking_port_v2.webserver_C_port.id
@@ -283,7 +283,7 @@ resource "openstack_compute_instance_v2" "employee_A" {
   name        = "employee_A"
   image_name  = "ubuntu20_sysflow"
   flavor_name = "m1.small"
-  key_pair    = "cage"
+  key_pair    = var.perry_key_name
 
   network {
     port = openstack_networking_port_v2.employee_A_port.id
@@ -294,7 +294,7 @@ resource "openstack_compute_instance_v2" "employee_B" {
   name        = "employee_B"
   image_name  = "ubuntu20_sysflow"
   flavor_name = "m1.small"
-  key_pair    = "cage"
+  key_pair    = var.perry_key_name
 
   network {
     port = openstack_networking_port_v2.employee_B_port.id
@@ -305,7 +305,7 @@ resource "openstack_compute_instance_v2" "database_A" {
   name        = "database_A"
   image_name  = "ubuntu20_sysflow"
   flavor_name = "m1.small"
-  key_pair    = "cage"
+  key_pair    = var.perry_key_name
 
   network {
     port = openstack_networking_port_v2.database_A_port.id
@@ -316,7 +316,7 @@ resource "openstack_compute_instance_v2" "database_B" {
   name        = "database_B"
   image_name  = "ubuntu20_sysflow"
   flavor_name = "m1.small"
-  key_pair    = "cage"
+  key_pair    = var.perry_key_name
 
   network {
     port = openstack_networking_port_v2.database_B_port.id
@@ -328,7 +328,7 @@ resource "openstack_compute_instance_v2" "attacker" {
   name        = "attacker"
   image_name  = "ubuntu20_sysflow"
   flavor_name = "m1.small"
-  key_pair    = "cage"
+  key_pair    = var.perry_key_name
 
   network {
     port = openstack_networking_port_v2.attacker_port.id
