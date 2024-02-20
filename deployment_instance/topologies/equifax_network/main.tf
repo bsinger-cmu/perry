@@ -29,31 +29,35 @@ resource "openstack_networking_network_v2" "attacker_network" {
 
 ### Subnets ###
 resource "openstack_networking_subnet_v2" "manage" {
-  name       = "manage"
-  network_id = openstack_networking_network_v2.manage_network.id
-  cidr       = "192.168.198.0/24"
-  ip_version = 4
+  name            = "manage"
+  network_id      = openstack_networking_network_v2.manage_network.id
+  cidr            = "192.168.198.0/24"
+  ip_version      = 4
+  dns_nameservers = ["8.8.8.8"]
 }
 
 resource "openstack_networking_subnet_v2" "webserver_subnet" {
-  name       = "webserver_network"
-  network_id = openstack_networking_network_v2.webserver_network.id
-  cidr       = "192.168.200.0/24"
-  ip_version = 4
+  name            = "webserver_network"
+  network_id      = openstack_networking_network_v2.webserver_network.id
+  cidr            = "192.168.200.0/24"
+  ip_version      = 4
+  dns_nameservers = ["8.8.8.8"]
 }
 
 resource "openstack_networking_subnet_v2" "critical_company_subnet" {
-  name       = "critical_company_network"
-  network_id = openstack_networking_network_v2.critical_company_network.id
-  cidr       = "192.168.201.0/24"
-  ip_version = 4
+  name            = "critical_company_network"
+  network_id      = openstack_networking_network_v2.critical_company_network.id
+  cidr            = "192.168.201.0/24"
+  ip_version      = 4
+  dns_nameservers = ["8.8.8.8"]
 }
 
 resource "openstack_networking_subnet_v2" "attacker_subnet" {
-  name       = "attacker_network"
-  network_id = openstack_networking_network_v2.attacker_network.id
-  cidr       = "192.168.202.0/24"
-  ip_version = 4
+  name            = "attacker_network"
+  network_id      = openstack_networking_network_v2.attacker_network.id
+  cidr            = "192.168.202.0/24"
+  ip_version      = 4
+  dns_nameservers = ["8.8.8.8"]
 }
 
 ### Ports ###
