@@ -2,13 +2,16 @@ import random
 
 from defender.arsenal import CountArsenal
 from defender.capabilities import StartHoneyService, DeployDecoy, AddHoneyCredentials
-
+from defender.orchestrator import Orchestrator
 from deployment_instance.network import Network, Host
 
 
-def randomly_place_deception(arsenal: CountArsenal, network: Network):
+def randomly_place_deception(
+    arsenal: CountArsenal, network: Network, orchestrator: Orchestrator
+):
     num_honeyservice = arsenal.storage["HoneyService"]
     num_decoys = arsenal.storage["DeployDecoy"]
+    num_honeycreds = arsenal.storage["HoneyCredentials"]
 
     ### Randomly deploy honey service hosts ###
     # Get hosts in network and shuffle them
@@ -41,4 +44,13 @@ def randomly_place_deception(arsenal: CountArsenal, network: Network):
         )
         actions.append(decoy_action)
 
-    return actions
+    # Initialize decoys so we can setup fake credentials
+    orchestrator.run(actions)
+
+    # Add fake credentials to all hosts
+    if num_honeycreds != 0:
+        for subnet in network.subnets:
+            for host in subnet.hosts:
+                decoy = network.get_random_decoy()
+                # Add fake credentials to decoy
+                orchestrator.run([AddHoneyCredentials(host, decoy, num_honeycreds)])

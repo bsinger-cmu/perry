@@ -1,0 +1,31 @@
+{
+  "scenario": {
+    "name": "Random_baseline",
+    "defender": {
+      "telemetry": "NoTelemetry",
+      "strategy": "DoNothing",
+      "capabilities": {
+        "DeployDecoy": 0,
+        "HoneyService": 0,
+        "RestoreServer": 0
+      }
+    },
+    "attacker": { "name": "RandomAttacker" },
+    "deployment_instance": { "name": "EquifaxInstance" }
+  },
+  "experiment_time": 350.4428765773773,
+  "execution_time": 299.4422824382782,
+  "setup_time": 51.00059413909912,
+  "flags_captured": [],
+  "data_exfiltrated": [
+    { "name": "data2.json", "time_exfiltrated": 205.46314644813538 }
+  ],
+  "hosts_infected": [
+    "attacker",
+    "webserver-a",
+    "webserver-c",
+    "database-b",
+    "webserver-b"
+  ],
+  "operation_id": "4b65a018-ded5-40e5-8d6d-8e4a986f4522"
+}

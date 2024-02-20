@@ -1,12 +1,12 @@
 [
   {
-    "name": "Equifax_honeycred_5",
-    "trials": 15,
-    "scenario": "equifax/honeycred_5.json"
+    "name": "Greedy_d1_h0",
+    "trials": 10,
+    "scenario": "equifax_honeycred/greedy_attacker/decoy_1/honeycred_0.json"
   },
   {
-    "name": "Equifax_honeycred_10",
-    "trials": 15,
-    "scenario": "equifax/honeycred_10.json"
+    "name": "Greedy_d1_h10",
+    "trials": 10,
+    "scenario": "equifax_honeycred/greedy_attacker/decoy_1/honeycred_10.json"
   }
 ]
