@@ -6,7 +6,7 @@ from .Attacker import Attacker
 class GreedyAttacker(Attacker):
     def start_operation(self):
         json_data = {
-            "name": "Random attacker",
+            "name": "Greedy attacker",
             "id": self.operation_id,
             "adversary": {
                 "adversary_id": "deception_enterprise",

@@ -2,6 +2,7 @@ from .OpenstackActuator import OpenstackActuator
 from defender import capabilities
 
 from ansible.deployment_instance import SetupServerSSHKeys
+from ansible.defender import SetupFakeCredential
 from ansible.common import CreateUser
 
 from faker import Faker
@@ -29,8 +30,13 @@ class AddHoneyCredentials(OpenstackActuator):
             self.ansible_runner.run_playbook(create_user_pb)
 
             for user in action.credential_host.users:
-                ssh_pb = SetupServerSSHKeys(
-                    action.credential_host.ip, user, action.honey_host.ip, username
-                )
+                if action.real:
+                    ssh_pb = SetupServerSSHKeys(
+                        action.credential_host.ip, user, action.honey_host.ip, username
+                    )
+                else:
+                    ssh_pb = SetupFakeCredential(
+                        action.credential_host.ip, user, action.honey_host.ip, username
+                    )
 
                 self.ansible_runner.run_playbook(ssh_pb)
