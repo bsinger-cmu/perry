@@ -83,6 +83,11 @@ resource "openstack_networking_router_interface_v2" "router_interface_manage_dat
   subnet_id = openstack_networking_subnet_v2.critical_company_subnet.id
 }
 
+resource "openstack_networking_router_interface_v2" "router_interface_manage_corporate" {
+  router_id = openstack_networking_router_v2.router_external.id
+  subnet_id = openstack_networking_subnet_v2.company_subnet.id
+}
+
 ######### Setup Compute #########
 
 ### Management Host ###
@@ -91,10 +96,14 @@ resource "openstack_compute_instance_v2" "manage_host" {
   image_name  = "ubuntu20_pip"
   flavor_name = "m1.small"
   key_pair    = var.perry_key_name
+  security_groups = [
+    openstack_networking_secgroup_v2.manage_freedom.name
+  ]
 
   network {
     name = "manage_network"
   }
+  depends_on = [openstack_networking_subnet_v2.manage]
 }
 
 resource "openstack_compute_floatingip_associate_v2" "fip_manage" {
@@ -121,6 +130,8 @@ resource "openstack_compute_instance_v2" "webserver_A" {
     name        = "webserver_network"
     fixed_ip_v4 = "192.168.200.4"
   }
+
+  depends_on = [openstack_networking_subnet_v2.webserver_subnet]
 }
 
 resource "openstack_compute_instance_v2" "webserver_B" {
@@ -137,6 +148,7 @@ resource "openstack_compute_instance_v2" "webserver_B" {
     name        = "webserver_network"
     fixed_ip_v4 = "192.168.200.5"
   }
+  depends_on = [openstack_networking_subnet_v2.webserver_subnet]
 }
 
 resource "openstack_compute_instance_v2" "webserver_C" {
@@ -153,6 +165,7 @@ resource "openstack_compute_instance_v2" "webserver_C" {
     name        = "webserver_network"
     fixed_ip_v4 = "192.168.200.6"
   }
+  depends_on = [openstack_networking_subnet_v2.webserver_subnet]
 }
 
 ### Corporate Network Hosts ###
@@ -170,6 +183,7 @@ resource "openstack_compute_instance_v2" "user_A" {
     name        = "company_network"
     fixed_ip_v4 = "192.168.202.4"
   }
+  depends_on = [openstack_networking_subnet_v2.company_subnet]
 }
 
 resource "openstack_compute_instance_v2" "user_B" {
@@ -186,6 +200,7 @@ resource "openstack_compute_instance_v2" "user_B" {
     name        = "company_network"
     fixed_ip_v4 = "192.168.202.5"
   }
+  depends_on = [openstack_networking_subnet_v2.company_subnet]
 }
 
 resource "openstack_compute_instance_v2" "user_C" {
@@ -202,6 +217,7 @@ resource "openstack_compute_instance_v2" "user_C" {
     name        = "company_network"
     fixed_ip_v4 = "192.168.202.6"
   }
+  depends_on = [openstack_networking_subnet_v2.company_subnet]
 }
 
 resource "openstack_compute_instance_v2" "user_D" {
@@ -218,6 +234,7 @@ resource "openstack_compute_instance_v2" "user_D" {
     name        = "company_network"
     fixed_ip_v4 = "192.168.202.7"
   }
+  depends_on = [openstack_networking_subnet_v2.company_subnet]
 }
 
 ### Critical Datacenter Hosts ###
@@ -235,6 +252,7 @@ resource "openstack_compute_instance_v2" "database_A" {
     name        = "critical_company_network"
     fixed_ip_v4 = "192.168.201.4"
   }
+  depends_on = [openstack_networking_subnet_v2.critical_company_subnet]
 }
 
 resource "openstack_compute_instance_v2" "database_B" {
@@ -251,4 +269,5 @@ resource "openstack_compute_instance_v2" "database_B" {
     name        = "critical_company_network"
     fixed_ip_v4 = "192.168.201.5"
   }
+  depends_on = [openstack_networking_subnet_v2.critical_company_subnet]
 }
