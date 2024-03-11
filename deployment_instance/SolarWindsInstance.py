@@ -131,11 +131,11 @@ class SolarWindsInstance(DeploymentInstance):
 
     def runtime_setup(self):
 
-        hosts = random.shuffle(self.corportateSubnet.hosts)
+        random.shuffle(self.corportateSubnet.hosts)
         # randomly choose host
-        infected_host = hosts[0]
-        users = random.shuffle(infected_host.users)
-        infected_user = users[0]
+        infected_host = self.corportateSubnet.hosts[0]
+        random.shuffle(infected_host.users)
+        infected_user = infected_host.users[0]
 
         # Setup attacker on intern machine
         self.ansible_runner.run_playbook(
