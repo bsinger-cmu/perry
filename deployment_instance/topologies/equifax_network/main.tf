@@ -247,7 +247,7 @@ resource "openstack_networking_floatingip_associate_v2" "fip_manage" {
 ### Webserver Subnet Hosts ###
 resource "openstack_compute_instance_v2" "webserver_A" {
   name        = "webserver_A"
-  image_name  = "ubuntu20_sysflow"
+  image_name  = "ubuntu20_pip"
   flavor_name = "m1.small"
   key_pair    = var.perry_key_name
 
@@ -258,7 +258,7 @@ resource "openstack_compute_instance_v2" "webserver_A" {
 
 resource "openstack_compute_instance_v2" "webserver_B" {
   name        = "webserver_B"
-  image_name  = "ubuntu20_sysflow"
+  image_name  = "ubuntu20_pip"
   flavor_name = "m1.small"
   key_pair    = var.perry_key_name
 
@@ -269,7 +269,7 @@ resource "openstack_compute_instance_v2" "webserver_B" {
 
 resource "openstack_compute_instance_v2" "webserver_C" {
   name        = "webserver_C"
-  image_name  = "ubuntu20_sysflow"
+  image_name  = "ubuntu20_pip"
   flavor_name = "m1.small"
   key_pair    = var.perry_key_name
 
@@ -281,7 +281,7 @@ resource "openstack_compute_instance_v2" "webserver_C" {
 ### Corporate Subnet Hosts ###
 resource "openstack_compute_instance_v2" "employee_A" {
   name        = "employee_A"
-  image_name  = "ubuntu20_sysflow"
+  image_name  = "ubuntu20_pip"
   flavor_name = "m1.small"
   key_pair    = var.perry_key_name
 
@@ -292,7 +292,7 @@ resource "openstack_compute_instance_v2" "employee_A" {
 
 resource "openstack_compute_instance_v2" "employee_B" {
   name        = "employee_B"
-  image_name  = "ubuntu20_sysflow"
+  image_name  = "ubuntu20_pip"
   flavor_name = "m1.small"
   key_pair    = var.perry_key_name
 
@@ -303,7 +303,7 @@ resource "openstack_compute_instance_v2" "employee_B" {
 
 resource "openstack_compute_instance_v2" "database_A" {
   name        = "database_A"
-  image_name  = "ubuntu20_sysflow"
+  image_name  = "ubuntu20_pip"
   flavor_name = "m1.small"
   key_pair    = var.perry_key_name
 
@@ -314,7 +314,7 @@ resource "openstack_compute_instance_v2" "database_A" {
 
 resource "openstack_compute_instance_v2" "database_B" {
   name        = "database_B"
-  image_name  = "ubuntu20_sysflow"
+  image_name  = "ubuntu20_pip"
   flavor_name = "m1.small"
   key_pair    = var.perry_key_name
 
@@ -326,7 +326,7 @@ resource "openstack_compute_instance_v2" "database_B" {
 ### Attacker Subnet Hosts ###
 resource "openstack_compute_instance_v2" "attacker" {
   name        = "attacker"
-  image_name  = "ubuntu20_sysflow"
+  image_name  = "ubuntu20_pip"
   flavor_name = "m1.small"
   key_pair    = var.perry_key_name
 
