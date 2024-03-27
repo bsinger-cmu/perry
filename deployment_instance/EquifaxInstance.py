@@ -18,6 +18,7 @@ from ansible.vulnerabilities import (
 )
 from ansible.goals import AddData
 from ansible.caldera import InstallAttacker
+from ansible.defender import InstallSysFlow
 
 from .network import Network, Host, Subnet
 
@@ -57,7 +58,7 @@ class EquifaxInstance(DeploymentInstance):
 
     def compile_setup(self):
         log_event("Deployment Instace", "Setting up Equifax Instance")
-        self.find_management_server()
+        self.find_management_server(self.caldera_ip)
 
         self.ansible_runner.run_playbook(CheckIfHostUp("192.168.200.3"))
 
@@ -90,6 +91,21 @@ class EquifaxInstance(DeploymentInstance):
 
         self.ansible_runner.run_playbook(
             InstallBasePackages(
+                [
+                    "192.168.200.3",
+                    "192.168.200.4",
+                    "192.168.200.5",
+                    "192.168.201.3",
+                    "192.168.201.4",
+                    "192.168.201.5",
+                    "192.168.201.6",
+                    "192.168.202.3",
+                ]
+            )
+        )
+
+        self.ansible_runner.run_playbook(
+            InstallSysFlow(
                 [
                     "192.168.200.3",
                     "192.168.200.4",

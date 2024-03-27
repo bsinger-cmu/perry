@@ -1,11 +1,10 @@
 from ansible.AnsiblePlaybook import AnsiblePlaybook
-from defender.capabilities import StartHoneyService
 
 
 class DeployHoneyService(AnsiblePlaybook):
     def __init__(
         self,
-        action: StartHoneyService,
+        action,
         external_elasticsearch_server: str,
         elasticsearch_api_key: str,
     ) -> None:
