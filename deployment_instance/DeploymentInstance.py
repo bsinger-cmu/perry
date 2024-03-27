@@ -8,27 +8,29 @@ from rich import print as rprint
 from openstack.connection import Connection
 from ansible.AnsibleRunner import AnsibleRunner
 
-public_ip = "10.20.20"
 
-
-def find_manage_server(conn):
+def find_manage_server(conn, external_ip):
     """Finds management server that can be used to talk to other servers
     Assumes only one server has floating ip and it is the management server"""
+
+    # Remove last octet from external ip
+    external_ip = ".".join(external_ip.split(".")[:3])
+
     for server in conn.compute.servers():
         for network, network_attrs in server.addresses.items():
             ip_addresses = [x["addr"] for x in network_attrs]
             for ip in ip_addresses:
-                if public_ip in ip:
+                if external_ip in ip:
                     return server, ip
     return None, None
 
 
 class DeploymentInstance:
-    def __init__(self, ansible_runner: AnsibleRunner, openstack_conn, caldera_ip):
+    def __init__(self, ansible_runner: AnsibleRunner, openstack_conn, external_ip):
         self.ansible_runner: AnsibleRunner = ansible_runner
         self.openstack_conn: Connection = openstack_conn
         self.ssh_key_path = "./environment/ssh_keys/"
-        self.caldera_ip = caldera_ip
+        self.caldera_ip = external_ip
         self.orchestrator = MasterOrchestrator(self.ansible_runner)
         self.all_instances = None
         self.topology = None
@@ -38,7 +40,7 @@ class DeploymentInstance:
         self.flags = {}
         self.root_flags = {}
 
-        self.find_management_server()
+        self.find_management_server(external_ip)
 
     # Protofunction, this is where you define everything needed to setup the instance
     def compile_setup(self):
@@ -78,8 +80,8 @@ class DeploymentInstance:
         destroy_network(self.topology)
         deploy_network(self.topology)
 
-    def find_management_server(self):
-        manage_server, manage_ip = find_manage_server(self.openstack_conn)
+    def find_management_server(self, external_ip):
+        manage_server, manage_ip = find_manage_server(self.openstack_conn, external_ip)
         rprint(f"Found management server: {manage_ip}")
         self.ansible_runner.update_management_ip(manage_ip)
 
