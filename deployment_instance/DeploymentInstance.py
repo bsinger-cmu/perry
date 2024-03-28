@@ -7,6 +7,7 @@ from colorama import Fore, Style
 from rich import print as rprint
 from openstack.connection import Connection
 from ansible.AnsibleRunner import AnsibleRunner
+from openstack import exceptions as openstackExceptions
 
 
 def find_manage_server(conn, external_ip):
@@ -197,7 +198,12 @@ class DeploymentInstance:
                 all_active = True
                 rprint(f"\n{'Status':<12}{'Name'}")
                 for image in images:
-                    curr_img = self.openstack_conn.get_image_by_id(image)
+                    curr_img = None
+                    try:
+                        curr_img = self.openstack_conn.get_image_by_id(image)
+                    except openstackExceptions.ResourceNotFound:
+                        pass
+
                     if curr_img:
                         all_active = all_active and curr_img.status == "active"
                         color = Fore.GREEN if curr_img.status == "active" else Fore.RED
@@ -205,6 +211,7 @@ class DeploymentInstance:
                         print(
                             f"{color}{curr_img.status:<12}{Style.RESET_ALL}{curr_img.name}"
                         )
+
                 time.sleep(25)
 
     def load_all_snapshots(self, wait=True):
