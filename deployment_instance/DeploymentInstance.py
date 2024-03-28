@@ -20,7 +20,9 @@ def find_manage_server(conn, external_ip):
         for network, network_attrs in server.addresses.items():
             ip_addresses = [x["addr"] for x in network_attrs]
             for ip in ip_addresses:
-                if external_ip in ip:
+                # Remove last octet from ip
+                ip_subnet = ".".join(ip.split(".")[:3])
+                if external_ip == ip_subnet:
                     return server, ip
     return None, None
 
