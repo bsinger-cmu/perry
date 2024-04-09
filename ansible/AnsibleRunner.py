@@ -49,8 +49,25 @@ class AnsibleRunner:
         return ansible_result
 
     def run_playbooks(self, playbooks: list[AnsiblePlaybook]):
+        threads = []
         for playbook in playbooks:
-            self.run_playbook(playbook)
+            log_path = path.join(self.log_path, "ansible_log.log")
+
+        with open(log_path, "a") as f:
+            with redirect_stdout(f):
+                # Merge default params with playbook specific params
+                playbook_full_params = self.ansible_vars_default | playbook.params
+                thread, ansible_result = ansible_runner.run_async(
+                    extravars=playbook_full_params,
+                    private_data_dir=self.ansible_dir,
+                    playbook=playbook.name,
+                    cancel_callback=lambda: None,
+                    quiet=self.quiet,
+                )
+                threads.append(thread)
+
+        for thread in threads:
+            thread.join()
 
     def update_management_ip(self, new_ip):
         self.management_ip = new_ip

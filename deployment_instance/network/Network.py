@@ -21,3 +21,11 @@ class Network:
 
     def get_random_decoy(self) -> Host:
         return random.choice(self.get_all_decoys())
+
+    def is_ip_decoy(self, ip: str):
+        decoys = self.get_all_decoys()
+        for decoy in decoys:
+            if decoy.ip == ip:
+                return True
+
+        return False

@@ -14,6 +14,8 @@ logger = get_logger()
 class AddHoneyCredentials(OpenstackActuator):
     def actuate(self, action: capabilities.AddHoneyCredentials):
         fake = Faker()
+        user_actions = []
+        ssh_key_actions = []
 
         for _ in range(action.number):
             name = fake.name()
@@ -26,8 +28,7 @@ class AddHoneyCredentials(OpenstackActuator):
 
             # Create user on honey computer
             create_user_pb = CreateUser(action.honey_host.ip, username, password)
-
-            self.ansible_runner.run_playbook(create_user_pb)
+            user_actions.append(create_user_pb)
 
             for user in action.credential_host.users:
                 if action.real:
@@ -39,4 +40,7 @@ class AddHoneyCredentials(OpenstackActuator):
                         action.credential_host.ip, user, action.honey_host.ip, username
                     )
 
-                self.ansible_runner.run_playbook(ssh_pb)
+                ssh_key_actions.append(ssh_pb)
+
+        self.ansible_runner.run_playbooks(user_actions)
+        self.ansible_runner.run_playbooks(ssh_key_actions)
