@@ -1,0 +1,32 @@
+[
+  {
+    "name": "EquifaxBaseline_WaitAndStop",
+    "trials": 5,
+    "scenario": "adaptive/equifax/EquifaxBaseline_WaitAndStop.json"
+  },
+  {
+    "name": "EquifaxBaseline_StaticRandom",
+    "trials": 5,
+    "scenario": "adaptive/equifax/EquifaxBaseline_StaticRandom.json"
+  },
+  {
+    "name": "EquifaxBFS_WaitAndStop",
+    "trials": 5,
+    "scenario": "adaptive/equifax/EquifaxBFS_WaitAndStop.json"
+  },
+  {
+    "name": "EquifaxBFS_StaticRandom",
+    "trials": 5,
+    "scenario": "adaptive/equifax/EquifaxBFS_StaticRandom.json"
+  },
+  {
+    "name": "EquifaxDFS_WaitAndStop",
+    "trials": 5,
+    "scenario": "adaptive/equifax/EquifaxDFS_WaitAndStop.json"
+  },
+  {
+    "name": "EquifaxDFS_StaticRandom",
+    "trials": 5,
+    "scenario": "adaptive/equifax/EquifaxDFS_StaticRandom.json"
+  }
+]
