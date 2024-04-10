@@ -64,20 +64,12 @@ class DeploymentInstance:
             # Save instance
             self.save_all_snapshots()
 
-    def run(self, run_timout=3):
-        for i in range(run_timout):
-            try:
-                # Load snapshots
-                self.load_all_snapshots()
-                time.sleep(10)
-                # Do runtime setup
-                self.runtime_setup()
-                return
-            except Exception as e:
-                rprint("Error setting up instance. Retrying...")
-                rprint(e)
-
-        raise Exception("Error loading snapshots. Aborting...")
+    def run(self):
+        # Load snapshots
+        self.load_all_snapshots()
+        time.sleep(10)
+        # Do runtime setup
+        self.runtime_setup()
 
     def deploy_topology(self):
         destroy_network(self.topology)
@@ -218,85 +210,31 @@ class DeploymentInstance:
         rprint("Loading all snapshots...")
         self._load_instances()
 
-        # This is so that we do not try to load a snapshot while an instance is
-        # being rebuilt.
-        waiting_for_rebuild = True
-        while waiting_for_rebuild:
-            waiting_for_rebuild = False
-            for instance in self.all_instances:
-                curr_instance = self.openstack_conn.get_server_by_id(instance.id)
-                if curr_instance and curr_instance.status == "REBUILD":
-                    waiting_for_rebuild = True
-                    print(
-                        f"Instance {Fore.RED}{curr_instance.name}{Style.RESET_ALL} is being rebuilt. Waiting..."
-                    )
-                time.sleep(0.5)
-            if not waiting_for_rebuild:
-                rprint("All instances are ready to be rebuilt.")
+        hosts = self.openstack_conn.list_servers()
+        rebuild_num = 10
+        # Rebuild 10 servers at a time
+        for i in range(0, len(hosts), rebuild_num):
+            hosts_to_restore = []
+            if i + 5 < len(hosts):
+                hosts_to_restore = hosts[i : i + rebuild_num]
             else:
-                time.sleep(7)
+                hosts_to_restore = hosts[i:]
 
-        waiting_for_active = True
-        while waiting_for_active:
-            waiting_for_active = False
-            for instance in self.all_instances:
-                curr_instance = self.openstack_conn.get_server_by_id(instance.id)
-                if curr_instance.status == "SHUTOFF":
-                    waiting_for_active = True
-                    rprint(
-                        f"Starting instance {Fore.RED}{curr_instance.name}{Style.RESET_ALL}..."
-                    )
+            # Start rebuilding all servers
+            for host in hosts_to_restore:
+                self.load_snapshot(host.private_v4, host.name + "_image", wait=False)
 
-                    task_state = curr_instance.task_state
-                    if not task_state:
-                        self.openstack_conn.compute.start_server(curr_instance.id)
-                    else:
-                        rprint(
-                            f"Instance {curr_instance.name} has task_state {task_state}. Skipping for now..."
-                        )
-                time.sleep(0.5)
+            # Wait for rebuild to start
+            time.sleep(5)
 
-        # Load all snapshots
-        for instance in self.all_instances:
-            print(instance.private_v4, instance.name)
-            self.load_snapshot(instance.private_v4, instance.name + "_image")
+            # Wait for 5 servers to be rebuilt
+            waiting_for_rebuild = True
+            while waiting_for_rebuild:
+                waiting_for_rebuild = False
+                for host in hosts_to_restore:
+                    curr_host = self.openstack_conn.get_server_by_id(host.id)
+                    if curr_host and curr_host.status == "REBUILD":
+                        waiting_for_rebuild = True
 
-        # Wait for all instances to be active before doing anything else
-        active_instances = []
-        if wait:
-            rprint("Waiting for all instances to be active...")
-            all_active = False
-            while not all_active:
-                all_active = True
-                rprint(f"\n{'Status':<12}{'Name'}")
-                for instance in self.all_instances:
-                    curr_instance = self.openstack_conn.get_server_by_id(instance.id)
-                    if curr_instance:
-                        all_active = all_active and curr_instance.status == "ACTIVE"
-                        color = (
-                            Fore.GREEN if curr_instance.status == "ACTIVE" else Fore.RED
-                        )
-                        color = (
-                            Fore.YELLOW if curr_instance.status == "REBUILD" else color
-                        )
-
-                        if (
-                            curr_instance.status == "ACTIVE"
-                            and curr_instance.name not in active_instances
-                        ):
-                            print(
-                                f"{color}{curr_instance.status:<12}{Style.RESET_ALL}{curr_instance.name}"
-                            )
-                            active_instances.append(curr_instance.name)
-
-                        if curr_instance.status == "ERROR":
-                            raise Exception(
-                                "ERROR: Instance in error state. Aborting..."
-                            )
-                        elif curr_instance.status not in ["ACTIVE", "REBUILD"]:
-                            print(
-                                f"{color}{curr_instance.status:<12}{Style.RESET_ALL}{curr_instance.name}"
-                            )
-
-                    time.sleep(0.5)
-                time.sleep(2)
+                time.sleep(1)
+        return

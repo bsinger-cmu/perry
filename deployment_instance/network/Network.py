@@ -13,6 +13,9 @@ class Network:
             hosts.extend(subnet.hosts)
         return hosts
 
+    def get_all_host_ips(self) -> list[str]:
+        return [host.ip for host in self.get_all_hosts()]
+
     def get_all_decoys(self) -> list[Host]:
         decoys = []
         for subnet in self.subnets:
