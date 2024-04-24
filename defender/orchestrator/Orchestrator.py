@@ -1,7 +1,8 @@
 class Orchestrator(object):
 
-    def __init__(self, actuators: dict):
+    def __init__(self, actuators: dict, action_counts: dict):
         self.actuators = actuators
+        self.action_counts = action_counts
 
     # Runs an action on your infrastructure
     def run(self, actions):

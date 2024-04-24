@@ -209,8 +209,14 @@ class DeploymentInstance:
     def load_all_snapshots(self, wait=True):
         rprint("Loading all snapshots...")
         self._load_instances()
-
         hosts = self.openstack_conn.list_servers()
+
+        # Check if all images exist
+        for host in hosts:
+            image = self.openstack_conn.get_image(host.name + "_image")
+            if not image:
+                raise Exception(f"Image {host.name + '_image'} does not exist")
+
         rebuild_num = 10
         # Rebuild 10 servers at a time
         for i in range(0, len(hosts), rebuild_num):

@@ -129,7 +129,7 @@ class EquifaxInstance(DeploymentInstance):
             SetupServerSSHKeys("192.168.200.5", "tomcat", "192.168.201.5", "databaseA"),
             SetupServerSSHKeys("192.168.200.5", "tomcat", "192.168.201.6", "databaseB"),
         ]
-        self.ansible_runner.run_playbooks(ssh_playbooks)
+        self.ansible_runner.run_playbooks(ssh_playbooks, run_async=False)
 
         # self.ansible_runner.run_playbook(EquifaxSSHConfig("192.168.200.5", "tomcat"))
 

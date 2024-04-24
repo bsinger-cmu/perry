@@ -48,9 +48,16 @@ class EquifaxMedium(DeploymentInstance):
         self.employee_hosts = get_hosts_on_subnet(
             self.openstack_conn, "192.168.201.0/24", host_name_prefix="employee"
         )
+        for host in self.employee_hosts:
+            username = host.name.replace("_", "")
+            host.users.append(username)
+
         self.database_hosts = get_hosts_on_subnet(
             self.openstack_conn, "192.168.201.0/24", host_name_prefix="database"
         )
+        for host in self.database_hosts:
+            username = host.name.replace("_", "")
+            host.users.append(username)
 
         webserverSubnet = Subnet("webserver_network", self.webservers, "webserver")
         corportateSubnet = Subnet(
@@ -87,9 +94,8 @@ class EquifaxMedium(DeploymentInstance):
 
         # Setup users on corporte hosts
         for host in self.employee_hosts + self.database_hosts:
-            username = fake.simple_profile()["username"]
-            host.users.append(username)
-            self.ansible_runner.run_playbook(CreateUser(host.ip, username, "ubuntu"))
+            for user in host.users:
+                self.ansible_runner.run_playbook(CreateUser(host.ip, user, "ubuntu"))
 
         # Choose 3 random webservers to setup SSH keys
         webservers_with_creds = random.sample(self.webservers, 3)

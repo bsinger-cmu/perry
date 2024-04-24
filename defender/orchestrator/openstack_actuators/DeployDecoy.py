@@ -1,6 +1,7 @@
 import time
 from .OpenstackActuator import OpenstackActuator
 from ansible.defender import DeployHoneyService
+from ansible.vulnerabilities import SetupStrutsVulnerability
 from defender.capabilities import StartHoneyService
 
 from openstack_helper_functions.server_helpers import shutdown_server_by_ip
@@ -31,7 +32,7 @@ class DeployDecoy(OpenstackActuator):
 
         # Wait for server to be created
         print("Waiting for decoy server to be created...")
-        server = self.openstack_conn.compute.wait_for_server(server)
+        server = self.openstack_conn.compute.wait_for_server(server, wait=240)
 
         # Add security group
         print("Adding security groups...")
@@ -57,10 +58,16 @@ class DeployDecoy(OpenstackActuator):
 
         time.sleep(10)
 
-        honey_service_action = StartHoneyService(server_ip)
-        honey_service_pb = DeployHoneyService(
-            honey_service_action,
-            self.external_elasticsearch_server,
-            self.elasticsearch_api_key,
-        )
-        self.ansible_runner.run_playbook(honey_service_pb)
+        if action.apacheVulnerability:
+            print("Deploying apache vulnerability...")
+            self.ansible_runner.run_playbook(SetupStrutsVulnerability(server_ip))
+
+        if action.honeySSHService:
+            print("Deploying honey service...")
+            honey_service_action = StartHoneyService(server_ip)
+            honey_service_pb = DeployHoneyService(
+                honey_service_action,
+                self.external_elasticsearch_server,
+                self.elasticsearch_api_key,
+            )
+            self.ansible_runner.run_playbook(honey_service_pb)

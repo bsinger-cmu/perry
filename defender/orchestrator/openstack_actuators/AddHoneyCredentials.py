@@ -1,7 +1,7 @@
 from .OpenstackActuator import OpenstackActuator
 from defender import capabilities
 
-from ansible.deployment_instance import SetupServerSSHKeys
+from ansible.deployment_instance import SetupServerSSHKeys, AddToSSHConfig
 from ansible.defender import SetupFakeCredential
 from ansible.common import CreateUser
 
@@ -28,19 +28,30 @@ class AddHoneyCredentials(OpenstackActuator):
 
             # Create user on honey computer
             create_user_pb = CreateUser(action.honey_host.ip, username, password)
+            credential_host_user = CreateUser(
+                action.credential_host.ip, username, password
+            )
             user_actions.append(create_user_pb)
+            user_actions.append(credential_host_user)
 
-            for user in action.credential_host.users:
-                if action.real:
+            if action.real:
+                for user in action.credential_host.users:
                     ssh_pb = SetupServerSSHKeys(
                         action.credential_host.ip, user, action.honey_host.ip, username
                     )
-                else:
-                    ssh_pb = SetupFakeCredential(
+                    ssh_key_actions.append(ssh_pb)
+            else:
+                for user in action.credential_host.users:
+                    fake_credential_pb = AddToSSHConfig(
                         action.credential_host.ip, user, action.honey_host.ip, username
                     )
+                    ssh_key_actions.append(fake_credential_pb)
 
-                ssh_key_actions.append(ssh_pb)
+        self.ansible_runner.run_playbooks(user_actions, run_async=True)
 
-        self.ansible_runner.run_playbooks(user_actions)
-        self.ansible_runner.run_playbooks(ssh_key_actions)
+        # Adding to config can be in async
+        # Setting up server ssh keys cannot be async because keys have to download to this machine
+        if action.real:
+            self.ansible_runner.run_playbooks(ssh_key_actions, run_async=False)
+        else:
+            self.ansible_runner.run_playbooks(ssh_key_actions, run_async=True)

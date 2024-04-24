@@ -228,7 +228,7 @@ class Emulator:
         self.start_main_loop()
         self.goalkeeper.stop_execution_timer()
         # Once finished calculate have goalkeeper measure final success metrics
-        result = self.goalkeeper.calculate_metrics(self.scenario)
+        result = self.goalkeeper.calculate_metrics(self.scenario, self.defender)
 
         log_event("Emulator", "Attacker finished")
         self.goalkeeper.print_metrics()

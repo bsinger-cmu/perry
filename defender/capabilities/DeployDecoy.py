@@ -12,9 +12,11 @@ class DeployDecoy(Action):
         host: Host,
         server="decoy_host",
         sec_group="simple",
-        image="ubuntu20_sysflow",
-        flavor="m1.small",
+        image="Ubuntu20",
+        flavor="p2.tiny",
         keypair="cage",
+        apacheVulnerability=False,
+        honeySSHService=False,
     ):
         super().__init__()
 
@@ -25,3 +27,5 @@ class DeployDecoy(Action):
         self.flavor = flavor
         self.keypair = keypair
         self.host = host
+        self.apacheVulnerability = apacheVulnerability
+        self.honeySSHService = honeySSHService

@@ -48,23 +48,33 @@ class AnsibleRunner:
                 raise Exception(f"Playbook {playbook.name} failed")
         return ansible_result
 
-    def run_playbooks(self, playbooks: list[AnsiblePlaybook]):
-        threads = []
+    def run_playbooks(self, playbooks: list[AnsiblePlaybook], run_async=True):
+        if run_async:
+            self.run_playbooks_async(playbooks)
+        else:
+            self.run_playbooks_serial(playbooks)
+
+    def run_playbooks_serial(self, playbooks: list[AnsiblePlaybook]):
         for playbook in playbooks:
-            log_path = path.join(self.log_path, "ansible_log.log")
+            self.run_playbook(playbook)
+
+    def run_playbooks_async(self, playbooks: list[AnsiblePlaybook]):
+        log_path = path.join(self.log_path, "ansible_log.log")
+        threads = []
 
         with open(log_path, "a") as f:
             with redirect_stdout(f):
-                # Merge default params with playbook specific params
-                playbook_full_params = self.ansible_vars_default | playbook.params
-                thread, ansible_result = ansible_runner.run_async(
-                    extravars=playbook_full_params,
-                    private_data_dir=self.ansible_dir,
-                    playbook=playbook.name,
-                    cancel_callback=lambda: None,
-                    quiet=self.quiet,
-                )
-                threads.append(thread)
+                for playbook in playbooks:
+                    # Merge default params with playbook specific params
+                    playbook_full_params = self.ansible_vars_default | playbook.params
+                    thread, ansible_result = ansible_runner.run_async(
+                        extravars=playbook_full_params,
+                        private_data_dir=self.ansible_dir,
+                        playbook=playbook.name,
+                        cancel_callback=lambda: None,
+                        quiet=self.quiet,
+                    )
+                    threads.append(thread)
 
         for thread in threads:
             thread.join()

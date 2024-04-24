@@ -29,3 +29,4 @@ class ExperimentResult(BaseModel):
     data_exfiltrated: list[DataExfiltrated]
     hosts_infected: list[str]
     operation_id: str
+    defender_action_counts: dict[str, int]

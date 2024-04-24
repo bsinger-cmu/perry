@@ -187,66 +187,9 @@ class EmulatorInteractive:
         run_experiment_trial:
         This function will run a single trial of the experiment loaded.
         """
-        result = None
-        try:
-            load = self.emulator.setup(experiment_output_dir)
-        except Exception as e:
-            rprint(f"Failed with exception: {e}")
-            logger.error("Failed to run experiment", exc_info=True)
-            log_event("FAILURE", str(e))
-
-        if load == 1:  # Failed to load snapshots. Skip this run
-            print(f"{Fore.RED}Failed to load snapshots{Style.RESET_ALL}")
-            result = ("Error", "Failed to load snapshots")
-
-        if result is None:
-            try:
-                metrics = self.emulator.run()
-            except Exception as e:
-                rprint(f"Failed with exception: {e}")
-                logger.error("Failed to run experiment", exc_info=True)
-                log_event("FAILURE", str(e))
-                result = ("Exception", e)
-
-        if result is None:
-            result = ("Success", metrics)
+        load = self.emulator.setup(experiment_output_dir)
+        result = self.emulator.run()
         return result
-
-    def print_all_metrics(
-        self, all_metrics, trials, complete_count, error_count, exception_count
-    ):
-        """
-        print_all_metrics
-        Print all metrics for multiple runs of the experiment
-        """
-        print(f"\nCompleted all experiment trials. Printing statuses...")
-        for j in range(trials):
-            metrics = all_metrics[j][0]
-            if metrics == "Error":
-                print(f"Run {j+1}: {Fore.RED}Failed to load snapshots{Style.RESET_ALL}")
-            elif metrics == "Exception":
-                print(
-                    f"Run {j+1}: {Back.RED}Failed with exception:{Style.RESET_ALL}\n{all_metrics[j][1]}"
-                )
-            else:
-                print(
-                    f"Run {j+1}: {Fore.GREEN}Successfully ran to completion{Style.RESET_ALL}"
-                )
-                # rprint(metrics)
-        print(
-            f"{Fore.CYAN}Total number of experiments runs:{Style.RESET_ALL}     {trials}"
-        )
-        print(
-            f"Times {Fore.GREEN}to completion:{Style.RESET_ALL}                  {complete_count}"
-        )
-        if error_count > 0:
-            print(
-                f"Times {Fore.RED}failed to load snapshots:{Style.RESET_ALL}       {error_count}"
-            )
-        if exception_count > 0:
-            print(
-                f"Times {Back.RED}failed with exception:{Style.RESET_ALL}          {exception_count}"
-            )
 
     def handle_setup(self, args):
         """
@@ -298,15 +241,6 @@ class EmulatorInteractive:
             for i in range(trials):
                 rprint(f"Starting trial... {i+1}/{trials}")
                 result = self.run_experiment_trial(experiment_output_dir)
-
-                status = result[0]
-                if status == "Success":
-                    complete_count += 1
-                elif status == "Error":
-                    error_count += 1
-                elif status == "Exception":
-                    exception_count += 1
-
                 all_metrics.append(result)
                 progress.update(experiment_task, refresh=True, advance=1)
             progress.update(
@@ -317,9 +251,8 @@ class EmulatorInteractive:
 
         # Print metrics for multiple runs
         if not args.suppress_metrics:
-            self.print_all_metrics(
-                all_metrics, trials, complete_count, error_count, exception_count
-            )
+            print(f"\nCompleted {trials} trials. Printing statuses...")
+            print(all_metrics)
 
     def handle_execute(self, args):
         """
@@ -363,9 +296,6 @@ class EmulatorInteractive:
 
                 # Reset trials and counts
                 trials = experiment.trials
-                complete_count = 0
-                error_count = 0
-                exception_count = 0
                 all_metrics = []
 
                 is_halted = False
@@ -386,26 +316,10 @@ class EmulatorInteractive:
 
                     result = self.run_experiment_trial(experiment_output_dir)
                     all_metrics.append(result)
-                    status = result[0]
-                    if status == "Success":
-                        complete_count += 1
-                    elif status == "Error":
-                        error_count += 1
-                    elif status == "Exception":
-                        exception_count += 1
 
                     progress.update(experiment_task, advance=1)
                     progress.update(all_trials_task, advance=1)
                     progress.update(all_experiments_task, advance=1 / trials)
-
-                # set the outcome + metrics of the current experiment
-                all_experiments_outcome[exp_id] = {
-                    "all_metrics": all_metrics,
-                    "trials": trials,
-                    "complete_count": complete_count,
-                    "error_count": error_count,
-                    "exception_count": exception_count,
-                }
 
                 # If experiment is halted, set the color of bar to red
                 if is_halted:
@@ -427,14 +341,7 @@ class EmulatorInteractive:
         progress.remove_task(all_trials_task)
         progress.remove_task(experiment_task)
 
-        if not args.suppress_metrics:
-            print(
-                f"\nCompleted all experiments from config {self.loaded_experiment}. Printing statuses..."
-            )
-            for exp in self.all_experiments:
-                print(f"\nExperiment {exp.name}")
-                if exp.name in all_experiments_outcome.keys():
-                    self.print_all_metrics(**all_experiments_outcome[exp.name])
+        print(f"\nCompleted all experiments from config {self.loaded_experiment}")
 
     def handle_exit(self, _):
         print("Exiting emulator...")

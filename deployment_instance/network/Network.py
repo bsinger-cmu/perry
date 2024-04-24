@@ -25,6 +25,12 @@ class Network:
     def get_random_decoy(self) -> Host:
         return random.choice(self.get_all_decoys())
 
+    def get_random_host(self) -> Host:
+        return random.choice(self.get_all_hosts())
+
+    def get_random_subnet(self) -> Subnet:
+        return random.choice(self.subnets)
+
     def is_ip_decoy(self, ip: str):
         decoys = self.get_all_decoys()
         for decoy in decoys:

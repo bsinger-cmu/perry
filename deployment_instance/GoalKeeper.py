@@ -7,6 +7,7 @@ from rich import print as rprint
 from utility.logging import log_event
 from .Result import ExperimentResult, FlagInformation, FlagType, DataExfiltrated
 from scenarios.Scenario import Scenario
+from defender import Defender
 
 
 class GoalKeeper:
@@ -50,7 +51,7 @@ class GoalKeeper:
                 return host
         return None
 
-    def calculate_metrics(self, scenario: Scenario):
+    def calculate_metrics(self, scenario: Scenario, defender: Defender):
         # TODO: Make this an object
         self.operation_log = self.attacker.get_operation_details()
 
@@ -119,6 +120,7 @@ class GoalKeeper:
             data_exfiltrated=data_exfiltrated,
             hosts_infected=hosts_infected,
             operation_id=self.operation_id,
+            defender_action_counts=defender.orchestrator.action_counts,
         )
 
         return self.results
