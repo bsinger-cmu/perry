@@ -1,1 +1,35 @@
-{"scenario": {"name": "Greedy_baseline", "defender": {"telemetry": "NoTelemetry", "strategy": "DoNothing", "capabilities": {"DeployDecoy": 0, "HoneyService": 0, "RestoreServer": 0}}, "attacker": {"name": "GreedyAttacker"}, "deployment_instance": {"name": "EquifaxInstance"}}, "experiment_time": 571.6077175140381, "execution_time": 485.49727487564087, "setup_time": 86.11044263839722, "flags_captured": [], "data_exfiltrated": [{"name": "data2.json", "time_exfiltrated": 310.6764476299286}, {"name": "data1.json", "time_exfiltrated": 355.6764476299286}], "hosts_infected": ["attacker", "webserver-a", "webserver-b", "webserver-c", "employee-a", "database-b", "employee-b", "database-a"], "operation_id": "2c47993e-3747-46df-bf18-0f225bb5465f"}
+{
+  "scenario": {
+    "name": "Greedy_baseline",
+    "defender": {
+      "telemetry": "NoTelemetry",
+      "strategy": "DoNothing",
+      "capabilities": {
+        "DeployDecoy": 0,
+        "HoneyService": 0,
+        "RestoreServer": 0
+      }
+    },
+    "attacker": { "name": "GreedyAttacker" },
+    "deployment_instance": { "name": "EquifaxInstance" }
+  },
+  "experiment_time": 571.6077175140381,
+  "execution_time": 485.49727487564087,
+  "setup_time": 86.11044263839722,
+  "flags_captured": [],
+  "data_exfiltrated": [
+    { "name": "data2.json", "time_exfiltrated": 310.6764476299286 },
+    { "name": "data1.json", "time_exfiltrated": 355.6764476299286 }
+  ],
+  "hosts_infected": [
+    "attacker",
+    "webserver-a",
+    "webserver-b",
+    "webserver-c",
+    "employee-a",
+    "database-b",
+    "employee-b",
+    "database-a"
+  ],
+  "operation_id": "2c47993e-3747-46df-bf18-0f225bb5465f"
+}

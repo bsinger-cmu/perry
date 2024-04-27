@@ -1,0 +1,38 @@
+{
+  "scenario": {
+    "name": "EquifaxBaseline_WaitAndStop",
+    "defender": {
+      "telemetry": "NoTelemetry",
+      "strategy": "WaitAndStop",
+      "capabilities": {
+        "DeployDecoy": 2,
+        "HoneyService": 0,
+        "RestoreServer": 0,
+        "HoneyCredentials": 4
+      }
+    },
+    "attacker": { "name": "GreedyAttacker" },
+    "deployment_instance": { "name": "EquifaxInstance" }
+  },
+  "experiment_time": 859.6636593341827,
+  "execution_time": 618.4980273246765,
+  "setup_time": 241.16563200950623,
+  "flags_captured": [],
+  "data_exfiltrated": [
+    { "name": "data2.json", "time_exfiltrated": 390.5310204029083 },
+    { "name": "data1.json", "time_exfiltrated": 420.5310204029083 }
+  ],
+  "hosts_infected": [
+    "attacker",
+    "webserver-c",
+    "webserver-a",
+    "webserver-b",
+    "decoy-0",
+    "employee-a",
+    "employee-b",
+    "database-b",
+    "database-a",
+    "decoy-1"
+  ],
+  "operation_id": "7f550a0e-9619-4ac6-822c-edf56add491d"
+}
