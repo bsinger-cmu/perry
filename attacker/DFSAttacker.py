@@ -3,16 +3,16 @@ import requests
 from .Attacker import Attacker
 
 
-class GreedyAttacker(Attacker):
+class DFSAttacker(Attacker):
     def start_operation(self):
         json_data = {
-            "name": "Greedy attacker",
+            "name": "Network DFS",
             "id": self.operation_id,
             "adversary": {
                 "adversary_id": "deception_enterprise",
             },
             "planner": {
-                "id": "greedy_planner",
+                "id": "network_DFS",
             },
             "source": {
                 "id": "ed32b9c3-9593-4c33-b0db-e2007315096b",

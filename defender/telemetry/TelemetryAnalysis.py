@@ -14,6 +14,18 @@ class TelemetryAnalysis:
             index="deception_alerts", query=last_second_query
         )
 
+        last_second_query = {
+            "bool": {
+                "must": [
+                    {"range": {"@timestamp": {"gte": "now-10s"}}},
+                    {"term": {"category": "network"}},
+                    {"term": {"destination.ip": "192.168.200.3"}},
+                    {"term": {"destination.port": "22"}},
+                    {"term": {"source.ip": "192.168.200.4"}},
+                ]
+            },
+        }
+
         # Query last 10s of sysflow data with category network
         last_second_query = {
             "bool": {

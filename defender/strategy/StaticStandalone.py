@@ -48,6 +48,7 @@ class StaticStandalone(Strategy):
                 network=subnet_to_deploy.name,
                 server=decoy_name,
                 host=decoy_host,
+                apacheVulnerability=True,
             )
             actions.append(decoy_action)
 

@@ -1,17 +1,17 @@
 {
-  "name": "baseline_standalone_d2_h0",
+  "name": "bfs_layered_d2_h50",
   "defender": {
     "telemetry": "NoTelemetry",
-    "strategy": "StaticStandalone",
+    "strategy": "StaticLayered",
     "capabilities": {
-      "DeployDecoy": 0,
+      "DeployDecoy": 2,
       "HoneyService": 0,
       "RestoreServer": 0,
-      "HoneyCredentials": 40
+      "HoneyCredentials": 50
     }
   },
   "attacker": {
-    "name": "EquifaxBaselineAttacker"
+    "name": "BFSAttacker"
   },
   "deployment_instance": {
     "name": "EquifaxInstance"

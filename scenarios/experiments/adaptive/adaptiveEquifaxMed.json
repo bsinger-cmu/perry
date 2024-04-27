@@ -1,0 +1,17 @@
+[
+  {
+    "name": "dfs_standalone_d2_h0",
+    "trials": 5,
+    "scenario": "equifax_medium/standalone/dfs_standalone_d2_h0.json"
+  },
+  {
+    "name": "dfs_standalone_d0_h50",
+    "trials": 5,
+    "scenario": "equifax_medium//standalone/dfs_standalone_d0_h50.json"
+  },
+  {
+    "name": "dfs_layered_d2_h50",
+    "trials": 5,
+    "scenario": "equifax_medium//layered/dfs_layered_d2_h50.json"
+  }
+]

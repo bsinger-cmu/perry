@@ -1,32 +1,47 @@
 [
   {
-    "name": "EquifaxBaseline_WaitAndStop",
+    "name": "dfs_standalone_d2_h0",
     "trials": 5,
-    "scenario": "adaptive/equifax/EquifaxBaseline_WaitAndStop.json"
+    "scenario": "equifax_small/standalone/dfs_standalone_d2_h0.json"
   },
   {
-    "name": "EquifaxBaseline_StaticRandom",
+    "name": "dfs_standalone_d0_h50",
     "trials": 5,
-    "scenario": "adaptive/equifax/EquifaxBaseline_StaticRandom.json"
+    "scenario": "equifax_small/standalone/dfs_standalone_d0_h50.json"
   },
   {
-    "name": "EquifaxBFS_WaitAndStop",
+    "name": "dfs_layered_d2_h50",
     "trials": 5,
-    "scenario": "adaptive/equifax/EquifaxBFS_WaitAndStop.json"
+    "scenario": "equifax_small/layered/dfs_layered_d2_h50.json"
   },
   {
-    "name": "EquifaxBFS_StaticRandom",
+    "name": "bfs_standalone_d2_h0",
     "trials": 5,
-    "scenario": "adaptive/equifax/EquifaxBFS_StaticRandom.json"
+    "scenario": "equifax_small/standalone/bfs_standalone_d2_h0.json"
   },
   {
-    "name": "EquifaxDFS_WaitAndStop",
+    "name": "bfs_standalone_d0_h50",
     "trials": 5,
-    "scenario": "adaptive/equifax/EquifaxDFS_WaitAndStop.json"
+    "scenario": "equifax_small/standalone/bfs_standalone_d0_h50.json"
   },
   {
-    "name": "EquifaxDFS_StaticRandom",
+    "name": "bfs_layered_d2_h50",
     "trials": 5,
-    "scenario": "adaptive/equifax/EquifaxDFS_StaticRandom.json"
+    "scenario": "equifax_small/layered/bfs_layered_d2_h50.json"
+  },
+  {
+    "name": "baseline_standalone_d2_h0",
+    "trials": 5,
+    "scenario": "equifax_small/standalone/baseline_standalone_d2_h0.json"
+  },
+  {
+    "name": "baseline_layered_d2_h50",
+    "trials": 5,
+    "scenario": "equifax_small/layered/baseline_layered_d2_h50.json"
+  },
+  {
+    "name": "baseline_standalone_d0_h50",
+    "trials": 5,
+    "scenario": "equifax_small/standalone/baseline_standalone_d0_h50.json"
   }
 ]

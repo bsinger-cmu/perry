@@ -18,6 +18,7 @@
     - name: Install JAVA
       apt:
         name: default-jdk
+        update_cache: yes
         state: present
 
     - name: Create a Tomcat Directory

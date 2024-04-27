@@ -3,16 +3,16 @@ import requests
 from .Attacker import Attacker
 
 
-class RandomAttacker(Attacker):
+class BFSAttacker(Attacker):
     def start_operation(self):
         json_data = {
-            "name": "Random attacker",
+            "name": "Network BFS",
             "id": self.operation_id,
             "adversary": {
                 "adversary_id": "deception_enterprise",
             },
             "planner": {
-                "id": "random_planner",
+                "id": "network_BFS",
             },
             "source": {
                 "id": "ed32b9c3-9593-4c33-b0db-e2007315096b",
