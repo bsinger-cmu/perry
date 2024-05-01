@@ -4,6 +4,7 @@ from .TwoPathInstance import TwoPathInstance
 from .EnterpriseInstance import EnterpriseInstance
 from .EquifaxInstance import EquifaxInstance
 from .EquifaxMedium import EquifaxMedium
+from .EquifaxSmall import EquifaxSmall
 from .SolarWindsInstance import SolarWindsInstance
 
 from .GoalKeeper import GoalKeeper

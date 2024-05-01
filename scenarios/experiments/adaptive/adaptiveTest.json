@@ -1,7 +1,7 @@
 [
   {
-    "name": "dfs_layered_d2_h50",
+    "name": "dfs_standalone_d0_h50",
     "trials": 5,
-    "scenario": "equifax_small/layered/dfs_layered_d2_h50.json"
+    "scenario": "equifax_small/standalone/dfs_standalone_d0_h50.json"
   }
 ]

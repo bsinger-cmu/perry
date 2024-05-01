@@ -2,7 +2,7 @@ from .EquifaxInstance import EquifaxInstance
 from ansible.AnsibleRunner import AnsibleRunner
 
 
-class EquifaxMedium(EquifaxInstance):
+class EquifaxSmall(EquifaxInstance):
     def __init__(
         self,
         ansible_runner: AnsibleRunner,

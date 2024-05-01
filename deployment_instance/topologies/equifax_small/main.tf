@@ -118,7 +118,7 @@ resource "openstack_compute_floatingip_associate_v2" "fip_manage" {
 
 ### Webserver Subnet Hosts ###
 resource "openstack_compute_instance_v2" "webserver" {
-  count       = 8
+  count       = 4
   name        = "webserver_${count.index}"
   image_name  = "Ubuntu20"
   flavor_name = "p2.tiny"
@@ -139,7 +139,7 @@ resource "openstack_compute_instance_v2" "webserver" {
 
 ### Corporate Subnet Hosts ###
 resource "openstack_compute_instance_v2" "employee" {
-  count       = 8
+  count       = 0
   name        = "employee_${count.index}"
   image_name  = "Ubuntu20"
   flavor_name = "p2.tiny"
@@ -158,7 +158,7 @@ resource "openstack_compute_instance_v2" "employee" {
 }
 
 resource "openstack_compute_instance_v2" "database" {
-  count       = 8
+  count       = 12
   name        = "database_${count.index}"
   image_name  = "Ubuntu20"
   flavor_name = "p2.tiny"

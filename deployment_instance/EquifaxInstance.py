@@ -12,45 +12,63 @@ from ansible.deployment_instance import (
     CreateSSHKey,
 )
 from ansible.common import CreateUser
-from ansible.vulnerabilities import (
-    EquifaxSSHConfig,
-    SetupStrutsVulnerability,
-)
+from ansible.vulnerabilities import SetupStrutsVulnerability
 from ansible.goals import AddData
 from ansible.caldera import InstallAttacker
 from ansible.defender import InstallSysFlow
 
-from .network import Network, Host, Subnet
+from .network import Network, Subnet
+from .openstack.openstack_processor import get_hosts_on_subnet
+
+from faker import Faker
+import random
+
+fake = Faker()
 
 
 class EquifaxInstance(DeploymentInstance):
-    def __init__(self, ansible_runner: AnsibleRunner, openstack_conn, caldera_ip):
+    def __init__(
+        self,
+        ansible_runner: AnsibleRunner,
+        openstack_conn,
+        caldera_ip,
+        topology="equifax_small",
+    ):
         super().__init__(ansible_runner, openstack_conn, caldera_ip)
-        self.topology = "equifax_network"
+        self.topology = topology
         self.flags = {}
         self.root_flags = {}
+        self.parse_network()
 
-        self.flags["192.168.201.5"] = "database-A-user-flag"
-        self.flags["192.168.201.6"] = "database-B-user-flag"
-
-        self.root_flags["192.168.201.5"] = "database-A-root-flag"
-        self.root_flags["192.168.201.6"] = "database-B-root-flag"
-
-        webserverA = Host("webserverA", "192.168.200.3", ["tomcat"])
-        webserverB = Host("webserverB", "192.168.200.4", ["tomcat"])
-        webserverC = Host("webserverC", "192.168.200.5", ["tomcat"])
-
-        employeeA = Host("employeeA", "192.168.201.3", ["employeeA"])
-        employeeB = Host("employeeB", "192.168.201.4", ["employeeB"])
-        databaseA = Host("databaseA", "192.168.201.5", ["databaseA"])
-        databaseB = Host("databaseB", "192.168.201.6", ["databaseB"])
-
-        webserverSubnet = Subnet(
-            "webserver_network", [webserverA, webserverB, webserverC], "webserver"
+    def parse_network(self):
+        self.webservers = get_hosts_on_subnet(
+            self.openstack_conn, "192.168.200.0/24", host_name_prefix="webserver"
         )
+        for host in self.webservers:
+            host.users.append("tomcat")
+
+        self.attacker_host = get_hosts_on_subnet(
+            self.openstack_conn, "192.168.202.0/24", host_name_prefix="attacker"
+        )[0]
+
+        self.employee_hosts = get_hosts_on_subnet(
+            self.openstack_conn, "192.168.201.0/24", host_name_prefix="employee"
+        )
+        for host in self.employee_hosts:
+            username = host.name.replace("_", "")
+            host.users.append(username)
+
+        self.database_hosts = get_hosts_on_subnet(
+            self.openstack_conn, "192.168.201.0/24", host_name_prefix="database"
+        )
+        for host in self.database_hosts:
+            username = host.name.replace("_", "")
+            host.users.append(username)
+
+        webserverSubnet = Subnet("webserver_network", self.webservers, "webserver")
         corportateSubnet = Subnet(
             "critical_company_network",
-            [employeeA, employeeB, databaseA, databaseB],
+            self.employee_hosts + self.database_hosts,
             "critical_company",
         )
 
@@ -59,97 +77,57 @@ class EquifaxInstance(DeploymentInstance):
     def compile_setup(self):
         log_event("Deployment Instace", "Setting up Equifax Instance")
         self.find_management_server(self.caldera_ip)
+        self.parse_network()
 
-        self.ansible_runner.run_playbook(CheckIfHostUp("192.168.200.3"))
-
+        self.ansible_runner.run_playbook(CheckIfHostUp(self.webservers[0].ip))
         time.sleep(3)
 
-        # Install users on all hosts
-        self.ansible_runner.run_playbook(
-            CreateUser("192.168.200.3", "webserverA", "ubuntu")
-        )
-        self.ansible_runner.run_playbook(
-            CreateUser("192.168.200.4", "webserverB", "ubuntu")
-        )
-        self.ansible_runner.run_playbook(
-            CreateUser("192.168.200.5", "webserverC", "ubuntu")
-        )
-
-        # Employee host users
-        self.ansible_runner.run_playbook(
-            CreateUser("192.168.201.3", "employeeA", "ubuntu")
-        )
-        self.ansible_runner.run_playbook(
-            CreateUser("192.168.201.4", "employeeB", "ubuntu")
-        )
-        self.ansible_runner.run_playbook(
-            CreateUser("192.168.201.5", "databaseA", "ubuntu")
-        )
-        self.ansible_runner.run_playbook(
-            CreateUser("192.168.201.6", "databaseB", "ubuntu")
-        )
-
+        # Install all base packages
         self.ansible_runner.run_playbook(
             InstallBasePackages(
-                [
-                    "192.168.200.3",
-                    "192.168.200.4",
-                    "192.168.200.5",
-                    "192.168.201.3",
-                    "192.168.201.4",
-                    "192.168.201.5",
-                    "192.168.201.6",
-                    "192.168.202.3",
-                ]
+                self.network.get_all_host_ips() + [self.attacker_host.ip]
             )
         )
 
+        # Install sysflow on all hosts
         self.ansible_runner.run_playbook(
-            InstallSysFlow(
-                [
-                    "192.168.200.3",
-                    "192.168.200.4",
-                    "192.168.200.5",
-                    "192.168.201.3",
-                    "192.168.201.4",
-                    "192.168.201.5",
-                    "192.168.201.6",
-                    "192.168.202.3",
-                ]
+            InstallSysFlow(self.network.get_all_host_ips())
+        )
+
+        # Setup apache struts and vulnerability
+        webserver_ips = [host.ip for host in self.webservers]
+        self.ansible_runner.run_playbook(SetupStrutsVulnerability(webserver_ips))
+
+        # Setup users on corporte hosts
+        for host in self.employee_hosts + self.database_hosts:
+            for user in host.users:
+                self.ansible_runner.run_playbook(CreateUser(host.ip, user, "ubuntu"))
+
+        # Choose a random webserver to setup SSH keys to all databases and employees
+        webserver_with_creds = random.choice(self.webservers)
+        for employee in self.employee_hosts:
+            self.ansible_runner.run_playbook(
+                SetupServerSSHKeys(
+                    webserver_with_creds.ip, "tomcat", employee.ip, employee.users[0]
+                )
             )
-        )
+        for database in self.database_hosts:
+            self.ansible_runner.run_playbook(
+                SetupServerSSHKeys(
+                    webserver_with_creds.ip, "tomcat", database.ip, database.users[0]
+                )
+            )
 
-        self.ansible_runner.run_playbook(SetupStrutsVulnerability("192.168.200.3"))
-        self.ansible_runner.run_playbook(SetupStrutsVulnerability("192.168.200.4"))
-        self.ansible_runner.run_playbook(SetupStrutsVulnerability("192.168.200.5"))
-
-        ssh_playbooks: list[AnsiblePlaybook] = [
-            SetupServerSSHKeys("192.168.200.5", "tomcat", "192.168.201.3", "employeeA"),
-            SetupServerSSHKeys("192.168.200.5", "tomcat", "192.168.201.4", "employeeB"),
-            SetupServerSSHKeys("192.168.200.5", "tomcat", "192.168.201.5", "databaseA"),
-            SetupServerSSHKeys("192.168.200.5", "tomcat", "192.168.201.6", "databaseB"),
-        ]
-        self.ansible_runner.run_playbooks(ssh_playbooks, run_async=False)
-
-        # self.ansible_runner.run_playbook(EquifaxSSHConfig("192.168.200.5", "tomcat"))
-
-        self.ansible_runner.run_playbook(
-            AddData("192.168.201.5", "databaseA", "~/data1.json")
-        )
-        self.ansible_runner.run_playbook(
-            AddData("192.168.201.6", "databaseB", "~/data2.json")
-        )
-
-        # Create SSH key for attacker
-        self.ansible_runner.run_playbook(CreateSSHKey("192.168.202.3", "root"))
+        # Add data to database hosts
+        i = 0
+        for database in self.database_hosts:
+            self.ansible_runner.run_playbook(
+                AddData(database.ip, database.users[0], f"~/data_{database.name}.json")
+            )
 
     def runtime_setup(self):
-        # Execute Processes
-        # self.orchestrator.vulns.run_vsftpdBackdoor('192.168.200.5')
-
-        # Setup attacker on intern machine
+        # Setup attacker
+        self.ansible_runner.run_playbook(CreateSSHKey(self.attacker_host.ip, "root"))
         self.ansible_runner.run_playbook(
-            InstallAttacker("192.168.202.3", "root", self.caldera_ip)
+            InstallAttacker(self.attacker_host.ip, "root", self.caldera_ip)
         )
-
-        # TODO Start sysflow
