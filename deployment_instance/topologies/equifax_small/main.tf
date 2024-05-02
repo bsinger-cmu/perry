@@ -118,7 +118,7 @@ resource "openstack_compute_floatingip_associate_v2" "fip_manage" {
 
 ### Webserver Subnet Hosts ###
 resource "openstack_compute_instance_v2" "webserver" {
-  count       = 4
+  count       = 2
   name        = "webserver_${count.index}"
   image_name  = "Ubuntu20"
   flavor_name = "p2.tiny"
