@@ -1,0 +1,43 @@
+{
+  "scenario": {
+    "name": "dfs_standalone_d0_h50",
+    "defender": {
+      "telemetry": "NoTelemetry",
+      "strategy": "StaticStandalone",
+      "capabilities": {
+        "DeployDecoy": 0,
+        "HoneyService": 0,
+        "RestoreServer": 0,
+        "HoneyCredentials": 50
+      }
+    },
+    "attacker": { "name": "DFSAttacker" },
+    "deployment_instance": { "name": "EquifaxInstance" }
+  },
+  "experiment_time": 1598.653964996338,
+  "execution_time": 1167.5856742858887,
+  "setup_time": 431.0682907104492,
+  "flags_captured": [],
+  "data_exfiltrated": [
+    { "name": "data2.json", "time_exfiltrated": 565.8818521499634 },
+    { "name": "data1.json", "time_exfiltrated": 746.8818521499634 }
+  ],
+  "hosts_infected": [
+    "attacker",
+    "webserver-b",
+    "webserver-a",
+    "webserver-c",
+    "employee-a",
+    "database-b",
+    "database-a",
+    "employee-b"
+  ],
+  "operation_id": "00cbec44-5be2-4cad-a9cb-79cd3eeac797",
+  "defender_action_counts": {
+    "shutdown_server": 0,
+    "start_honey_service": 0,
+    "deploy_decoy": 0,
+    "restore_server": 0,
+    "AddHoneyCredentials": 50
+  }
+}
