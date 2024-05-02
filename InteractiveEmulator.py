@@ -208,9 +208,6 @@ class EmulatorInteractive:
             host_setup=(not args.host_disable),
         )
 
-        if args.runtime:
-            self.emulator.deployment_instance.runtime_setup()
-
     def handle_run(self, args):
         """
         handle_run:
