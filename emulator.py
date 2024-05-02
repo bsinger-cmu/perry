@@ -126,6 +126,7 @@ class Emulator:
             self.deployment_instance.compile(
                 setup_network=network_setup, setup_hosts=host_setup
             )
+            return
         else:
             # Do runtimesetup
             self.deployment_instance.run()
