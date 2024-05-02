@@ -68,6 +68,9 @@ class DeploymentInstance:
         # Load snapshots
         self.load_all_snapshots()
         time.sleep(10)
+
+        self.rebuild_error_hosts()
+
         # Do runtime setup
         self.runtime_setup()
 
@@ -243,4 +246,25 @@ class DeploymentInstance:
                         waiting_for_rebuild = True
 
                 time.sleep(1)
+        return
+
+    def get_error_hosts(self):
+        hosts = self.openstack_conn.list_servers()
+        error_hosts = []
+
+        for host in hosts:
+            if host.status == "ERROR":
+                error_hosts.append(host)
+
+        return error_hosts
+
+    def rebuild_error_hosts(self):
+        error_hosts = self.get_error_hosts()
+        for host in error_hosts:
+            self.openstack_conn.delete_server(host.id, wait=True)
+            self.load_snapshot(host.private_v4, host.name + "_image", wait=True)
+
+        error_hosts = self.get_error_hosts()
+        if len(error_hosts) > 0:
+            raise Exception("Error hosts still exist after rebuild")
         return
