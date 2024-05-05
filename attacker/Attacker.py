@@ -1,6 +1,9 @@
 from time import sleep
 import requests
-import logging
+from utility.logging.logging import get_logger
+import uuid
+
+logger = get_logger()
 
 
 class Attacker:
@@ -56,6 +59,12 @@ class Attacker:
             json=json_data,
         )
 
+        operation_data = response.json()
+        logger.debug(operation_data)
+        # operation_state = operation_data["state"]
+        # if operation_state != "stop":
+        #     logger.error(f"Attacker operation stopped but state is: {operation_state}")
+
     def get_operation_details(self):
         response = requests.get(
             f"http://localhost:8888/api/v2/operations/{self.operation_id}",
@@ -104,7 +113,7 @@ class Attacker:
                 f'http://localhost:8888/api/v2/agents/{agent["paw"]}',
                 headers=self.api_headers,
             )
-            logging.debug(f'Deleted agent {agent["paw"]}')
+            logger.debug(f'Deleted agent {agent["paw"]}')
         return
 
     def wait_for_trusted_agent(self, timeout=5):

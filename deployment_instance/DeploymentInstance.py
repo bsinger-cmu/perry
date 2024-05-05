@@ -61,8 +61,9 @@ class DeploymentInstance:
         if setup_hosts:
             # Setup instances
             self.compile_setup()
-            # Save instance
-            self.save_all_snapshots()
+        
+        # Save instance
+        self.save_all_snapshots()
 
     def run(self):
         # Load snapshots
@@ -126,35 +127,17 @@ class DeploymentInstance:
         if self.all_instances is None:
             self.all_instances = self.openstack_conn.list_servers()
 
-    def save_snapshot(self, host_addr, snapshot_name, overwrite=True, wait=False):
-        try:
-            image = self.openstack_conn.get_image(snapshot_name)
-            if image and overwrite:
-                rprint(f"Image '{snapshot_name}' already exists. Deleting...")
-                self.openstack_conn.delete_image(image.id, wait=True)
-            elif image and not overwrite:
-                rprint(f"Image '{snapshot_name}' already exists. Aborting...")
-                return
-            else:
-                rprint(f"Image '{snapshot_name}' does not exist. Creating...")
-        except:
-            print("Multiple images with the same name exist. Aborting...")
-            return
+    def save_snapshot(self, instance, snapshot_name):
+        image = self.openstack_conn.get_image(snapshot_name)
+        if image:
+            rprint(f"Image '{snapshot_name}' already exists. Deleting...")
+            self.openstack_conn.delete_image(image.id, wait=True)
 
-        self._load_instances()
-        instance_iter = filter(lambda x: x.private_v4 == host_addr, self.all_instances)
-        instance = list(instance_iter)[0]
-
-        if instance:
-            print(f"Creating snapshot {snapshot_name} for instance {instance.id}...")
-            image = self.openstack_conn.create_image_snapshot(
-                snapshot_name, instance.id, wait=wait
-            )
-            if image:
-                print(
-                    f"Successfully created snapshot {snapshot_name} with id {image.id}"
-                )
-            return image.id
+        print(f"Creating snapshot {snapshot_name} for instance {instance.id}...")
+        image = self.openstack_conn.create_image_snapshot(
+            snapshot_name, instance.id, wait=True
+        )
+        return image.id
 
     def load_snapshot(self, host_addr, snapshot_name, wait=False):
         self._load_instances()
@@ -182,32 +165,9 @@ class DeploymentInstance:
         images = []
         for instance in self.all_instances:
             image = self.save_snapshot(
-                instance.private_v4, instance.name + "_image", overwrite=True
+                instance, instance.name + "_image"
             )
             images.append(image)
-
-        if wait:
-            rprint("Waiting for all images to be saved...")
-            all_active = False
-            while not all_active:
-                all_active = True
-                rprint(f"\n{'Status':<12}{'Name'}")
-                for image in images:
-                    curr_img = None
-                    try:
-                        curr_img = self.openstack_conn.get_image_by_id(image)
-                    except openstackExceptions.ResourceNotFound:
-                        pass
-
-                    if curr_img:
-                        all_active = all_active and curr_img.status == "active"
-                        color = Fore.GREEN if curr_img.status == "active" else Fore.RED
-                        color = Fore.YELLOW if curr_img.status == "saving" else color
-                        print(
-                            f"{color}{curr_img.status:<12}{Style.RESET_ALL}{curr_img.name}"
-                        )
-
-                time.sleep(25)
 
     def load_all_snapshots(self, wait=True):
         rprint("Loading all snapshots...")

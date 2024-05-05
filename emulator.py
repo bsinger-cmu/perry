@@ -175,17 +175,26 @@ class Emulator:
     def finished(self):
         return not self.attacker.still_running()
 
-    def start_main_loop(self, timeout_minutes=30):
+    def start_main_loop(self, timeout_minutes=60):
         log_event("Emulator", "Main loop starting!")
 
         # Create timer
-        timeout = time.time() + 60 * timeout_minutes
+        start_time = time.time()
+        timeout = timeout_minutes * 60
 
         finished = False
         finish_counter = 0
         instance_check_counter = 0
         try:
-            while not finished and time.time() < timeout:
+            while not finished:
+                current_time = time.time()
+                elapsed_time = current_time - start_time  # Calculate the elapsed time
+                if (
+                    elapsed_time > timeout
+                ):  # Check if the elapsed time is greater than the timeout
+                    logger.info(f"Timeout reached!")
+                    break
+
                 self.defender.run()
 
                 if finish_counter > 5:
@@ -201,13 +210,6 @@ class Emulator:
                 finish_counter += 1
 
             self.attacker.stop_operation()
-
-            if time.time() >= timeout:
-                logger.info(
-                    f"Timeout reached!",
-                )
-                self.attacker.stop_operation()
-                time.sleep(60 * timeout_minutes)
 
         except KeyboardInterrupt:
             pass

@@ -80,4 +80,4 @@ class DeployDecoy(OpenstackActuator):
 
             # Create image
             print("Creating decoy image...")
-            image = self.openstack_conn.compute.create_server_image(server, "decoy")
+            image = self.openstack_conn.compute.create_server_image(server, "decoy", wait=True)
