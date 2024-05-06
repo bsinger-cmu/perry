@@ -56,14 +56,16 @@ class StaticStandalone(Strategy):
         self.orchestrator.run(actions)
 
         # Add fake credentials to all hosts
-        for i in range(0, num_honeycreds):
-            deploy_host = self.network.get_random_host()
-            target_host = self.network.get_random_host()
+        credentials_per_subnet = int(num_honeycreds / len(self.network.subnets))
+        for subnet in self.network.subnets:
+            for i in range(0, credentials_per_subnet):
+                deploy_host = subnet.get_random_host()
+                target_host = self.network.get_random_host()
 
-            # Add fake credentials to decoy
-            self.orchestrator.run(
-                [AddHoneyCredentials(deploy_host, target_host, 1, real=False)]
-            )
+                # Add fake credentials to decoy
+                self.orchestrator.run(
+                    [AddHoneyCredentials(deploy_host, target_host, 1, real=False)]
+                )
 
         return []
 

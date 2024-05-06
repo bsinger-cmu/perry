@@ -48,11 +48,13 @@ def randomly_place_deception(
     orchestrator.run(actions)
 
     # Add fake credentials to all hosts
-    if num_honeycreds != 0:
-        for subnet in network.subnets:
-            for host in subnet.hosts:
-                decoy = network.get_random_decoy()
-                # Add fake credentials to decoy
-                orchestrator.run(
-                    [AddHoneyCredentials(host, decoy, num_honeycreds, real=True)]
-                )
+    credentials_per_subnet = int(num_honeycreds / len(network.subnets))
+    for subnet in network.subnets:
+        for i in range(0, credentials_per_subnet):
+            decoy = network.get_random_decoy()
+            host = network.get_random_host()
+
+            # Add fake credentials to decoy
+            orchestrator.run(
+                [AddHoneyCredentials(host, decoy, num_honeycreds, real=True)]
+            )

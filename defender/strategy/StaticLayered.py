@@ -45,8 +45,8 @@ class StaticLayered(Strategy):
         credentials_per_subnet = int(num_honeycreds / len(self.network.subnets))
         for subnet in self.network.subnets:
             for i in range(0, credentials_per_subnet):
-                deploy_host = self.network.get_random_host()
-                target_host = subnet.get_random_host()
+                deploy_host = subnet.get_random_host()
+                target_host = self.network.get_random_decoy()
 
                 # Add fake credentials to decoy
                 self.orchestrator.run(
