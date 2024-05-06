@@ -1,0 +1,55 @@
+{
+  "scenario": {
+    "name": "baseline_layered_d2_h50",
+    "defender": {
+      "telemetry": "NoTelemetry",
+      "strategy": "StaticLayered",
+      "capabilities": {
+        "DeployDecoy": 2,
+        "HoneyService": 0,
+        "RestoreServer": 0,
+        "HoneyCredentials": 50
+      }
+    },
+    "attacker": { "name": "EquifaxBaselineAttacker" },
+    "deployment_instance": { "name": "EquifaxSmall" }
+  },
+  "experiment_time": 1441.5372133255005,
+  "execution_time": 748.7114267349243,
+  "setup_time": 692.8257865905762,
+  "flags_captured": [],
+  "data_exfiltrated": [
+    { "name": "data_database_11.json", "time_exfiltrated": 445.74420857429504 },
+    { "name": "data_database_10.json", "time_exfiltrated": 475.74420857429504 },
+    { "name": "data_database_9.json", "time_exfiltrated": 510.74420857429504 },
+    { "name": "data_database_5.json", "time_exfiltrated": 545.744208574295 },
+    { "name": "data_database_1.json", "time_exfiltrated": 580.744208574295 },
+    { "name": "data_database_7.json", "time_exfiltrated": 611.744208574295 },
+    { "name": "data_database_6.json", "time_exfiltrated": 656.744208574295 },
+    { "name": "data_database_3.json", "time_exfiltrated": 731.744208574295 }
+  ],
+  "hosts_infected": [
+    "attacker",
+    "webserver-0",
+    "database-8",
+    "database-2",
+    "webserver-1",
+    "database-11",
+    "database-10",
+    "database-9",
+    "database-5",
+    "database-1",
+    "database-7",
+    "database-0",
+    "database-6",
+    "database-3"
+  ],
+  "operation_id": "eacfe252-3b50-46e7-bf80-b4ae83f80bb4",
+  "defender_action_counts": {
+    "shutdown_server": 0,
+    "start_honey_service": 0,
+    "deploy_decoy": 2,
+    "restore_server": 0,
+    "AddHoneyCredentials": 50
+  }
+}

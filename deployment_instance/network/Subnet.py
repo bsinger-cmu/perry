@@ -1,4 +1,5 @@
 from . import Host
+import random
 
 
 class Subnet:
@@ -13,3 +14,6 @@ class Subnet:
             self.decoys.append(host)
         else:
             self.hosts.append(host)
+
+    def get_random_host(self) -> Host:
+        return random.choice(self.hosts)

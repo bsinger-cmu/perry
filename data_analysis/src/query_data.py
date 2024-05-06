@@ -23,7 +23,9 @@ def get_data_exfiltrated(data: list[ExperimentResult]):
 
 
 def get_data_exfiltration_times(
-    data: list[ExperimentResult], convert_to_minutes: bool = True
+    data: list[ExperimentResult],
+    convert_to_minutes: bool = True,
+    expected_files: int = 2,
 ):
     data_exfiltrated = get_data_exfiltrated(data)
     time_exiltrated_all_data = []
@@ -39,7 +41,8 @@ def get_data_exfiltration_times(
         if len(data_exfiltration_times) == 0:
             continue
 
-        time_exiltrated_all_data.append(max(data_exfiltration_times))
+        if len(data_exfiltration_times) >= expected_files:
+            time_exiltrated_all_data.append(max(data_exfiltration_times))
 
     return time_exiltrated_all_data
 

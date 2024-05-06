@@ -1,7 +1,0 @@
-[
-  {
-    "name": "dfs_standalone_d0_h50",
-    "trials": 5,
-    "scenario": "equifax_small/standalone/dfs_standalone_d0_h50.json"
-  }
-]
