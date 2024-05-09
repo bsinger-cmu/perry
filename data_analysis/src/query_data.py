@@ -26,9 +26,12 @@ def get_data_exfiltration_times(
     data: list[ExperimentResult],
     convert_to_minutes: bool = True,
     expected_files: int = 2,
+    timeout_time_min: int = 60,
 ):
     data_exfiltrated = get_data_exfiltrated(data)
     time_exiltrated_all_data = []
+    survival_data = []
+    num_files = []
 
     for experiment_result in data_exfiltrated:
         data_exfiltration_times = []
@@ -37,14 +40,21 @@ def get_data_exfiltration_times(
                 data_exfiltration_times.append(data_exfiltrated.time_exfiltrated / 60)
             else:
                 data_exfiltration_times.append(data_exfiltrated.time_exfiltrated)
-
-        if len(data_exfiltration_times) == 0:
-            continue
-
+        num_files.append(len(data_exfiltration_times))
         if len(data_exfiltration_times) >= expected_files:
             time_exiltrated_all_data.append(max(data_exfiltration_times))
+            survival_data.append(1)
+        else:
+            time_exiltrated_all_data.append(timeout_time_min)
+            survival_data.append(0)
 
-    return time_exiltrated_all_data
+    df_data = {
+        "time_exfiltrated": time_exiltrated_all_data,
+        "survival": survival_data,
+        "num_files": num_files,
+    }
+    df = pd.DataFrame(df_data)
+    return df
 
 
 def percent_of_data_exfiltrated(data: list[ExperimentResult], expected_files: int = 2):

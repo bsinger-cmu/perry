@@ -35,9 +35,14 @@ class StaticStandalone(Strategy):
 
             actions.append(StartHoneyService(network_hosts[i].ip))
 
-        # Randomly deploy decoys on networks
+        # Try to deploy decoys on webserver network,
+        # if not possible, deploy on random subnet
         for i in range(0, num_decoys):
-            subnet_to_deploy = self.network.get_random_subnet()
+            subnet_to_deploy = self.network.get_subnet_by_name("webserver_network")
+
+            if subnet_to_deploy is None:
+                subnet_to_deploy = self.network.get_random_subnet()
+
             decoy_name = f"decoy_{i}"
             # IP set by actuator
             decoy_host = Host(decoy_name, "")

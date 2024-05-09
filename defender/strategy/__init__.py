@@ -4,3 +4,4 @@ from .DoNothing import DoNothing
 from .StaticRandom import StaticRandom
 from .StaticStandalone import StaticStandalone
 from .StaticLayered import StaticLayered
+from .ReactiveLayered import ReactiveLayered
