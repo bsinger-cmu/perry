@@ -31,6 +31,12 @@ class Network:
     def get_random_subnet(self) -> Subnet:
         return random.choice(self.subnets)
 
+    def get_subnet_by_name(self, name: str) -> Subnet | None:
+        for subnet in self.subnets:
+            if subnet.name == name:
+                return subnet
+        return None
+
     def is_ip_decoy(self, ip: str):
         decoys = self.get_all_decoys()
         for decoy in decoys:
