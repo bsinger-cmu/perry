@@ -80,6 +80,9 @@ class Emulator:
             basic_auth=("elastic", elasticsearch_api_key),
             verify_certs=False,
         )
+        # check if connection is successful
+        if not elasticsearch_conn.ping():
+            raise Exception("Connection to elasticsearch failed")
 
         log_event("Emulator setup", "Setting up elastic search connection")
         log_event("Emulator setup", f"Elastic search server: {elasticsearch_server}")
