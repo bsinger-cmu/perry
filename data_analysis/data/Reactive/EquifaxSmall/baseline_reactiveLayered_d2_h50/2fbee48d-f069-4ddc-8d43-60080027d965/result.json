@@ -1,0 +1,61 @@
+{
+  "scenario": {
+    "name": "baseline_reactiveLayered_d2_h50",
+    "defender": {
+      "telemetry": "NoTelemetry",
+      "strategy": "ReactiveLayered",
+      "capabilities": {
+        "DeployDecoy": 2,
+        "HoneyService": 0,
+        "RestoreServer": 0,
+        "HoneyCredentials": 50
+      }
+    },
+    "attacker": { "name": "EquifaxBaselineAttacker" },
+    "deployment_instance": { "name": "EquifaxSmall" }
+  },
+  "experiment_time": 2115.896245956421,
+  "execution_time": 1431.1133224964142,
+  "setup_time": 684.7829234600067,
+  "flags_captured": [],
+  "data_exfiltrated": [
+    { "name": "data_database_3.json", "time_exfiltrated": 807.325688123703 },
+    { "name": "data_database_6.json", "time_exfiltrated": 847.325688123703 },
+    { "name": "data_database_0.json", "time_exfiltrated": 882.325688123703 },
+    { "name": "data_database_10.json", "time_exfiltrated": 917.325688123703 },
+    { "name": "data_database_1.json", "time_exfiltrated": 1017.325688123703 },
+    { "name": "data_database_5.json", "time_exfiltrated": 1073.325688123703 },
+    { "name": "data_database_7.json", "time_exfiltrated": 1138.325688123703 },
+    { "name": "data_database_11.json", "time_exfiltrated": 1178.325688123703 },
+    { "name": "data_database_8.json", "time_exfiltrated": 1238.325688123703 },
+    { "name": "data_database_4.json", "time_exfiltrated": 1274.325688123703 },
+    { "name": "data_database_2.json", "time_exfiltrated": 1334.325688123703 },
+    { "name": "data_database_9.json", "time_exfiltrated": 1429.325688123703 }
+  ],
+  "hosts_infected": [
+    "attacker",
+    "webserver-0",
+    "database-3",
+    "database-6",
+    "database-0",
+    "database-10",
+    "decoy-0",
+    "decoy-1",
+    "database-1",
+    "database-5",
+    "database-7",
+    "database-11",
+    "database-8",
+    "database-4",
+    "database-2",
+    "database-9"
+  ],
+  "operation_id": "2fbee48d-f069-4ddc-8d43-60080027d965",
+  "defender_action_counts": {
+    "shutdown_server": 0,
+    "start_honey_service": 0,
+    "deploy_decoy": 2,
+    "restore_server": 0,
+    "AddHoneyCredentials": 50
+  }
+}
