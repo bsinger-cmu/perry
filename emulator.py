@@ -8,7 +8,6 @@ import uuid
 
 from ansible.AnsibleRunner import AnsibleRunner
 from deployment_instance import GoalKeeper
-from scenarios.Scenario import Scenario
 from defender.arsenal import CountArsenal
 from defender import Defender
 from utility.logging.logging import setup_logger_for_emulation, log_event, get_logger
@@ -178,7 +177,7 @@ class Emulator:
     def finished(self):
         return not self.attacker.still_running()
 
-    def start_main_loop(self, timeout_minutes=60):
+    def start_main_loop(self, timeout_minutes):
         log_event("Emulator", "Main loop starting!")
 
         # Create timer
@@ -217,7 +216,7 @@ class Emulator:
         except KeyboardInterrupt:
             pass
 
-    def run(self):
+    def run(self, timeout: int):
         """
         start running the emulator.
         This does the setup and then runs the attacker and main loop
@@ -231,7 +230,7 @@ class Emulator:
 
         self.start_attacker()
         # Runs loop until emulation finishes
-        self.start_main_loop()
+        self.start_main_loop(timeout)
         self.goalkeeper.stop_execution_timer()
         # Once finished calculate have goalkeeper measure final success metrics
         result = self.goalkeeper.calculate_metrics(self.scenario, self.defender)

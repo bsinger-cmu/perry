@@ -26,3 +26,4 @@ class Experiment(BaseModel):
     name: str
     trials: int
     scenario: str
+    timeout: int = 75

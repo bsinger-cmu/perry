@@ -182,13 +182,13 @@ class EmulatorInteractive:
             scenario = Scenario(**scenario)
         return (config, scenario)
 
-    def run_experiment_trial(self, experiment_output_dir):
+    def run_experiment_trial(self, experiment_output_dir, timeout):
         """
         run_experiment_trial:
         This function will run a single trial of the experiment loaded.
         """
         load = self.emulator.setup(experiment_output_dir)
-        result = self.emulator.run()
+        result = self.emulator.run(timeout)
         return result
 
     def handle_setup(self, args):
@@ -225,9 +225,6 @@ class EmulatorInteractive:
         all_metrics = []
 
         rprint(f"Running {trials} trials...")
-        complete_count = 0
-        error_count = 0
-        exception_count = 0
         experiment_task = progress.add_task(
             "[yellow]Running Experiment Trials", start=False, total=trials
         )
@@ -237,7 +234,7 @@ class EmulatorInteractive:
             progress.start_task(experiment_task)
             for i in range(trials):
                 rprint(f"Starting trial... {i+1}/{trials}")
-                result = self.run_experiment_trial(experiment_output_dir)
+                result = self.run_experiment_trial(experiment_output_dir, 60)
                 all_metrics.append(result)
                 progress.update(experiment_task, refresh=True, advance=1)
             progress.update(
@@ -311,7 +308,9 @@ class EmulatorInteractive:
                     # Run each trial of the current experiment
                     rprint(f"Starting trial... {i+1}/{trials}")
 
-                    result = self.run_experiment_trial(experiment_output_dir)
+                    result = self.run_experiment_trial(
+                        experiment_output_dir, experiment.timeout
+                    )
                     all_metrics.append(result)
 
                     progress.update(experiment_task, advance=1)
