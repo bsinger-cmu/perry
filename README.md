@@ -4,7 +4,7 @@
 
 1. Install conda (if not already installed)
 
-2. Create environment: `conda env create -f conda_environment.yml`
+2. Create environment: `conda env create -f environment.yml`
 
 3. Activate environment: `conda activate openstack`
 
@@ -112,3 +112,7 @@ For an example of how to use the emulator, run the following commands in the emu
 There is also a `view` command that can be useful to view the configuration and loaded setup. For example, after running the `load` command, run `view experiments` to see the loaded experiment configuration.
 
 The emulator also catches exceptions and errors so that the emulator does not crash. If an error occurs, the emulator will print the error and continue running. If the error is fatal, the emulator will print the error and exit.
+
+## Updating conda environment file
+
+To update `environment.yml` file run: `conda env export > environment.yml`
