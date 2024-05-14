@@ -1,17 +1,17 @@
 {
-  "name": "dfs_reactiveLayered_d2_h50",
+  "name": "bfs_standalone_d2_h50",
   "defender": {
-    "telemetry": "SimpleTelemetryAnalysis",
-    "strategy": "ReactiveLayered",
+    "telemetry": "NoTelemetry",
+    "strategy": "StaticStandalone",
     "capabilities": {
       "DeployDecoy": 2,
       "HoneyService": 0,
-      "RestoreServer": -1,
+      "RestoreServer": 0,
       "HoneyCredentials": 50
     }
   },
   "attacker": {
-    "name": "DFSAttacker"
+    "name": "BFSAttacker"
   },
   "deployment_instance": {
     "name": "EquifaxSmall"

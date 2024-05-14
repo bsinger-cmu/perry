@@ -1,12 +1,12 @@
 {
   "name": "baseline_reactiveLayered_d2_h50",
   "defender": {
-    "telemetry": "NoTelemetry",
+    "telemetry": "SimpleTelemetryAnalysis",
     "strategy": "ReactiveLayered",
     "capabilities": {
       "DeployDecoy": 2,
       "HoneyService": 0,
-      "RestoreServer": 0,
+      "RestoreServer": -1,
       "HoneyCredentials": 50
     }
   },
