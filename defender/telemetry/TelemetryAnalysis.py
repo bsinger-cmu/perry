@@ -7,6 +7,13 @@ class TelemetryAnalysis:
         self.elasticsearch_conn = elasticsearch_conn
         self.parsed_telemetry_ids = set()
 
+        # Create indeces if they don't exist
+        if not self.elasticsearch_conn.indices.exists(index="deception_alerts"):
+            self.elasticsearch_conn.indices.create(index="deception_alerts")
+
+        if not self.elasticsearch_conn.indices.exists(index="sysflow"):
+            self.elasticsearch_conn.indices.create(index="sysflow")
+
     def get_new_telemetry(self):
         # Get new deception alerts
         last_second_query = {"range": {"@timestamp": {"gte": "now-10s"}}}

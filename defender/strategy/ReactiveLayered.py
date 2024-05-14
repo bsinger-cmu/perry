@@ -15,7 +15,7 @@ from utility.logging import log_event
 class ReactiveLayered(Strategy):
     # Run actions before the scenario starts
     def initialize(self) -> list[Action]:
-        log_event("StaticRandom", "Initializing StaticRandom strategy")
+        log_event("ReactiveLayered", "Initializing ReactiveLayered strategy")
         num_decoys = self.arsenal.storage["DeployDecoy"]
         num_honeycreds = self.arsenal.storage["HoneyCredentials"]
 
