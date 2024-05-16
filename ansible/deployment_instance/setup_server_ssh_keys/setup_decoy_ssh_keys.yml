@@ -1,0 +1,41 @@
+---
+- hosts: "{{ host }}"
+  tasks:
+    - name: create .ssh directory
+      become: true
+      become_user: "{{ host_user }}"
+      file:
+        path: "~/.ssh"
+        state: directory
+        mode: "0700"
+
+    - name: copy ssh key
+      become: true
+      become_user: "{{ host_user }}"
+      copy:
+        src: "ssh_keys/decoy_key"
+        dest: "~/.ssh/id_rsa"
+        mode: "0600"
+
+    - name: add to ssh config
+      become: true
+      become_user: "{{ host_user }}"
+      blockinfile:
+        state: present
+        insertafter: EOF
+        dest: "~/.ssh/config"
+        content: |
+          Host {{ follower_user }}
+            HostName {{ follower }}
+            User {{ follower_user }}
+            IdentityFile ~/.ssh/id_rsa
+        create: true
+        mode: "0600"
+        marker: ""
+
+- hosts: "{{ follower }}"
+  tasks:
+    - name: add decoy key to follower
+      authorized_key:
+        user: "{{ follower_user }}"
+        key: "{{ lookup('file', 'ssh_keys/decoy_key.pub') }}"

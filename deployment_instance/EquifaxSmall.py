@@ -10,4 +10,7 @@ class EquifaxSmall(EquifaxInstance):
         caldera_ip,
     ):
         topology = "equifax_small"
-        super().__init__(ansible_runner, openstack_conn, caldera_ip, topology)
+        number_of_hosts = 14
+        super().__init__(
+            ansible_runner, openstack_conn, caldera_ip, topology, number_of_hosts
+        )

@@ -9,6 +9,10 @@ from openstack.connection import Connection
 from ansible.AnsibleRunner import AnsibleRunner
 from openstack import exceptions as openstackExceptions
 
+from utility.logging import get_logger
+
+logger = get_logger()
+
 
 def find_manage_server(conn, external_ip):
     """Finds management server that can be used to talk to other servers
@@ -29,7 +33,12 @@ def find_manage_server(conn, external_ip):
 
 
 class DeploymentInstance:
-    def __init__(self, ansible_runner: AnsibleRunner, openstack_conn, external_ip):
+    def __init__(
+        self,
+        ansible_runner: AnsibleRunner,
+        openstack_conn,
+        external_ip,
+    ):
         self.ansible_runner: AnsibleRunner = ansible_runner
         self.openstack_conn: Connection = openstack_conn
         self.ssh_key_path = "./environment/ssh_keys/"
@@ -61,7 +70,7 @@ class DeploymentInstance:
         if setup_hosts:
             # Setup instances
             self.compile_setup()
-        
+
         # Save instance
         self.save_all_snapshots()
 
@@ -81,7 +90,7 @@ class DeploymentInstance:
 
     def find_management_server(self, external_ip):
         manage_server, manage_ip = find_manage_server(self.openstack_conn, external_ip)
-        rprint(f"Found management server: {manage_ip}")
+        logger.debug(f"Found management server: {manage_ip}")
         self.ansible_runner.update_management_ip(manage_ip)
 
     def check_flag(self, flag):
@@ -111,7 +120,7 @@ class DeploymentInstance:
             self.root_flags = json.load(f)
 
     def load_all_flags(self, file_name="flags.json", root_file_name="root_flags.json"):
-        rprint("Loading all flags from file...")
+        logger.debug("Loading all flags from file...")
         self.load_flags(file_name)
         self.load_root_flags(root_file_name)
 
@@ -130,10 +139,10 @@ class DeploymentInstance:
     def save_snapshot(self, instance, snapshot_name):
         image = self.openstack_conn.get_image(snapshot_name)
         if image:
-            rprint(f"Image '{snapshot_name}' already exists. Deleting...")
+            logger.debug(f"Image '{snapshot_name}' already exists. Deleting...")
             self.openstack_conn.delete_image(image.id, wait=True)
 
-        print(f"Creating snapshot {snapshot_name} for instance {instance.id}...")
+        logger.debug(f"Creating snapshot {snapshot_name} for instance {instance.id}...")
         image = self.openstack_conn.create_image_snapshot(
             snapshot_name, instance.id, wait=True
         )
@@ -147,30 +156,28 @@ class DeploymentInstance:
         if instance:
             image = self.openstack_conn.get_image(snapshot_name)
             if image:
-                print(
+                logger.debug(
                     f"Loading snapshot {snapshot_name} for instance {instance.name}..."
                 )
                 self.openstack_conn.rebuild_server(
                     instance.id, image.id, wait=wait, admin_pass=None
                 )
                 if wait:
-                    print(
+                    logger.debug(
                         f"Successfully loaded snapshot {snapshot_name} with id {image.id}"
                     )
             return instance.id
 
     def save_all_snapshots(self, wait=True):
-        rprint("Saving all snapshots...")
+        logger.debug("Saving all snapshots...")
         self._load_instances()
         images = []
         for instance in self.all_instances:
-            image = self.save_snapshot(
-                instance, instance.name + "_image"
-            )
+            image = self.save_snapshot(instance, instance.name + "_image")
             images.append(image)
 
     def load_all_snapshots(self, wait=True):
-        rprint("Loading all snapshots...")
+        logger.debug("Loading all snapshots...")
         self._load_instances()
         hosts = self.openstack_conn.list_servers()
 

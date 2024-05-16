@@ -22,7 +22,7 @@
       become_user: "{{ host_user }}"
       fetch:
         src: "~/.ssh/id_rsa.pub"
-        dest: tmp/
+        dest: ssh_keys/
         flat: yes
 
     # - name: Ensure ssh config exists
@@ -54,4 +54,4 @@
     - name: add leader public key to followers
       authorized_key:
         user: "{{ follower_user }}"
-        key: "{{ lookup('file', 'tmp/id_rsa.pub') }}"
+        key: "{{ lookup('file', 'ssh_keys/id_rsa.pub') }}"

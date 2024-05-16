@@ -42,7 +42,9 @@ def get_data_exfiltration_times(
                 data_exfiltration_times.append(data_exfiltrated.time_exfiltrated)
         num_files.append(len(data_exfiltration_times))
         if len(data_exfiltration_times) >= expected_files:
-            time_exiltrated_all_data.append(max(data_exfiltration_times))
+            # Sort data exfiltration times in ascending order
+            data_exfiltration_times.sort()
+            time_exiltrated_all_data.append(data_exfiltration_times[expected_files - 1])
             survival_data.append(1)
         else:
             time_exiltrated_all_data.append(timeout_time_min)

@@ -33,11 +33,14 @@ class EquifaxInstance(DeploymentInstance):
         openstack_conn,
         caldera_ip,
         topology="equifax_small",
+        number_of_hosts=12,
     ):
         super().__init__(ansible_runner, openstack_conn, caldera_ip)
         self.topology = topology
         self.flags = {}
         self.root_flags = {}
+        self.number_of_hosts = number_of_hosts
+
         self.parse_network()
 
     def parse_network(self):
@@ -73,6 +76,11 @@ class EquifaxInstance(DeploymentInstance):
         )
 
         self.network = Network("equifax_network", [webserverSubnet, corportateSubnet])
+
+        if len(self.network.get_all_hosts()) != self.number_of_hosts:
+            raise Exception(
+                f"Number of hosts in network does not match expected number of hosts. Expected {self.number_of_hosts} but got {len(self.network.get_all_hosts())}"
+            )
 
     def compile_setup(self):
         log_event("Deployment Instace", "Setting up Equifax Instance")

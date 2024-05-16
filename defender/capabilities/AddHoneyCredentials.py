@@ -11,8 +11,10 @@ class AddHoneyCredentials(Action):
         honey_host: Host,
         number: int = 1,
         real: bool = True,
+        fakeData: bool = True,
     ):
         self.credential_host = credential_host
         self.honey_host = honey_host
         self.number = number
         self.real = real
+        self.fakeData = fakeData
