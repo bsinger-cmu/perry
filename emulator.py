@@ -6,6 +6,7 @@ from rich import print as rprint
 import os
 import uuid
 
+from config.Config import Config
 from ansible.AnsibleRunner import AnsibleRunner
 from deployment_instance import GoalKeeper
 from defender.arsenal import CountArsenal
@@ -34,14 +35,14 @@ telemetry_module = importlib.import_module("defender.telemetry")
 class Emulator:
     def __init__(self):
         self.openstack_conn = openstack.connect(cloud="default")
-        self.config = None
+        self.config: Config | None = None
         self.quiet = False
         self.scenario = None
 
     def set_quiet(self, quiet):
         self.quiet = quiet
 
-    def set_config(self, config):
+    def set_config(self, config: Config):
         self.config = config
 
     def set_scenario(self, scenario):
@@ -56,6 +57,9 @@ class Emulator:
         if self.scenario is None:
             raise Exception("Scenario not set")
 
+        if self.config is None:
+            raise Exception("Config not set")
+
         experiment_id = str(uuid.uuid4())
         experiment_dir = path.join(output_dir, experiment_id)
 
@@ -69,10 +73,8 @@ class Emulator:
         setup_logger_for_emulation(experiment_dir)
 
         # Setup connection to elasticsearch
-        elasticsearch_server = (
-            f"https://localhost:{self.config['elasticsearch']['port']}"
-        )
-        elasticsearch_api_key = self.config["elasticsearch"]["api_key"]
+        elasticsearch_server = f"https://localhost:{self.config.elastic_config.port}"
+        elasticsearch_api_key = self.config.elastic_config.api_key
 
         elasticsearch_conn = Elasticsearch(
             elasticsearch_server,
@@ -99,14 +101,14 @@ class Emulator:
             time.sleep(5)
 
         # Initialize ansible
-        ssh_key_path = self.config["ssh_key_path"]
+        ssh_key_path = self.config.openstack_config.ssh_key_path
         ansible_dir = "./ansible/"
         ansible_runner = AnsibleRunner(
             ssh_key_path, None, ansible_dir, experiment_dir, self.quiet
         )
 
         # Setup attacker
-        caldera_api_key = self.config["caldera"]["api_key"]
+        caldera_api_key = self.config.caldera_config.api_key
         self.caldera_api_key = caldera_api_key
         attacker_ = getattr(attacker_module, self.scenario.attacker.name)
         self.attacker = attacker_(caldera_api_key, experiment_id)
@@ -120,7 +122,7 @@ class Emulator:
             deployment_instance_module, self.scenario.deployment_instance.name
         )
         self.deployment_instance = deployment_instance_(
-            ansible_runner, self.openstack_conn, self.config["external_ip"]
+            ansible_runner, self.openstack_conn, self.config.external_ip
         )
 
         # Compile deployment instance if needed
@@ -147,14 +149,15 @@ class Emulator:
         arsenal = CountArsenal(self.scenario.defender.capabilities)
 
         ### Orchestration ###
-        external_ip = self.config["external_ip"]
-        elastic_search_port = self.config["elasticsearch"]["port"]
+        external_ip = self.config.external_ip
+        elastic_search_port = self.config.elastic_config.port
         external_elasticsearch_server = f"https://{external_ip}:{elastic_search_port}"
         orchestrator = OpenstackOrchestrator(
             self.openstack_conn,
             ansible_runner,
             external_elasticsearch_server,
-            self.config["elasticsearch"]["api_key"],
+            self.config.elastic_config.api_key,
+            self.config,
         )
 
         ### Strategy ###

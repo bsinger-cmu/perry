@@ -26,7 +26,9 @@ class DeployDecoy(OpenstackActuator):
 
         flavor = self.openstack_conn.compute.find_flavor(action.flavor)
         network = self.openstack_conn.network.find_network(action.network)
-        keypair = self.openstack_conn.compute.find_keypair(action.keypair)
+        keypair = self.openstack_conn.compute.find_keypair(
+            self.config.openstack_config.ssh_key_name
+        )
         security_group = self.openstack_conn.network.find_security_group(
             action.sec_group
         )

@@ -14,7 +14,6 @@ class DeployDecoy(Action):
         sec_group="simple",
         image="Ubuntu20",
         flavor="p2.tiny",
-        keypair="perry_key",
         apacheVulnerability=False,
         honeySSHService=False,
     ):
@@ -25,7 +24,6 @@ class DeployDecoy(Action):
         self.sec_group = sec_group
         self.image = image
         self.flavor = flavor
-        self.keypair = keypair
         self.host = host
         self.apacheVulnerability = apacheVulnerability
         self.honeySSHService = honeySSHService

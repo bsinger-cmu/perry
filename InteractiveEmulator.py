@@ -13,6 +13,7 @@ from utility.logging import get_logger, log_event
 
 import json
 from scenarios import Experiment, Scenario
+from config.Config import Config
 
 logger = get_logger()
 
@@ -174,7 +175,8 @@ class EmulatorInteractive:
         Open the config and scenario files and return the yaml contents
         """
         with open(path.join("config", config), "r") as f:
-            config = yaml.safe_load(f)
+            config = json.load(f)
+            config = Config(**config)
 
         # open yml config file
         with open(path.join("scenarios", "scenarios", scenario), "r") as f:

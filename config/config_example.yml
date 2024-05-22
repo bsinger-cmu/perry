@@ -1,8 +1,0 @@
-elasticsearch:
-  api_key: ELASTIC_API_KEY
-  port: 9200
-caldera:
-  api_key: CALDERA_KEY
-  port: 8888
-external_ip: "10.20.20.1"
-ssh_key_path: "~/cage.pem"

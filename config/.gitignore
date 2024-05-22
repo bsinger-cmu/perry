@@ -3,4 +3,6 @@
 # Except this file
 !.gitignore
 # And config_example
-!config_example
+!config_example.json
+# And Config prototype
+!Config.py

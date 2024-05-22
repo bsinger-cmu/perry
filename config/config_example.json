@@ -1,0 +1,16 @@
+{
+  "elastic_config": {
+    "api_key": "ELASTIC_API_KEY",
+    "port": 9200
+  },
+  "caldera_config": {
+    "api_key": "CALDERA_KEY",
+    "port": 8888
+  },
+  "openstack_config": {
+    "ssh_key_name": "perry_key",
+    "ssh_key_path": "~/perry_key.pem"
+  },
+  "external_ip": "10.20.20.1",
+  "experiment_timeout_minutes": 75
+}
