@@ -1,3 +1,6 @@
+# Old version of copying SSH keys
+# Each server gets their own public key, but cant run in parrellel because
+# ansible has to fetch the public key from the leader server
 ---
 - hosts: "{{ host }}"
   tasks:
@@ -24,14 +27,6 @@
         src: "~/.ssh/id_rsa.pub"
         dest: ssh_keys/
         flat: yes
-
-    # - name: Ensure ssh config exists
-    #   become: true
-    #   become_user: "{{ host_user }}"
-    #   file:
-    #     path: "~/.ssh/config"
-    #     state: present
-    #     mode: "0600"
 
     - name: add to ssh config
       become: true

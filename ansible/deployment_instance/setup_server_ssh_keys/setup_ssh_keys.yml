@@ -9,11 +9,11 @@
         state: directory
         mode: "0700"
 
-    - name: copy ssh key
+    - name: copy key bair
       become: true
       become_user: "{{ host_user }}"
       copy:
-        src: "ssh_keys/decoy_key"
+        src: "ssh_keys/id_rsa"
         dest: "~/.ssh/id_rsa"
         mode: "0600"
 
@@ -35,7 +35,7 @@
 
 - hosts: "{{ follower }}"
   tasks:
-    - name: add decoy key to follower
+    - name: add leader public key to followers
       authorized_key:
         user: "{{ follower_user }}"
-        key: "{{ lookup('file', 'ssh_keys/decoy_key.pub') }}"
+        key: "{{ lookup('file', 'ssh_keys/id_rsa.pub') }}"

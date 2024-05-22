@@ -190,34 +190,31 @@ class Emulator:
         finished = False
         finish_counter = 0
         instance_check_counter = 0
-        try:
-            while not finished:
-                current_time = time.time()
-                elapsed_time = current_time - start_time  # Calculate the elapsed time
-                if (
-                    elapsed_time > timeout
-                ):  # Check if the elapsed time is greater than the timeout
-                    logger.info(f"Timeout reached!")
-                    break
 
-                self.defender.run()
+        while not finished:
+            current_time = time.time()
+            elapsed_time = current_time - start_time  # Calculate the elapsed time
+            if (
+                elapsed_time > timeout
+            ):  # Check if the elapsed time is greater than the timeout
+                logger.info(f"Timeout reached!")
+                break
 
-                if finish_counter > 5:
-                    finish_counter = 0
-                    # Check if attacker has finished
-                    finished = self.finished()
+            self.defender.run()
 
-                if instance_check_counter > 60:
-                    instance_check_counter = 0
-                    self.check_all_instances()
+            if finish_counter > 5:
+                finish_counter = 0
+                # Check if attacker has finished
+                finished = self.finished()
 
-                time.sleep(0.5)
-                finish_counter += 1
+            if instance_check_counter > 60:
+                instance_check_counter = 0
+                self.check_all_instances()
 
-            self.attacker.stop_operation()
+            time.sleep(0.5)
+            finish_counter += 1
 
-        except KeyboardInterrupt:
-            pass
+        self.attacker.stop_operation()
 
     def run(self, timeout: int):
         """

@@ -45,7 +45,6 @@ class AddHoneyCredentials(OpenstackActuator):
                         user,
                         action.honey_host.ip,
                         username,
-                        decoy_key=True,
                     )
                     ssh_key_actions.append(ssh_pb)
                     if action.fakeData:
