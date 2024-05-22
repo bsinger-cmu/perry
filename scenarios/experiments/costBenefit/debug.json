@@ -1,17 +1,12 @@
 [
   {
-    "name": "baseline_standalone_d0_h0",
+    "name": "baseline_standalone_d8_h0",
     "trials": 5,
-    "scenario": "equifax_small/standalone/baseline_standalone_d0_h0.json"
+    "scenario": "equifax_large/standalone/baseline_standalone_d8_h0.json"
   },
   {
-    "name": "baseline_standalone_d4_h0",
-    "trials": 5,
-    "scenario": "equifax_small/standalone/baseline_standalone_d4_h0.json"
-  },
-  {
-    "name": "baseline_standalone_d6_h0",
-    "trials": 5,
-    "scenario": "equifax_small/standalone/baseline_standalone_d6_h0.json"
+    "name": "baseline_standalone_d10_h0",
+    "trials": 3,
+    "scenario": "equifax_large/standalone/baseline_standalone_d10_h0.json"
   }
 ]

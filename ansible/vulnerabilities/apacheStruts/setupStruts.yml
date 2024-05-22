@@ -64,3 +64,31 @@
         state: started
         enabled: true
         daemon_reload: true
+
+    - name: Creates directory
+      ansible.builtin.file:
+        path: /home/tomcat/.ssh
+        state: directory
+        owner: tomcat
+        group: tomcat
+        mode: 0700
+
+    # Touch .ssh/config if it does not exist,
+    # Forces openstack snapshot to save information about tomcat user
+    - name: ensure file exists
+      copy:
+        content: ""
+        dest: /home/tomcat/.ssh/config
+        force: false
+        group: tomcat
+        owner: tomcat
+        mode: 0600
+
+    - name: ensure file exists
+      copy:
+        content: "test123"
+        dest: /home/tomcat/test.txt
+        force: false
+        group: tomcat
+        owner: tomcat
+

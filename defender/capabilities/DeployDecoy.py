@@ -14,7 +14,7 @@ class DeployDecoy(Action):
         sec_group="simple",
         image="Ubuntu20",
         flavor="p2.tiny",
-        keypair="Cage",
+        keypair="perry_key",
         apacheVulnerability=False,
         honeySSHService=False,
     ):

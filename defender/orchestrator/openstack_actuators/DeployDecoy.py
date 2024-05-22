@@ -3,6 +3,7 @@ from .OpenstackActuator import OpenstackActuator
 from ansible.defender import DeployHoneyService
 from ansible.vulnerabilities import SetupStrutsVulnerability
 from defender.capabilities import StartHoneyService
+from ansible.deployment_instance import CheckIfHostUp, ResetSSHConfig
 
 from openstack_helper_functions.server_helpers import shutdown_server_by_ip
 
@@ -14,8 +15,14 @@ class DeployDecoy(OpenstackActuator):
         image_exists = image is not None
 
         if not image_exists:
-            # Create server
-            image = self.openstack_conn.image.find_image(action.image)
+            if action.apacheVulnerability:
+                # Use a webserver image
+                image = self.openstack_conn.image.find_image("webserver_0_image")
+                if image is None:
+                    raise Exception("Error decoy image not found")
+            else:
+                # Create server
+                image = self.openstack_conn.image.find_image(action.image)
 
         flavor = self.openstack_conn.compute.find_flavor(action.flavor)
         network = self.openstack_conn.network.find_network(action.network)
@@ -61,12 +68,13 @@ class DeployDecoy(OpenstackActuator):
         if server_ip is None:
             raise Exception("Could not find ip for server")
 
-        time.sleep(10)
+        self.ansible_runner.run_playbook(CheckIfHostUp(server_ip))
 
         if not image_exists:
             if action.apacheVulnerability:
                 print("Deploying apache vulnerability...")
-                self.ansible_runner.run_playbook(SetupStrutsVulnerability(server_ip))
+                print("Reseting ssh config")
+                self.ansible_runner.run_playbook(ResetSSHConfig(server_ip, "tomcat"))
 
             if action.honeySSHService:
                 print("Deploying honey service...")
@@ -80,4 +88,6 @@ class DeployDecoy(OpenstackActuator):
 
             # Create image
             print("Creating decoy image...")
-            image = self.openstack_conn.compute.create_server_image(server, "decoy", wait=True)
+            image = self.openstack_conn.compute.create_server_image(
+                server, "decoy", wait=True
+            )
