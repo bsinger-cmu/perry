@@ -515,7 +515,12 @@ if __name__ == "__main__":
             emulator.scenario = scenario
         if args.config:
             emulator.config = config
-        EmulatorInteractive(emulator).start_interactive_emulator()
+
+        try:
+            EmulatorInteractive(emulator).start_interactive_emulator()
+        except KeyboardInterrupt:
+            print("Exiting emulator...")
+            exit()
 
     else:
         emulator.setup(

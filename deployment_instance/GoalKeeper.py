@@ -127,9 +127,9 @@ class GoalKeeper:
 
     def save_metrics(self):
         result_file = "result.json"
-        operation_log_file_name = "operation_log.json"
-
         result_file = os.path.join(self.output_dir, result_file)
+
+        operation_log_file_name = "operation_log.json"
         operation_log_file = os.path.join(self.output_dir, operation_log_file_name)
 
         log_event("GoalKeeper", f"Saving results to file: {result_file}")

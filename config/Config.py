@@ -9,6 +9,9 @@ class ElasticSearchConfig(BaseModel):
 class CalderaConfig(BaseModel):
     api_key: str
     port: int
+    external: bool = True
+    python_path: str = ""
+    caldera_path: str = ""
 
 
 class OpenstackConfig(BaseModel):

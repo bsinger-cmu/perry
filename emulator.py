@@ -11,7 +11,7 @@ from ansible.AnsibleRunner import AnsibleRunner
 from deployment_instance import GoalKeeper
 from defender.arsenal import CountArsenal
 from defender import Defender
-from utility.logging.logging import setup_logger_for_emulation, log_event, get_logger
+from utility.logging.logging import PerryLogger, log_event, get_logger
 
 import openstack
 
@@ -70,7 +70,7 @@ class Emulator:
             os.makedirs(experiment_dir)
 
         # Setup defender logging
-        setup_logger_for_emulation(experiment_dir)
+        PerryLogger.setup_logger(experiment_dir)
 
         # Setup connection to elasticsearch
         elasticsearch_server = f"https://localhost:{self.config.elastic_config.port}"
@@ -112,6 +112,12 @@ class Emulator:
         self.caldera_api_key = caldera_api_key
         attacker_ = getattr(attacker_module, self.scenario.attacker.name)
         self.attacker = attacker_(caldera_api_key, experiment_id)
+
+        if not self.config.caldera_config.external:
+            self.attacker.start_server(
+                self.config.caldera_config.python_path,
+                self.config.caldera_config.caldera_path,
+            )
 
         # Setup GoalKeeper
         self.goalkeeper = GoalKeeper(self.attacker, experiment_dir)

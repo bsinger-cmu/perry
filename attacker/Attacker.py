@@ -1,13 +1,11 @@
 from time import sleep
 import requests
-from utility.logging.logging import get_logger
+from utility.logging.logging import PerryLogger
 import uuid
-
-logger = get_logger()
+import subprocess
 
 
 class Attacker:
-    operation_id: str
 
     def __init__(self, caldera_api_key, operation_id=None):
         self.caldera_api_key = caldera_api_key
@@ -22,6 +20,19 @@ class Attacker:
             "Content-Type": "application/json",
         }
         return
+
+    def start_server(self, caldera_python_env, caldera_path):
+        # Start Caldera
+        self.caldera_process = subprocess.Popen(
+            [caldera_python_env, "server.py", "--insecure", "--fresh"],
+            cwd=caldera_path,
+            stdout=PerryLogger.caldera_log_file,
+            stderr=subprocess.STDOUT,
+        )
+
+    def stop_server(self):
+        if self.caldera_process is not None:
+            self.caldera_process.terminate()
 
     def start_operation(self):
         # Clear old agents if they exist
@@ -58,12 +69,6 @@ class Attacker:
             headers=self.api_headers,
             json=json_data,
         )
-
-        operation_data = response.json()
-        logger.debug(operation_data)
-        # operation_state = operation_data["state"]
-        # if operation_state != "stop":
-        #     logger.error(f"Attacker operation stopped but state is: {operation_state}")
 
     def get_operation_details(self):
         response = requests.get(
@@ -113,7 +118,6 @@ class Attacker:
                 f'http://localhost:8888/api/v2/agents/{agent["paw"]}',
                 headers=self.api_headers,
             )
-            logger.debug(f'Deleted agent {agent["paw"]}')
         return
 
     def wait_for_trusted_agent(self, timeout=5):
@@ -130,4 +134,6 @@ class Attacker:
 
     def cleanup(self):
         self.delete_agents()
+
+        self.stop_server()
         return
