@@ -35,11 +35,13 @@ def get_data_exfiltration_times(
 
     for experiment_result in data_exfiltrated:
         data_exfiltration_times = []
-        for data_exfiltrated in experiment_result:
+        for idx, data_exfiltrated in enumerate(experiment_result):
             if convert_to_minutes:
-                data_exfiltration_times.append(data_exfiltrated.time_exfiltrated / 60)
+                time_min = data_exfiltrated.time_exfiltrated / 60
+                data_exfiltration_times.append(time_min)
             else:
                 data_exfiltration_times.append(data_exfiltrated.time_exfiltrated)
+
         num_files.append(len(data_exfiltration_times))
         if len(data_exfiltration_times) >= expected_files:
             # Sort data exfiltration times in ascending order
@@ -56,6 +58,24 @@ def get_data_exfiltration_times(
         "num_files": num_files,
     }
     df = pd.DataFrame(df_data)
+    return df
+
+
+def get_data_exfiltration_cdf(data: list[ExperimentResult], expected_files: int = 2):
+    data_exfiltrated = get_data_exfiltrated(data)
+    df = pd.DataFrame(
+        columns=["experiment", "experiment_num", "time_exfiltrated", "file_number"]
+    )
+
+    for experiment_num, experiment_result in enumerate(data):
+        for idx, data_exfiltrated in enumerate(experiment_result.data_exfiltrated):
+            df.loc[df.shape[0]] = [
+                experiment_result.scenario.name,
+                experiment_num,
+                data_exfiltrated.time_exfiltrated / 60,
+                idx + 1,
+            ]
+
     return df
 
 
