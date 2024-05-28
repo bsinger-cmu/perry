@@ -23,19 +23,21 @@ def get_data_exfiltrated(data: list[ExperimentResult]):
 
 
 def get_data_exfiltration_times(
-    data: list[ExperimentResult],
+    data: dict[str, ExperimentResult],
     convert_to_minutes: bool = True,
     expected_files: int = 2,
     timeout_time_min: int = 60,
 ):
-    data_exfiltrated = get_data_exfiltrated(data)
+    data_exfiltrated = get_data_exfiltrated(list(data.values()))
     time_exiltrated_all_data = []
     survival_data = []
     num_files = []
+    experiment_ids = []
 
-    for experiment_result in data_exfiltrated:
+    for experiment_id, experiment_result in data.items():
         data_exfiltration_times = []
-        for idx, data_exfiltrated in enumerate(experiment_result):
+        experiment_ids.append(experiment_id)
+        for idx, data_exfiltrated in enumerate(experiment_result.data_exfiltrated):
             if convert_to_minutes:
                 time_min = data_exfiltrated.time_exfiltrated / 60
                 data_exfiltration_times.append(time_min)
@@ -56,18 +58,18 @@ def get_data_exfiltration_times(
         "time_exfiltrated": time_exiltrated_all_data,
         "survival": survival_data,
         "num_files": num_files,
+        "experiment_id": experiment_ids,
     }
     df = pd.DataFrame(df_data)
     return df
 
 
-def get_data_exfiltration_cdf(data: list[ExperimentResult], expected_files: int = 2):
-    data_exfiltrated = get_data_exfiltrated(data)
+def get_data_exfiltration_cdf(data: dict[str, ExperimentResult]):
     df = pd.DataFrame(
         columns=["experiment", "experiment_num", "time_exfiltrated", "file_number"]
     )
 
-    for experiment_num, experiment_result in enumerate(data):
+    for experiment_num, experiment_result in enumerate(list(data.values())):
         for idx, data_exfiltrated in enumerate(experiment_result.data_exfiltrated):
             df.loc[df.shape[0]] = [
                 experiment_result.scenario.name,

@@ -48,13 +48,14 @@ def pre_process_data(data):
 # Load experiment results from a directory
 def ingest_experiment_results(dir_path):
     subdirectories = os.listdir(dir_path)
-    experiment_results: list[ExperimentResult] = []
+    experiment_results: dict[str, ExperimentResult] = {}
+    # experiment_results: dict[ExperimentResult] = []
 
     for execution_dir in subdirectories:
         if os.path.isdir(os.path.join(dir_path, execution_dir)):
             result_file = os.path.join(dir_path, execution_dir, "result.json")
             with open(result_file, "r") as f:
-                experiment_results.append(ExperimentResult(**json.load(f)))
+                experiment_results[execution_dir] = ExperimentResult(**json.load(f))
 
     return experiment_results
 
