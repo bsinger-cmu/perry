@@ -179,6 +179,8 @@ class Emulator:
 
     # Start attacker
     def start_attacker(self):
+        # Delete old agents from prior experiments
+        self.attacker.delete_agents()
         self.attacker.start_operation()
         self.goalkeeper.operation_id = self.attacker.operation_id
         print("Operation ID: " + self.attacker.operation_id)

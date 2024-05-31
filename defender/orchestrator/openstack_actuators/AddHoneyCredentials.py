@@ -82,7 +82,7 @@ class AddHoneyCredentials(OpenstackActuator):
             all_fake_data_actions.extend(fake_data_actions)
 
         logger.debug(f"Creating {len(all_user_actions)} users...")
-        ansible_runner.run_playbooks(all_user_actions, run_async=True)
+        ansible_runner.run_playbooks(all_user_actions, run_async=False)
         logger.debug(f"Setting up {len(all_ssh_key_actions)} ssh keys...")
         ansible_runner.run_playbooks(all_ssh_key_actions, run_async=True)
         logger.debug(f"Adding {len(all_fake_data_actions)} fake data...")

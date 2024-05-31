@@ -114,10 +114,11 @@ class Attacker:
     def delete_agents(self):
         agents = self.get_agents()
         for agent in agents:
-            resp = requests.delete(
-                f'http://localhost:8888/api/v2/agents/{agent["paw"]}',
-                headers=self.api_headers,
-            )
+            if agent["trusted"] is False:
+                resp = requests.delete(
+                    f'http://localhost:8888/api/v2/agents/{agent["paw"]}',
+                    headers=self.api_headers,
+                )
         return
 
     def wait_for_trusted_agent(self, timeout=5):

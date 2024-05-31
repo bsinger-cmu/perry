@@ -44,12 +44,13 @@ In a new terminal window:
 3. Create another Conda environment for caldera:
 
    - `cd ..`
-   - `conda create --name caldera`
+   - `conda create --name caldera python=3.10`
    - `conda activate caldera`
 
 4. Install caldera required packages
 
    - `pip3 install -r requirements.txt`
+   - `pip3 install docker`
 
 5. Run caldera: `python3 server.py --insecure --fresh`
    - Default ports can be changed by modifying the config file at `conf/default.yml`
