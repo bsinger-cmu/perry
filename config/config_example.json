@@ -5,7 +5,10 @@
   },
   "caldera_config": {
     "api_key": "CALDERA_KEY",
-    "port": 8888
+    "port": 8888,
+    "external": false,
+    "python_path": "/home/brian/miniconda3/envs/caldera/bin/python3",
+    "caldera_path": "/home/brian/caldera"
   },
   "openstack_config": {
     "ssh_key_name": "perry_key",

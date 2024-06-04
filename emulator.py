@@ -128,7 +128,7 @@ class Emulator:
             deployment_instance_module, self.scenario.deployment_instance.name
         )
         self.deployment_instance = deployment_instance_(
-            ansible_runner, self.openstack_conn, self.config.external_ip
+            ansible_runner, self.openstack_conn, self.config.external_ip, self.config
         )
 
         # Compile deployment instance if needed

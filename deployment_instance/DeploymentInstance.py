@@ -7,7 +7,7 @@ from colorama import Fore, Style
 from rich import print as rprint
 from openstack.connection import Connection
 from ansible.AnsibleRunner import AnsibleRunner
-from openstack import exceptions as openstackExceptions
+import config.Config as Config
 
 from utility.logging import get_logger
 
@@ -38,11 +38,13 @@ class DeploymentInstance:
         ansible_runner: AnsibleRunner,
         openstack_conn,
         external_ip,
+        config: Config.Config,
     ):
         self.ansible_runner: AnsibleRunner = ansible_runner
         self.openstack_conn: Connection = openstack_conn
         self.ssh_key_path = "./environment/ssh_keys/"
         self.caldera_ip = external_ip
+        self.config = config
         self.orchestrator = MasterOrchestrator(self.ansible_runner)
         self.all_instances = None
         self.topology = None

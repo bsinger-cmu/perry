@@ -20,6 +20,8 @@ from ansible.defender import InstallSysFlow
 from .network import Network, Subnet
 from .openstack.openstack_processor import get_hosts_on_subnet
 
+import config.Config as config
+
 from faker import Faker
 import random
 
@@ -32,10 +34,11 @@ class EquifaxInstance(DeploymentInstance):
         ansible_runner: AnsibleRunner,
         openstack_conn,
         caldera_ip,
+        config: config.Config,
         topology="equifax_small",
         number_of_hosts=12,
     ):
-        super().__init__(ansible_runner, openstack_conn, caldera_ip)
+        super().__init__(ansible_runner, openstack_conn, caldera_ip, config)
         self.topology = topology
         self.flags = {}
         self.root_flags = {}
@@ -99,7 +102,7 @@ class EquifaxInstance(DeploymentInstance):
 
         # Install sysflow on all hosts
         self.ansible_runner.run_playbook(
-            InstallSysFlow(self.network.get_all_host_ips())
+            InstallSysFlow(self.network.get_all_host_ips(), self.config)
         )
 
         # Setup apache struts and vulnerability
