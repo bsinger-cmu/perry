@@ -12,11 +12,6 @@ class SimpleTelemetryAnalysis(TelemetryAnalysis):
 
         for alert in new_telemetry:
             alert_data = alert["_source"]
-            # If honey service interaction create attacker on host event
-            if alert["_index"] == "deception_alerts":
-                if alert_data["type"] == "honey_service":
-                    attacker_host = alert_data["from_host"]
-                    high_level_events.append(AttackerOnHost(attacker_host))
 
             if alert["_index"] == "sysflow":
                 if alert_data["event"]["category"] != "network":

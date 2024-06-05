@@ -1,0 +1,17 @@
+{
+    "subnets": [
+        {
+            "webserver_subnet": [
+                {
+                    "ip": "",
+                    "users": [
+                        "tomcat"
+                    ]
+                }
+            ]
+        },
+        {
+            "db_subnet": []
+        }
+    ]
+}

@@ -12,7 +12,7 @@ from . import Strategy
 from utility.logging import log_event
 
 
-class ReactiveLayered(Strategy):
+class ReactiveStandalone(Strategy):
     # Run actions before the scenario starts
     def initialize(self) -> list[Action]:
         log_event("ReactiveLayered", "Initializing ReactiveLayered strategy")
@@ -49,11 +49,11 @@ class ReactiveLayered(Strategy):
         for subnet in self.network.subnets:
             for i in range(0, credentials_per_subnet):
                 deploy_host = subnet.get_random_host()
-                target_host = self.network.get_random_decoy()
+                target_host = self.network.get_random_host()
 
                 # Add fake credentials to decoy
                 self.orchestrator.run(
-                    [AddHoneyCredentials(deploy_host, target_host, 1, real=True)]
+                    [AddHoneyCredentials(deploy_host, target_host, 1, real=False)]
                 )
 
         return []
@@ -64,6 +64,15 @@ class ReactiveLayered(Strategy):
 
         # Process events
         for event in new_events:
+            if isinstance(event, AttackerOnHost):
+                log_event("Found attacker", f"Attacker on host {event.attacker_ip}")
+                if self.max_restores == -1 or self.restore_count < self.max_restores:
+                    # Restore host if attacker is detected
+                    attacker_ip = event.attacker_ip
+                    restoreAction = RestoreServer(attacker_ip)
+                    actions.append(restoreAction)
+                    self.restore_count += 1
+
             if isinstance(event, SSHEvent):
                 # fmt: off
                 log_event("SSH connection detected", f"SSH connection from {event.source_ip} to {event.target_ip}:{event.port}")

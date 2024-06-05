@@ -7,7 +7,9 @@ from defender.orchestrator.openstack_actuators import (
     StartHoneyService,
     DeployDecoy,
     AddHoneyCredentials,
+    RestoreServer,
 )
+from openstack_helper_functions.server_helpers import find_server_by_ip
 
 # Telemetry
 from defender.telemetry import TelemetryAnalysis, SimpleTelemetryAnalysis
@@ -16,13 +18,11 @@ from defender.telemetry import TelemetryAnalysis, SimpleTelemetryAnalysis
 from deployment_instance.network import Network, Subnet, Host
 
 # Strategy
-from defender.strategy import (
-    StaticRandom,
-    WaitAndStop,
-)
 from defender.strategy.NaiveDecoyHost import NaiveDecoyHost
 from defender.strategy.NaiveDecoyCredential import NaiveDecoyCredential
-from defender.strategy.setup import RandomPlacement
+from defender.strategy.StaticStandalone import StaticStandalone
+from defender.strategy.StaticLayered import StaticLayered
+from defender.strategy.ReactiveLayered import ReactiveLayered
 
 from loc.helpers import get_function_semantic_lines, count_low_level_action_lines
 
@@ -67,6 +67,16 @@ def count_strategy_lines_without_perry(
     }
 
 
+def semantic_line_diff(a, b):
+    a = get_function_semantic_lines(a)
+    b = get_function_semantic_lines(b)
+
+    deletions = set(a) - set(b)
+    additions = set(b) - set(a)
+
+    return additions, deletions
+
+
 if __name__ == "__main__":
     low_level_actions = {
         "StartHoneyService(": [
@@ -86,6 +96,7 @@ if __name__ == "__main__":
             "ansible/deployment_instance/setup_server_ssh_keys/setup_server_ssh_keys.yml",
             "ansible/deployment_instance/setup_server_ssh_keys/add_to_ssh_config.yml",
         ],
+        "RestoreServer(": [RestoreServer.actuate, find_server_by_ip],
     }
 
     symbolic_reasoning_module = [Network, Subnet, Host]
@@ -94,6 +105,8 @@ if __name__ == "__main__":
         "network.get_random_host()": Network.get_random_host,
         "network.get_subnet_by_name(": Network.get_subnet_by_name,
         "network.get_random_subnet()": Network.get_random_subnet,
+        ".add_host(": Subnet.add_host,
+        " Host(": Host.__init__,
     }
 
     telemetry = {
@@ -104,21 +117,11 @@ if __name__ == "__main__":
     }
 
     strategies = {
-        "NaiveDecoyHost": [
-            NaiveDecoyHost.initialize,
-            NaiveDecoyHost.run,
-        ],
+        "NaiveDecoyHost": [NaiveDecoyHost],
         "NaiveDecoyCredential": [NaiveDecoyCredential],
-        "StaticRandom": [
-            StaticRandom.initialize,
-            RandomPlacement.randomly_place_deception,
-            StaticRandom.run,
-        ],
-        "WaitAndStop": [
-            WaitAndStop.initialize,
-            RandomPlacement.randomly_place_deception,
-            WaitAndStop.run,
-        ],
+        "StaticStandalone": [StaticStandalone],
+        "StaticLayered": [StaticLayered],
+        "ReactiveLayered": [ReactiveLayered],
     }
 
     # Count low level action lines
@@ -170,21 +173,53 @@ if __name__ == "__main__":
         )
     )
 
-    # strategy_lines_without_perry["StaticRandom"] = count_strategy_lines_without_perry(
-    #     strategies["StaticRandom"],
-    #     low_level_action_lines,
-    #     telemetry_lines["SimpleTelemetryAnalysis"],
-    # )
+    strategy_lines_without_perry["StaticStandalone"] = (
+        count_strategy_lines_without_perry(
+            strategies["StaticStandalone"],
+            low_level_action_lines,
+            0,
+            symbolic_reasoning_module_lines,
+            symbolic_reasoning_module_total_lines,
+        )
+    )
 
-    # strategy_lines_without_perry["WaitAndStop"] = count_strategy_lines_without_perry(
-    #     strategies["WaitAndStop"],
-    #     low_level_action_lines,
-    #     telemetry_lines["SimpleTelemetryAnalysis"],
-    # )
+    strategy_lines_without_perry["StaticLayered"] = count_strategy_lines_without_perry(
+        strategies["StaticLayered"],
+        low_level_action_lines,
+        0,
+        symbolic_reasoning_module_lines,
+        symbolic_reasoning_module_total_lines,
+    )
+
+    strategy_lines_without_perry["ReactiveLayered"] = (
+        count_strategy_lines_without_perry(
+            strategies["ReactiveLayered"],
+            low_level_action_lines,
+            0,
+            symbolic_reasoning_module_lines,
+            symbolic_reasoning_module_total_lines,
+        )
+    )
 
     print(low_level_action_lines)
     print(telemetry_lines)
     print(strategy_lines)
     print(strategy_lines_without_perry)
 
-    print(symbolic_reasoning_module_lines)
+    print("NaiveDecoyHost vs NaiveDecoyCredential")
+    additions, deletions = semantic_line_diff([NaiveDecoyHost], [NaiveDecoyCredential])
+    print("+", len(additions), "-", len(deletions))
+
+    print("NaiveDecoyHost vs StaticStandalone")
+    additions, deletions = semantic_line_diff(
+        [NaiveDecoyCredential], [StaticStandalone]
+    )
+    print("+", len(additions), "-", len(deletions))
+
+    print("StaticStandalone vs StaticLayered")
+    additions, deletions = semantic_line_diff([StaticStandalone], [StaticLayered])
+    print("+", len(additions), "-", len(deletions))
+
+    print("StaticLayered vs ReactiveLayered")
+    additions, deletions = semantic_line_diff([StaticLayered], [ReactiveLayered])
+    print("+", len(additions), "-", len(deletions))

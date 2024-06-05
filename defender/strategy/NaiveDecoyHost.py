@@ -1,27 +1,17 @@
 from deployment_instance.network import Host
-from defender.capabilities import (
-    Action,
-    DeployDecoy,
-    AddHoneyCredentials,
-)
-
-from defender.orchestrator.openstack_actuators import (
-    AddHoneyCredentials as AddHoneyCredentialsActuator,
-)
+from defender.capabilities import Action, DeployDecoy, DeployDecoy
 
 from defender.telemetry.events import HighLevelEvent
 from . import Strategy
 
-import random
 from utility.logging import log_event
 
 
-class StaticStandalone(Strategy):
+class NaiveDecoyHost(Strategy):
     # Run actions before the scenario starts
     def initialize(self) -> list[Action]:
         log_event("StaticStandalone", "Initializing StaticStandalone strategy")
         num_decoys = self.arsenal.storage["DeployDecoy"]
-        num_honeycreds = self.arsenal.storage["HoneyCredentials"]
         actions = []
 
         # Try to deploy decoys on webserver network,
@@ -48,23 +38,6 @@ class StaticStandalone(Strategy):
 
         # Initialize decoys so we can setup fake credentials
         self.orchestrator.run(actions)
-
-        # Add fake credentials to all hosts
-        credential_actions = []
-        credentials_per_subnet = int(num_honeycreds / len(self.network.subnets))
-        for subnet in self.network.subnets:
-            for i in range(0, credentials_per_subnet):
-                deploy_host = subnet.get_random_host()
-                target_host = self.network.get_random_host()
-                credential_actions.append(
-                    AddHoneyCredentials(deploy_host, target_host, 1, real=False)
-                )
-
-        # Add fake credentials to decoy
-        AddHoneyCredentialsActuator.actuateMany(
-            credential_actions, self.orchestrator.ansible_runner
-        )
-
         return []
 
     # Run actions during the scenario
