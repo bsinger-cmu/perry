@@ -32,11 +32,15 @@ class AddHoneyCredentials(OpenstackActuator):
             credential_host_user = CreateUser(
                 action.credential_host.ip, username, password
             )
+            # Update symbolic reasoning
+            action.credential_host.add_user(username, is_decoy=True)
             user_actions.append(credential_host_user)
 
             if action.real:
                 # Create user on honey computer
                 create_user_pb = CreateUser(action.honey_host.ip, username, password)
+                action.honey_host.add_user(username, is_decoy=True)
+
                 user_actions.append(create_user_pb)
 
                 for user in action.credential_host.users:
@@ -68,7 +72,10 @@ class AddHoneyCredentials(OpenstackActuator):
             self.ansible_runner.run_playbooks(action_list, run_async=True)
 
     @staticmethod
-    def actuateMany(actions: list[capabilities.AddHoneyCredentials], ansible_runner):
+    def actuateMany(
+        actions: list[capabilities.AddHoneyCredentials],
+        ansible_runner,
+    ):
         all_user_actions = []
         all_ssh_key_actions = []
         all_fake_data_actions = []

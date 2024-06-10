@@ -6,7 +6,7 @@ from defender.capabilities import (
     RestoreServer,
 )
 
-from defender.telemetry.events import HighLevelEvent, AttackerOnHost, SSHEvent
+from defender.telemetry.events import HighLevelEvent, DecoyCredentialUsed, SSHEvent
 from . import Strategy
 
 from utility.logging import log_event
@@ -64,11 +64,11 @@ class ReactiveStandalone(Strategy):
 
         # Process events
         for event in new_events:
-            if isinstance(event, AttackerOnHost):
-                log_event("Found attacker", f"Attacker on host {event.attacker_ip}")
+            if isinstance(event, DecoyCredentialUsed):
+                log_event("Decoy used", f"Decoy used on host {event.source_ip}")
                 if self.max_restores == -1 or self.restore_count < self.max_restores:
                     # Restore host if attacker is detected
-                    attacker_ip = event.attacker_ip
+                    attacker_ip = event.source_ip
                     restoreAction = RestoreServer(attacker_ip)
                     actions.append(restoreAction)
                     self.restore_count += 1

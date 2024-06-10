@@ -1,10 +1,12 @@
 from .events import HighLevelEvent
 from elasticsearch import Elasticsearch
+from deployment_instance.network import Network
 
 
 class TelemetryAnalysis:
-    def __init__(self, elasticsearch_conn: Elasticsearch):
+    def __init__(self, elasticsearch_conn: Elasticsearch, network: Network):
         self.elasticsearch_conn = elasticsearch_conn
+        self.network = network
         self.parsed_telemetry_ids = set()
 
         # Create indeces if they don't exist
@@ -20,18 +22,6 @@ class TelemetryAnalysis:
         alert_query_data = self.elasticsearch_conn.search(
             index="deception_alerts", query=last_second_query
         )
-
-        last_second_query = {
-            "bool": {
-                "must": [
-                    {"range": {"@timestamp": {"gte": "now-10s"}}},
-                    {"term": {"category": "network"}},
-                    {"term": {"destination.ip": "192.168.200.3"}},
-                    {"term": {"destination.port": "22"}},
-                    {"term": {"source.ip": "192.168.200.4"}},
-                ]
-            },
-        }
 
         # Query last 10s of sysflow data with category network
         last_second_query = {

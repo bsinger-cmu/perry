@@ -149,7 +149,7 @@ class Emulator:
         # Setup initial defender
         ### Telemetry ###
         telemetry_ = getattr(telemetry_module, self.scenario.defender.telemetry)
-        telemetry = telemetry_(elasticsearch_conn)
+        telemetry = telemetry_(elasticsearch_conn, self.deployment_instance.network)
 
         ### Arsenal ###
         arsenal = CountArsenal(self.scenario.defender.capabilities)
@@ -164,6 +164,7 @@ class Emulator:
             external_elasticsearch_server,
             self.config.elastic_config.api_key,
             self.config,
+            self.deployment_instance.network,
         )
 
         ### Strategy ###

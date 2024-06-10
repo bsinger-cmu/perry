@@ -44,3 +44,12 @@ class Network:
                 return True
 
         return False
+
+    def get_all_decoy_users(self):
+        all_decoy_users = []
+        all_hosts = self.get_all_hosts()
+
+        for host in all_hosts:
+            all_decoy_users.extend(host.decoy_users)
+
+        return all_decoy_users

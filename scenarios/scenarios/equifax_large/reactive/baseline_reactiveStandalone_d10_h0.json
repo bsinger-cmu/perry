@@ -1,10 +1,10 @@
 {
-  "name": "baseline_reactiveLayered_d4_h0",
+  "name": "baseline_reactiveStandalone_d10_h0",
   "defender": {
     "telemetry": "SimpleTelemetryAnalysis",
-    "strategy": "ReactiveLayered",
+    "strategy": "ReactiveStandalone",
     "capabilities": {
-      "DeployDecoy": 4,
+      "DeployDecoy": 10,
       "HoneyService": 0,
       "RestoreServer": -1,
       "HoneyCredentials": 0

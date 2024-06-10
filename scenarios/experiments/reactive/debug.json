@@ -1,12 +1,17 @@
 [
   {
-    "name": "dfs_reactiveLayered_d2_h50",
-    "trials": 3,
-    "scenario": "equifax_small/reactive/dfs_reactiveLayered_d2_h50.json"
+    "name": "baseline_reactiveLayered_d10_h50",
+    "trials": 0,
+    "scenario": "equifax_large/reactive/baseline_reactiveLayered_d10_h50.json"
   },
   {
-    "name": "bfs_reactiveLayered_d2_h50",
-    "trials": 3,
-    "scenario": "equifax_small/reactive/bfs_reactiveLayered_d2_h50.json"
+    "name": "baseline_reactiveStandalone_d0_h50",
+    "trials": 2,
+    "scenario": "equifax_large/reactive/baseline_reactiveStandalone_d0_h50.json"
+  },
+  {
+    "name": "baseline_reactiveStandalone_d10_h0",
+    "trials": 0,
+    "scenario": "equifax_large/reactive/baseline_reactiveStandalone_d10_h0.json"
   }
 ]

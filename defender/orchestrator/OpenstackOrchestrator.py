@@ -9,6 +9,7 @@ from .openstack_actuators import (
 from defender import capabilities
 from openstack.connection import Connection
 from config.Config import Config
+from deployment_instance.network import Network
 
 
 class OpenstackOrchestrator(Orchestrator):
@@ -19,6 +20,7 @@ class OpenstackOrchestrator(Orchestrator):
         external_elasticsearch_server,
         elasticsearch_api_key,
         config: Config,
+        network: Network,
     ):
         self.openstack_conn = openstack_conn
         self.ansible_runner = ansible_runner
@@ -27,6 +29,7 @@ class OpenstackOrchestrator(Orchestrator):
         self.elasticsearch_api_key = elasticsearch_api_key
 
         self.config = config
+        self.network = network
 
         actuator_args = {
             "openstack_conn": self.openstack_conn,
@@ -34,6 +37,7 @@ class OpenstackOrchestrator(Orchestrator):
             "external_elasticsearch_server": self.external_elasticsearch_server,
             "elasticsearch_api_key": self.elasticsearch_api_key,
             "config": self.config,
+            "network": self.network,
         }
 
         actuators = {
