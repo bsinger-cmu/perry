@@ -107,17 +107,11 @@ class Emulator:
             ssh_key_path, None, ansible_dir, experiment_dir, self.quiet
         )
 
-        # Setup attacker
+        # Setup attacker module
         caldera_api_key = self.config.caldera_config.api_key
         self.caldera_api_key = caldera_api_key
         attacker_ = getattr(attacker_module, self.scenario.attacker.name)
         self.attacker = attacker_(caldera_api_key, experiment_id)
-
-        if not self.config.caldera_config.external:
-            self.attacker.start_server(
-                self.config.caldera_config.python_path,
-                self.config.caldera_config.caldera_path,
-            )
 
         # Setup GoalKeeper
         self.goalkeeper = GoalKeeper(self.attacker, experiment_dir)
@@ -138,10 +132,19 @@ class Emulator:
             )
             return
         else:
-            # Do runtimesetup
-            self.deployment_instance.run()
+            # Restore all hosts in environment
+            # Do it before Caldera is on so old agents are removed
+            self.deployment_instance.setup()
 
-        self.deployment_instance.print_all_flags()
+        # Start caldera server after deployment instance is setup
+        if not self.config.caldera_config.external:
+            self.attacker.start_server(
+                self.config.caldera_config.python_path,
+                self.config.caldera_config.caldera_path,
+            )
+
+        # Do runtime setup like starting initial attacker agent
+        self.deployment_instance.runtime_setup()
 
         self.goalkeeper.set_flags(self.deployment_instance.flags)
         self.goalkeeper.set_root_flags(self.deployment_instance.root_flags)

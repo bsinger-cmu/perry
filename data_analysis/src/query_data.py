@@ -64,9 +64,15 @@ def get_data_exfiltration_times(
     return df
 
 
-def get_data_exfiltration_cdf(data: dict[str, ExperimentResult]):
+def get_data_exfiltration_cdf(data: dict[str, ExperimentResult], num_expected_files):
     df = pd.DataFrame(
-        columns=["experiment", "experiment_num", "time_exfiltrated", "file_number"]
+        columns=[
+            "experiment",
+            "experiment_num",
+            "time_exfiltrated",
+            "file_number",
+            "percent_data",
+        ]
     )
 
     for experiment_num, experiment_result in enumerate(list(data.values())):
@@ -76,6 +82,7 @@ def get_data_exfiltration_cdf(data: dict[str, ExperimentResult]):
                 experiment_num,
                 data_exfiltrated.time_exfiltrated / 60,
                 idx + 1,
+                ((idx + 1) / num_expected_files) * 100,
             ]
 
     return df

@@ -76,15 +76,11 @@ class DeploymentInstance:
         # Save instance
         self.save_all_snapshots()
 
-    def run(self):
+    def setup(self):
         # Load snapshots
         self.load_all_snapshots()
         time.sleep(10)
-
         self.rebuild_error_hosts()
-
-        # Do runtime setup
-        self.runtime_setup()
 
     def deploy_topology(self):
         destroy_network(self.topology)
