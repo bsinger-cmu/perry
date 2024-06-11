@@ -1,10 +1,15 @@
 import requests
 
 from .Attacker import Attacker
+from utility.logging.logging import PerryLogger
+
+logger = PerryLogger.get_logger()
 
 
 class EquifaxBaselineAttacker(Attacker):
     def start_operation(self):
+        logger.debug("Starting Caldera operation...")
+
         json_data = {
             "name": "Equifax Baseline Operation",
             "id": self.operation_id,

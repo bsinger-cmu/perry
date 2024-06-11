@@ -187,7 +187,7 @@ class Emulator:
         self.attacker.delete_agents()
         self.attacker.start_operation()
         self.goalkeeper.operation_id = self.attacker.operation_id
-        print("Operation ID: " + self.attacker.operation_id)
+        logger.debug("Operation ID: " + self.attacker.operation_id)
 
     def finished(self):
         return not self.attacker.still_running()

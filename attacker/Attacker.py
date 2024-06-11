@@ -30,6 +30,9 @@ class Attacker:
             stderr=subprocess.STDOUT,
         )
 
+        # Wait 10s for caldera server to turn on
+        sleep(10)
+
     def stop_server(self):
         if self.caldera_process is not None:
             self.caldera_process.terminate()
