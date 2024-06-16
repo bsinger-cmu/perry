@@ -1,0 +1,288 @@
+{
+    "scenario": {
+        "name": "baseline_standalone_d8_h0",
+        "defender": {
+            "telemetry": "NoTelemetry",
+            "strategy": "StaticStandalone",
+            "capabilities": {
+                "DeployDecoy": 8,
+                "HoneyService": 0,
+                "RestoreServer": 0,
+                "HoneyCredentials": 0
+            }
+        },
+        "attacker": {
+            "name": "EquifaxBaselineAttacker"
+        },
+        "deployment_instance": {
+            "name": "EquifaxLarge"
+        }
+    },
+    "experiment_time": 3072.845909833908,
+    "execution_time": 2698.137555837631,
+    "setup_time": 374.70835399627686,
+    "flags_captured": [],
+    "data_exfiltrated": [
+        {
+            "name": "data_database_30.json",
+            "time_exfiltrated": 240.29712867736816
+        },
+        {
+            "name": "data_database_47.json",
+            "time_exfiltrated": 288.29712867736816
+        },
+        {
+            "name": "data_database_46.json",
+            "time_exfiltrated": 332.29712867736816
+        },
+        {
+            "name": "data_database_36.json",
+            "time_exfiltrated": 380.29712867736816
+        },
+        {
+            "name": "data_database_27.json",
+            "time_exfiltrated": 433.29712867736816
+        },
+        {
+            "name": "data_database_15.json",
+            "time_exfiltrated": 486.29712867736816
+        },
+        {
+            "name": "data_database_20.json",
+            "time_exfiltrated": 530.2971286773682
+        },
+        {
+            "name": "data_database_7.json",
+            "time_exfiltrated": 573.2971286773682
+        },
+        {
+            "name": "data_database_6.json",
+            "time_exfiltrated": 626.2971286773682
+        },
+        {
+            "name": "data_database_40.json",
+            "time_exfiltrated": 669.2971286773682
+        },
+        {
+            "name": "data_database_29.json",
+            "time_exfiltrated": 718.2971286773682
+        },
+        {
+            "name": "data_database_16.json",
+            "time_exfiltrated": 771.2971286773682
+        },
+        {
+            "name": "data_database_41.json",
+            "time_exfiltrated": 814.2971286773682
+        },
+        {
+            "name": "data_database_26.json",
+            "time_exfiltrated": 862.2971286773682
+        },
+        {
+            "name": "data_database_5.json",
+            "time_exfiltrated": 906.2971286773682
+        },
+        {
+            "name": "data_database_1.json",
+            "time_exfiltrated": 949.2971286773682
+        },
+        {
+            "name": "data_database_4.json",
+            "time_exfiltrated": 998.2971286773682
+        },
+        {
+            "name": "data_database_0.json",
+            "time_exfiltrated": 1046.2971286773682
+        },
+        {
+            "name": "data_database_22.json",
+            "time_exfiltrated": 1090.2971286773682
+        },
+        {
+            "name": "data_database_33.json",
+            "time_exfiltrated": 1128.2971286773682
+        },
+        {
+            "name": "data_database_24.json",
+            "time_exfiltrated": 1176.2971286773682
+        },
+        {
+            "name": "data_database_17.json",
+            "time_exfiltrated": 1230.2971286773682
+        },
+        {
+            "name": "data_database_43.json",
+            "time_exfiltrated": 1273.2971286773682
+        },
+        {
+            "name": "data_database_34.json",
+            "time_exfiltrated": 1312.2971286773682
+        },
+        {
+            "name": "data_database_18.json",
+            "time_exfiltrated": 1365.2971286773682
+        },
+        {
+            "name": "data_database_35.json",
+            "time_exfiltrated": 1413.2971286773682
+        },
+        {
+            "name": "data_database_21.json",
+            "time_exfiltrated": 1462.2971286773682
+        },
+        {
+            "name": "data_database_3.json",
+            "time_exfiltrated": 1511.2971286773682
+        },
+        {
+            "name": "data_database_23.json",
+            "time_exfiltrated": 1560.2971286773682
+        },
+        {
+            "name": "data_database_39.json",
+            "time_exfiltrated": 1620.2971286773682
+        },
+        {
+            "name": "data_database_12.json",
+            "time_exfiltrated": 1663.2971286773682
+        },
+        {
+            "name": "data_database_45.json",
+            "time_exfiltrated": 1711.2971286773682
+        },
+        {
+            "name": "data_database_19.json",
+            "time_exfiltrated": 1756.2971286773682
+        },
+        {
+            "name": "data_database_42.json",
+            "time_exfiltrated": 1799.2971286773682
+        },
+        {
+            "name": "data_database_31.json",
+            "time_exfiltrated": 1848.2971286773682
+        },
+        {
+            "name": "data_database_9.json",
+            "time_exfiltrated": 1907.2971286773682
+        },
+        {
+            "name": "data_database_10.json",
+            "time_exfiltrated": 1960.2971286773682
+        },
+        {
+            "name": "data_database_11.json",
+            "time_exfiltrated": 2009.2971286773682
+        },
+        {
+            "name": "data_database_14.json",
+            "time_exfiltrated": 2067.297128677368
+        },
+        {
+            "name": "data_database_37.json",
+            "time_exfiltrated": 2106.297128677368
+        },
+        {
+            "name": "data_database_13.json",
+            "time_exfiltrated": 2154.297128677368
+        },
+        {
+            "name": "data_database_44.json",
+            "time_exfiltrated": 2203.297128677368
+        },
+        {
+            "name": "data_database_32.json",
+            "time_exfiltrated": 2257.297128677368
+        },
+        {
+            "name": "data_database_28.json",
+            "time_exfiltrated": 2301.297128677368
+        },
+        {
+            "name": "data_database_8.json",
+            "time_exfiltrated": 2349.297128677368
+        },
+        {
+            "name": "data_database_2.json",
+            "time_exfiltrated": 2388.297128677368
+        },
+        {
+            "name": "data_database_38.json",
+            "time_exfiltrated": 2432.297128677368
+        },
+        {
+            "name": "data_database_25.json",
+            "time_exfiltrated": 2481.297128677368
+        }
+    ],
+    "hosts_infected": [
+        "attacker",
+        "decoy-1",
+        "decoy-0",
+        "webserver-1",
+        "webserver-0",
+        "database-30",
+        "database-47",
+        "database-46",
+        "database-36",
+        "database-27",
+        "database-15",
+        "database-20",
+        "database-7",
+        "database-6",
+        "database-40",
+        "database-29",
+        "database-16",
+        "database-41",
+        "database-26",
+        "database-5",
+        "database-1",
+        "database-4",
+        "database-0",
+        "database-22",
+        "database-33",
+        "database-24",
+        "database-17",
+        "database-43",
+        "database-34",
+        "database-18",
+        "database-35",
+        "database-21",
+        "database-3",
+        "database-23",
+        "database-39",
+        "database-12",
+        "database-45",
+        "database-19",
+        "database-42",
+        "database-31",
+        "database-9",
+        "database-10",
+        "database-11",
+        "database-14",
+        "database-37",
+        "database-13",
+        "database-44",
+        "database-32",
+        "database-28",
+        "database-8",
+        "database-2",
+        "database-38",
+        "database-25",
+        "decoy-5",
+        "decoy-6",
+        "decoy-4",
+        "decoy-3",
+        "decoy-2",
+        "decoy-7"
+    ],
+    "operation_id": "33a03277-4477-4802-a559-ca6786ebd359",
+    "defender_action_counts": {
+        "shutdown_server": 0,
+        "start_honey_service": 0,
+        "deploy_decoy": 8,
+        "restore_server": 0,
+        "AddHoneyCredentials": 0
+    }
+}
