@@ -52,15 +52,22 @@ def get_data_exfiltration_times(
             exfiltration_time = data_exfiltration_times[expected_files - 1]
             time_exiltrated_all_data.append(exfiltration_time)
             survival_data.append(1)
-            time_exfiltrated_per_file.append(
-                exfiltration_time / len(data_exfiltration_times)
-            )
+
+            if len(data_exfiltration_times) == 0:
+                time_exfiltrated_per_file.append(0)
+            else:
+                time_exfiltrated_per_file.append(
+                    exfiltration_time / len(data_exfiltration_times)
+                )
         else:
             time_exiltrated_all_data.append(timeout_time_min)
             survival_data.append(0)
-            time_exfiltrated_per_file.append(
-                timeout_time_min / len(data_exfiltration_times)
-            )
+            if len(data_exfiltration_times) == 0:
+                time_exfiltrated_per_file.append(0)
+            else:
+                time_exfiltrated_per_file.append(
+                    timeout_time_min / len(data_exfiltration_times)
+                )
 
     df_data = {
         "time_exfiltrated": time_exiltrated_all_data,
