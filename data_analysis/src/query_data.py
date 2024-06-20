@@ -30,6 +30,7 @@ def get_data_exfiltration_times(
 ):
     data_exfiltrated = get_data_exfiltrated(list(data.values()))
     time_exiltrated_all_data = []
+    time_exfiltrated_per_file = []
     survival_data = []
     num_files = []
     experiment_ids = []
@@ -48,19 +49,75 @@ def get_data_exfiltration_times(
         if len(data_exfiltration_times) >= expected_files:
             # Sort data exfiltration times in ascending order
             data_exfiltration_times.sort()
-            time_exiltrated_all_data.append(data_exfiltration_times[expected_files - 1])
+            exfiltration_time = data_exfiltration_times[expected_files - 1]
+            time_exiltrated_all_data.append(exfiltration_time)
             survival_data.append(1)
+
+            if len(data_exfiltration_times) == 0:
+                time_exfiltrated_per_file.append(0)
+            else:
+                time_exfiltrated_per_file.append(
+                    exfiltration_time / len(data_exfiltration_times)
+                )
         else:
             time_exiltrated_all_data.append(timeout_time_min)
             survival_data.append(0)
+            if len(data_exfiltration_times) == 0:
+                time_exfiltrated_per_file.append(0)
+            else:
+                time_exfiltrated_per_file.append(
+                    timeout_time_min / len(data_exfiltration_times)
+                )
 
     df_data = {
         "time_exfiltrated": time_exiltrated_all_data,
+        "time_exfiltrated_per_file": time_exfiltrated_per_file,
         "survival": survival_data,
         "num_files": num_files,
         "experiment_id": experiment_ids,
     }
     df = pd.DataFrame(df_data)
+    return df
+
+
+def get_exfiltration_time_df(data: dict[str, ExperimentResult], num_expected_files):
+    df = pd.DataFrame(
+        columns=[
+            "experiment",
+            "experiment_num",
+            "time_exfiltrated",
+            "time_per_file",
+            "files_exfiltrated",
+            "percent_files_exfiltrated",
+        ]
+    )
+
+    for experiment_num, experiment_result in enumerate(list(data.values())):
+        if len(experiment_result.data_exfiltrated) == 0:
+            df.loc[df.shape[0]] = [
+                experiment_result.scenario.name,
+                experiment_num,
+                0,
+                0,
+                0,
+                0,
+            ]
+            continue
+
+        files_exfiltrated = len(experiment_result.data_exfiltrated)
+        time_exfiltrated = experiment_result.data_exfiltrated[-1].time_exfiltrated
+        time_per_file = time_exfiltrated / files_exfiltrated
+        percent_files = files_exfiltrated / num_expected_files
+
+        df.loc[df.shape[0]] = [
+            experiment_result.scenario.name,
+            experiment_num,
+            time_exfiltrated / 60,
+            time_per_file / 60,
+            files_exfiltrated,
+            percent_files * 100,
+        ]
+
     return df
 
 
