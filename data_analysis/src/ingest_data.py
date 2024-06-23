@@ -40,8 +40,19 @@ def process_experiment_flag_timestamps(data):
                 flag["experiment_starttime"] = experiment_start_time
 
 
-def pre_process_data(data):
-    process_experiment_flag_timestamps(data)
+def pre_process_data(data: dict[str, ExperimentResult]):
+    # filter duplicate data exfiltrations
+    for experiment_type, experiment_data in data.items():
+        files_exfiltrated = []
+        for exfiltrated_data in experiment_data.data_exfiltrated:
+            # Get file name before the extension
+            file_name_parts = exfiltrated_data.name.split(".")
+            file_name = file_name_parts[0]
+            if file_name not in files_exfiltrated:
+                files_exfiltrated.append(file_name)
+            else:
+                experiment_data.data_exfiltrated.remove(exfiltrated_data)
+
     return data
 
 
@@ -56,6 +67,8 @@ def ingest_experiment_results(dir_path):
             result_file = os.path.join(dir_path, execution_dir, "result.json")
             with open(result_file, "r") as f:
                 experiment_results[execution_dir] = ExperimentResult(**json.load(f))
+
+    experiment_results = pre_process_data(experiment_results)
 
     return experiment_results
 
