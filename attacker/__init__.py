@@ -5,4 +5,7 @@ from .DFSAttacker import DFSAttacker
 from .GambitAttacker import GambitAttacker
 from .EquifaxBaselineAttacker import EquifaxBaselineAttacker
 from .RandomAttacker import RandomAttacker
-from .PersistantAttacker import PersistantAttacker
+
+from .PersistentDFSAttacker import PersistentDFSAttacker
+from .PersistentBFSAttacker import PersistentBFSAttacker
+from .PersistentRandomAttacker import PersistentRandomAttacker
