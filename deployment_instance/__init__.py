@@ -7,6 +7,7 @@ from .EquifaxLarge import EquifaxLarge
 from .EquifaxMedium import EquifaxMedium
 from .EquifaxSmall import EquifaxSmall
 from .SolarWindsInstance import SolarWindsInstance
+from .ICSEnvironment import ICSEnvironment
 
 from .GoalKeeper import GoalKeeper
 from .Result import ExperimentResult, FlagInformation, FlagType, DataExfiltrated

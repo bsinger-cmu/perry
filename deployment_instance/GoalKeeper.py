@@ -5,7 +5,13 @@ import os
 from rich import print as rprint
 
 from utility.logging import log_event
-from .Result import ExperimentResult, FlagInformation, FlagType, DataExfiltrated
+from .Result import (
+    ExperimentResult,
+    FlagInformation,
+    FlagType,
+    DataExfiltrated,
+    HostInfected,
+)
 from scenarios.Scenario import Scenario
 from defender import Defender
 
@@ -63,6 +69,7 @@ class GoalKeeper:
         # Record flags captured
         flags_captured: list[FlagInformation] = []
         data_exfiltrated = []
+        hosts_infected = []
 
         relationships = self.attacker.get_relationships()
         for relationship in relationships:
@@ -103,13 +110,14 @@ class GoalKeeper:
                             name=filename, time_exfiltrated=time_exfiltrated
                         )
                     )
-
-        # Record hosts infected
-        hosts_infected = []
-        operation_report = self.attacker.get_operation_details()
-        for action in operation_report["chain"]:
-            if action["host"] not in hosts_infected:
-                hosts_infected.append(action["host"])
+            if "results.host.name" in relationship["source"]["trait"]:
+                if relationship["edge"] == "has_timestamp":
+                    hostname = relationship["source"]["value"]
+                    timestamp = relationship["target"]["value"]
+                    time_infected = timestamp - self.execution_start_time
+                    hosts_infected.append(
+                        HostInfected(name=hostname, time_infected=time_infected)
+                    )
 
         self.results = ExperimentResult(
             scenario=scenario,
