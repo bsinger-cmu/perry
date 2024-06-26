@@ -1,6 +1,7 @@
 ---
 - hosts: "{{ host }}"
-  remote_user: "{{ user }}"
+  become: true
+  become_user: '{{ user }}'
 
   tasks:
     - copy:
@@ -10,4 +11,8 @@
     - command: "chmod +x ~/install_attacker.sh"
 
     - name: Run installer
-      shell: "nohup ~/install_attacker.sh {{ caldera_ip }} >/dev/null 2>&1 &"
+      become: true
+      become_user: '{{ user }}'
+      shell: 
+        cmd: "nohup ~/install_attacker.sh {{ caldera_ip }} >/dev/null 2>&1 &"
+        chdir: "~/"

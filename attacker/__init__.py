@@ -9,3 +9,5 @@ from .RandomAttacker import RandomAttacker
 from .PersistentDFSAttacker import PersistentDFSAttacker
 from .PersistentBFSAttacker import PersistentBFSAttacker
 from .PersistentRandomAttacker import PersistentRandomAttacker
+
+from .RingDFSAttacker import RingDFSAttacker
