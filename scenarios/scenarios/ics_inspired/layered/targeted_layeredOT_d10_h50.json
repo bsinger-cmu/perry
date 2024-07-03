@@ -11,7 +11,7 @@
     }
   },
   "attacker": {
-    "name": "ICSTargetedAttacker"
+    "name": "ICSTargetedTrickedAttacker"
   },
   "deployment_instance": {
     "name": "ICSEnvironment"

@@ -11,3 +11,4 @@ from .PersistentBFSAttacker import PersistentBFSAttacker
 from .PersistentRandomAttacker import PersistentRandomAttacker
 
 from .ICSTargeted import ICSTargetedAttacker
+from .ICSTargetedTricked import ICSTargetedTrickedAttacker

@@ -32,7 +32,7 @@ class LayeredOT(Strategy):
         actions = []
         # Randomly deploy decoys on employee networks
         for i in range(0, num_decoys):
-            decoy_name = f"decoy_{i}"
+            decoy_name = f"decoy-control-host-{i + 20}"
             # IP set by actuator
             decoy_host = Host(decoy_name, "")
             ot_subnet.add_host(decoy_host, decoy=True)
