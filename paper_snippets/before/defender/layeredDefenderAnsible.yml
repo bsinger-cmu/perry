@@ -1,0 +1,174 @@
+---
+- hosts: "{{ host }}"
+  remote_user: root
+  tasks:
+  - name: Add user
+    ansible.builtin.user:
+      name: "{{ user }}"
+      password: "{{ password | password_hash('sha512') }}"
+      shell: /bin/bash
+      group: admin
+---
+- hosts: "{{ host }}"
+  become: true
+  become_user: '{{ host_user }}'
+  tasks:
+    - name: Copy ssh config
+      ansible.builtin.copy:
+        src: "data.json"
+        dest: '{{ path }}'
+---
+- hosts: "{{ host }}"
+  tasks:
+    - name: create .ssh directory
+      become: true
+      become_user: "{{ host_user }}"
+      file:
+        path: "~/.ssh"
+        state: directory
+        mode: "0700"
+    - name: add to ssh config
+      become: true
+      become_user: "{{ host_user }}"
+      blockinfile:
+        state: present
+        insertafter: EOF
+        dest: "~/.ssh/config"
+        content: |
+          Host {{ follower_user }}
+            HostName {{ follower }}
+            User {{ follower_user }}
+            IdentityFile ~/.ssh/id_rsa
+        create: true
+        mode: "0600"
+        marker: ""
+---
+- hosts: "{{ host }}"
+  tasks:
+    - name: create .ssh directory
+      become: true
+      become_user: "{{ host_user }}"
+      file:
+        path: "~/.ssh"
+        state: directory
+        mode: "0700"
+    - name: generate key pair
+      become: true
+      become_user: "{{ host_user }}"
+      shell:
+        cmd: ssh-keygen -b 2048 -t rsa -f '.ssh/id_rsa' -q -N ""
+        creates: "~/.ssh/id_rsa"
+        chdir: "~"
+---
+- hosts: "{{ host }}"
+  tasks:
+    - name: delete ssh copfig
+      become: true
+      become_user: "{{ host_user }}"
+      file:
+        path: "~/.ssh/config"
+        state: absent
+    - name: Touch ssh copnfig
+      become: true
+      become_user: "{{ host_user }}"
+      file:
+        path: "~/.ssh/config"
+        state: touch
+        mode: "0600"
+---
+- hosts: "{{ host }}"
+  tasks:
+    - name: create .ssh directory
+      become: true
+      become_user: "{{ host_user }}"
+      file:
+        path: "~/.ssh"
+        state: directory
+        mode: "0700"
+    - name: copy key bair
+      become: true
+      become_user: "{{ host_user }}"
+      copy:
+        src: "ssh_keys/id_rsa"
+        dest: "~/.ssh/id_rsa"
+        mode: "0600"
+    - name: add to ssh config
+      become: true
+      become_user: "{{ host_user }}"
+      blockinfile:
+        state: present
+        insertafter: EOF
+        dest: "~/.ssh/config"
+        content: |
+          Host {{ follower_user }}
+            HostName {{ follower }}
+            User {{ follower_user }}
+            IdentityFile ~/.ssh/id_rsa
+        create: true
+        mode: "0600"
+        marker: ""
+- hosts: "{{ follower }}"
+  tasks:
+    - name: add leader public key to followers
+      authorized_key:
+        user: "{{ follower_user }}"
+        key: "{{ lookup('file', 'ssh_keys/id_rsa.pub') }}"
+---
+- hosts: "{{ host }}"
+  remote_user: root
+  tasks:
+    - name: Remove automatic updates
+      apt:
+        name: unattended-upgrades
+        state: absent
+    - name: Base dependencies
+      apt:
+        pkg:
+          - sshpass
+          - nmap
+          - ncat
+          - python3
+          - python3-pip
+        state: present
+        update_cache: yes
+    - name: Upgrade pyopenssl
+      ansible.builtin.pip:
+        name: pyopenssl
+        extra_args: --upgrade
+    - name: Install stormssh
+      ansible.builtin.pip:
+        name: stormssh
+---
+- hosts: "{{ host }}"
+  gather_facts: no
+  remote_user: root
+  tasks:
+  - name: Wait for host to go up
+    wait_for_connection:
+      delay: 0
+      timeout: 60
+---
+- hosts: "{{ host }}"
+  remote_user: root
+  tasks:
+    - name: Copy sysflow collector
+      ansible.builtin.copy:
+        src: "sfcollector-0.5.0-x86_64.deb"
+        dest: "/root/sfcollector-0.5.0-x86_64.deb"
+    - name: Copy sysflow processor
+      ansible.builtin.copy:
+        src: "sfprocessor-0.5.0-x86_64.deb"
+        dest: "/root/sfprocessor-0.5.0-x86_64.deb"
+    - name: Install dependencies
+      ansible.builtin.apt:
+        pkg:
+          - llvm
+          - linux-headers-generic
+    - name: Install sysflow
+      command: "dpkg -i sfcollector-0.5.0-x86_64.deb sfprocessor-0.5.0-x86_64.deb"
+    - name: Copy config
+      ansible.builtin.copy:
+        src: "pipeline.local.json"
+        dest: "/etc/sysflow/pipelines/pipeline.local.json"
+    - name: Start sysflow
+      command: "sysflow start"

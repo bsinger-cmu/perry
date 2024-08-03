@@ -10,117 +10,48 @@ def get_low_level_action(self, ability_id):
     return None
 
 
-# Runs in loop
-async def main(self):
-    if self.state == EquifaxAttackerState.InitialAccess:
-        await self.initial_access()
-    elif self.state == EquifaxAttackerState.CredExfiltrate:
-        await self.cred_exfiltrate()
-    elif self.state == EquifaxAttackerState.Finished:
-        self.finished()
-    return
-
-
-async def initial_access(self):
-    subnet_facts = await self.knowledge_svc_handle.get_facts(
-        criteria=dict(
-            trait="network.subnet.ip",
-            source=self.operation.id,
-        )
-    )
-    subnets = [fact.value for fact in subnet_facts]
-    ##### Scan external network #####
-    for subnet in subnets:
-        # Set facts for nmap host enumeration
-        await self.knowledge_svc_handle.add_fact(
-            source=self.operation.id,
-            fact="action.scan.ip",
-            value=subnet,
-        )
-        # Run host enumeration action
-        scan_link = scan_link = get_low_level_action(self, HOST_ENUMERATION_ABILITY_ID)
-        link_id = await operation.apply(scan_link)
-        await operation.wait_for_links_completion([link_id])
-        # Parse results
-        results = await self.knowledge_svc_handle.get_facts(
-            criteria=dict(
-                trait="host.ip",
-                source=self.operation.id,
-            )
-        )
-        host_ips = [fact.value for fact in results]
-        # Port scan each host
-        for host_ip in host_ips:
-            # Set facts for nmap port scan
-            await self.knowledge_svc_handle.add_fact(
-                source=self.operation.id,
-                fact="action.scan.port",
-                value=host_ip,
-            )
-            # Run port scan
-            scan_link = get_low_level_action(self, PORT_SCAN_ABILITY_ID)
-            link_id = await operation.apply(scan_link)
+subnet_facts = await self.knowledge_svc_handle.get_facts(...)
+subnets = [fact.value for fact in subnet_facts]
+##### Scan external network #####
+for subnet in subnets:
+    # Set facts for nmap host enumeration
+    await self.knowledge_svc_handle.add_fact(...)
+    # Run host enumeration action
+    scan_link = scan_link = get_low_level_action(self, HOST_ENUMERATION_ABILITY_ID)
+    link_id = await operation.apply(scan_link)
+    await operation.wait_for_links_completion([link_id])
+    # Parse results
+    results = await self.knowledge_svc_handle.get_facts(...)
+    host_ips = [fact.value for fact in results]
+    # Port scan each host
+    for host_ip in host_ips:
+        # Run port scan
+        await self.knowledge_svc_handle.add_fact(...)
+        # ...
+        open_host_ports = {}
+        for host_ip_fact in host_facts:
+            host_relationships = await self.knowledge_svc_handle.get_relationships(...)
+            open_ports = [rel.target.value for rel in host_relationships]
+            open_host_ports[host_ip_fact.value] = open_ports
+##### Try to infect each host #####
+random.shuffle(open_host_ports)
+pre_agents = await self.knowledge_svc_handle.get_agents()
+for host_ip, open_ports in open_host_ports.items():
+    for port in open_ports:
+        if port == 80:
+            # Set facts for apache struts
+            # ...
+            exploit_link = get_low_level_action(...)
+            link_id = await operation.apply(exploit_link)
             await operation.wait_for_links_completion([link_id])
-            # Parse results
-            host_facts = await self.knowledge_svc_handle.get_facts(
-                criteria=dict(
-                    trait="host.ip",
-                    source=self.operation.id,
-                )
-            )
-            open_host_ports = {}
-            for host_ip_fact in host_facts:
-                host_relationships = await self.knowledge_svc_handle.get_relationships(
-                    criteria=dict(
-                        source=host_ip_fact,
-                        edge="open_port",
-                    )
-                )
-                open_ports = [rel.target.value for rel in host_relationships]
-                open_host_ports[host_ip_fact.value] = open_ports
-    ##### Try to infect each host #####
-    random.shuffle(open_host_ports)
-    pre_agents = await self.knowledge_svc_handle.get_agents()
-    for host_ip, open_ports in open_host_ports.items():
-        for port in open_ports:
-            if port == 80:
-                # Set facts for apache struts
-                await self.knowledge_svc_handle.add_fact(
-                    source=self.operation.id,
-                    fact="action.exploit.ip",
-                    value=host_ip,
-                )
-                await self.knowledge_svc_handle.add_fact(
-                    source=self.operation.id,
-                    fact="action.exploit.port",
-                    value=host_ip,
-                )
-                exploit_link = get_low_level_action(
-                    self, APACHE_STRUTS_EXPLOIT_ABILITY_ID
-                )
-                link_id = await operation.apply(exploit_link)
-                await operation.wait_for_links_completion([link_id])
-
-                timeout_sec = 30
-                timeout_sec = False
-                while timeout_minutes > 0:
-                    cur_agents = await self.knowledge_svc_handle.get_agents()
-                    new_agents = list(set(cur_agents) - set(pre_agents))
-                    if new_agents:
-                        infected_host = True
-                        self.new_initial_access_host = new_agents[0]
-                        break
-
-                    timeout_sec -= 5
-                    await asyncio.sleep(5)
-
-                if infected_host:
-                    break
-
-    if not infected_host:
-        raise Exception("Failed to infect any hosts")
-
-    self.state = EquifaxAttackerState.CredExfiltrate
+            # Wait for agent to be infected
+            timeout_sec = 30
+            timeout_sec = False
+            while timeout_minutes > 0:
+                cur_agents = await self.knowledge_svc_handle.get_agents()
+                new_agents = list(set(cur_agents) - set(pre_agents))
+                if new_agents:
+                    # ...
 
 
 async def cred_exfiltrate(self):
@@ -174,7 +105,7 @@ async def cred_exfiltrate(self):
             value=credential,
         )
         exploit_link = get_low_level_action(
-            self, SCP_AGENT_ABILITY_ID
+            self, APACHE_STRUTS_EXPLOIT_ABILITY_ID
         )
         link_id = await operation.apply(exploit_link)
         await operation.wait_for_links_completion([link_id])

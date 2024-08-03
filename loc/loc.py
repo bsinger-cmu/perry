@@ -16,6 +16,8 @@ from defender.telemetry import TelemetryAnalysis, SimpleTelemetryAnalysis
 
 # Symbolic reasoning
 from deployment_instance.network import Network, Subnet, Host
+from deployment_instance.openstack.openstack_processor import get_hosts_on_subnet
+from deployment_instance.EquifaxInstance import EquifaxInstance
 
 # Strategy
 from defender.strategy.NaiveDecoyHost import NaiveDecoyHost
@@ -23,6 +25,7 @@ from defender.strategy.NaiveDecoyCredential import NaiveDecoyCredential
 from defender.strategy.StaticStandalone import StaticStandalone
 from defender.strategy.StaticLayered import StaticLayered
 from defender.strategy.ReactiveLayered import ReactiveLayered
+from defender.strategy import ReactiveStandalone
 
 from loc.helpers import get_function_semantic_lines, count_low_level_action_lines
 
@@ -107,6 +110,9 @@ if __name__ == "__main__":
         "network.get_random_subnet()": Network.get_random_subnet,
         ".add_host(": Subnet.add_host,
         " Host(": Host.__init__,
+        " Subnet(": Subnet.__init__,
+        " Network(": Network.__init__,
+        "get_hosts_on_subnet(": get_hosts_on_subnet,
     }
 
     telemetry = {
@@ -122,7 +128,10 @@ if __name__ == "__main__":
         "StaticStandalone": [StaticStandalone],
         "StaticLayered": [StaticLayered],
         "ReactiveLayered": [ReactiveLayered],
+        "ReactiveStandalone": [ReactiveStandalone],
     }
+    ## Hack
+    # To get telemetry linesm, add "ReactiveStandalone": [ReactiveStandalone, EquifaxInstance.parse_network],
 
     # Count low level action lines
     low_level_action_lines = {}
@@ -194,6 +203,16 @@ if __name__ == "__main__":
     strategy_lines_without_perry["ReactiveLayered"] = (
         count_strategy_lines_without_perry(
             strategies["ReactiveLayered"],
+            low_level_action_lines,
+            0,
+            symbolic_reasoning_module_lines,
+            symbolic_reasoning_module_total_lines,
+        )
+    )
+
+    strategy_lines_without_perry["ReactiveStandalone"] = (
+        count_strategy_lines_without_perry(
+            strategies["ReactiveStandalone"],
             low_level_action_lines,
             0,
             symbolic_reasoning_module_lines,
