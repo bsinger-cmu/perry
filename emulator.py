@@ -251,6 +251,10 @@ class Emulator:
         self.goalkeeper.print_metrics()
         # Cleanup
 
+        # Save attacker logs
+        output_dir = self.goalkeeper.output_dir
+        self.attacker.save_logs(output_dir)
+
         log_event("Emulator", "Cleaning up attacker...")
         self.attacker.cleanup()
 

@@ -3,12 +3,16 @@ import requests
 from utility.logging.logging import PerryLogger
 import uuid
 import subprocess
+import os
 
 
 class Attacker:
 
-    def __init__(self, caldera_api_key, operation_id=None):
+    def __init__(self, caldera_api_key, operation_id=None, name=None, strategy=None):
         self.caldera_api_key = caldera_api_key
+        self.caldera_process = None
+        self.name = name
+        self.strategy = strategy
 
         if operation_id is not None:
             self.operation_id = operation_id
@@ -45,13 +49,13 @@ class Attacker:
         self.wait_for_trusted_agent()
 
         json_data = {
-            "name": "Test Operation",
+            "name": self.name,
             "id": self.operation_id,
             "adversary": {
-                "adversary_id": "deception_simple_adv",
+                "adversary_id": "deception_enterprise",
             },
             "planner": {
-                "id": "deception_simple",
+                "id": self.strategy,
             },
             "source": {
                 "id": "ed32b9c3-9593-4c33-b0db-e2007315096b",
@@ -81,6 +85,24 @@ class Attacker:
         operation_details = response.json()
 
         return operation_details
+
+    def get_llm_logs(self):
+        response = requests.get(
+            f"http://localhost:8888/plugin/deception/get_last_log",
+            headers=self.api_headers,
+        )
+        return response.json()
+
+    def save_logs(self, output_dir):
+        logs = self.get_llm_logs()
+        llm_log = logs["llm"]
+        perry_log = logs["perry"]
+
+        with open(os.path.join(output_dir, "llm_log.log"), "w") as f:
+            f.write(llm_log)
+
+        with open(os.path.join(output_dir, "perry_attacker.log"), "w") as f:
+            f.write(perry_log)
 
     def still_running(self):
         operation_details = self.get_operation_details()

@@ -44,21 +44,12 @@ class EmulatorInteractive:
         run_parser.add_argument(
             "-n", "--num", help="number of times to run attacker", type=int, default=1
         )
-        run_parser.add_argument(
-            "-s",
-            "--suppress-metrics",
-            help="do not print metrics",
-            default=False,
-            action="store_true",
-        )
-        run_parser.add_argument(
-            "-q",
-            "--quiet",
-            help="do not print any ansible information",
-            default=False,
-            action="store_true",
-        )
         run_parser.set_defaults(func=self.handle_run)
+
+        setup_env_parser = subparsers.add_parser(
+            "setup_environment", help="sets up environment"
+        )
+        setup_env_parser.set_defaults(func=self.handle_setup_environment)
 
         help_parser = subparsers.add_parser("help", help="print help message")
         help_parser.set_defaults(func=self.handle_help)
@@ -221,7 +212,6 @@ class EmulatorInteractive:
             print("No config or scenario loaded. Run 'setup' command first")
             return
 
-        self.emulator.set_quiet(args.quiet)
         # num = args.num
         trials = args.num
         all_metrics = []
@@ -409,6 +399,11 @@ class EmulatorInteractive:
             # Format experiment contents
             rprint(experiment)
 
+        return
+
+    def handle_setup_environment(self, args):
+        self.emulator.setup()
+        print("Environment setup complete")
         return
 
 

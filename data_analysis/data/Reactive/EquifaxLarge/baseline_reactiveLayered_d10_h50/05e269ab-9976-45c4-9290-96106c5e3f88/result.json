@@ -1,1 +1,108 @@
-{"scenario": {"name": "baseline_reactiveLayered_d10_h50", "defender": {"telemetry": "SimpleTelemetryAnalysis", "strategy": "ReactiveLayered", "capabilities": {"DeployDecoy": 10, "HoneyService": 0, "RestoreServer": -1, "HoneyCredentials": 50}}, "attacker": {"name": "EquifaxBaselineAttacker"}, "deployment_instance": {"name": "EquifaxLarge"}}, "experiment_time": 2637.347583293915, "execution_time": 1262.92031788826, "setup_time": 1374.427265405655, "flags_captured": [], "data_exfiltrated": [{"name": "data_database_43.json", "time_exfiltrated": 160.66044163703918}, {"name": "data_database_8.json", "time_exfiltrated": 210.66044163703918}, {"name": "data_database_14.json", "time_exfiltrated": 250.66044163703918}, {"name": "data_database_41.json", "time_exfiltrated": 295.6604416370392}, {"name": "data_database_10.json", "time_exfiltrated": 336.6604416370392}, {"name": "data_database_16.json", "time_exfiltrated": 376.6604416370392}, {"name": "data_database_47.json", "time_exfiltrated": 416.6604416370392}, {"name": "data_database_44.json", "time_exfiltrated": 461.6604416370392}, {"name": "data_database_6.json", "time_exfiltrated": 502.6604416370392}, {"name": "data_database_2.json", "time_exfiltrated": 557.6604416370392}, {"name": "data_database_35.json", "time_exfiltrated": 597.6604416370392}, {"name": "data_database_34.json", "time_exfiltrated": 643.6604416370392}], "hosts_infected": ["attacker", "decoy-6", "webserver-0", "database-43", "database-8", "database-14", "database-41", "database-10", "database-16", "database-47", "database-44", "database-6", "database-2", "database-35", "database-34", "decoy-7", "decoy-4", "decoy-0", "decoy-3", "decoy-8", "decoy-2", "webserver-1", "decoy-1"], "operation_id": "05e269ab-9976-45c4-9290-96106c5e3f88", "defender_action_counts": {"shutdown_server": 0, "start_honey_service": 0, "deploy_decoy": 10, "restore_server": 8, "AddHoneyCredentials": 50}}
+{
+    "scenario": {
+        "name": "baseline_reactiveLayered_d10_h50",
+        "defender": {
+            "telemetry": "SimpleTelemetryAnalysis",
+            "strategy": "ReactiveLayered",
+            "capabilities": {
+                "DeployDecoy": 10,
+                "HoneyService": 0,
+                "RestoreServer": -1,
+                "HoneyCredentials": 50
+            }
+        },
+        "attacker": {
+            "name": "EquifaxBaselineAttacker"
+        },
+        "deployment_instance": {
+            "name": "EquifaxLarge"
+        }
+    },
+    "experiment_time": 2637.347583293915,
+    "execution_time": 1262.92031788826,
+    "setup_time": 1374.427265405655,
+    "flags_captured": [],
+    "data_exfiltrated": [
+        {
+            "name": "data_database_43.json",
+            "time_exfiltrated": 160.66044163703918
+        },
+        {
+            "name": "data_database_8.json",
+            "time_exfiltrated": 210.66044163703918
+        },
+        {
+            "name": "data_database_14.json",
+            "time_exfiltrated": 250.66044163703918
+        },
+        {
+            "name": "data_database_41.json",
+            "time_exfiltrated": 295.6604416370392
+        },
+        {
+            "name": "data_database_10.json",
+            "time_exfiltrated": 336.6604416370392
+        },
+        {
+            "name": "data_database_16.json",
+            "time_exfiltrated": 376.6604416370392
+        },
+        {
+            "name": "data_database_47.json",
+            "time_exfiltrated": 416.6604416370392
+        },
+        {
+            "name": "data_database_44.json",
+            "time_exfiltrated": 461.6604416370392
+        },
+        {
+            "name": "data_database_6.json",
+            "time_exfiltrated": 502.6604416370392
+        },
+        {
+            "name": "data_database_2.json",
+            "time_exfiltrated": 557.6604416370392
+        },
+        {
+            "name": "data_database_35.json",
+            "time_exfiltrated": 597.6604416370392
+        },
+        {
+            "name": "data_database_34.json",
+            "time_exfiltrated": 643.6604416370392
+        }
+    ],
+    "hosts_infected": [
+        "attacker",
+        "decoy-6",
+        "webserver-0",
+        "database-43",
+        "database-8",
+        "database-14",
+        "database-41",
+        "database-10",
+        "database-16",
+        "database-47",
+        "database-44",
+        "database-6",
+        "database-2",
+        "database-35",
+        "database-34",
+        "decoy-7",
+        "decoy-4",
+        "decoy-0",
+        "decoy-3",
+        "decoy-8",
+        "decoy-2",
+        "webserver-1",
+        "decoy-1"
+    ],
+    "operation_id": "05e269ab-9976-45c4-9290-96106c5e3f88",
+    "defender_action_counts": {
+        "shutdown_server": 0,
+        "start_honey_service": 0,
+        "deploy_decoy": 10,
+        "restore_server": 8,
+        "AddHoneyCredentials": 50
+    }
+}

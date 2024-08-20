@@ -1,0 +1,19 @@
+{
+    "name": "sonnet3_equifax",
+    "defender": {
+        "telemetry": "NoTelemetry",
+        "strategy": "StaticStandalone",
+        "capabilities": {
+            "DeployDecoy": 0,
+            "HoneyService": 0,
+            "RestoreServer": 0,
+            "HoneyCredentials": 0
+        }
+    },
+    "attacker": {
+        "name": "Sonnet3"
+    },
+    "deployment_instance": {
+        "name": "EquifaxLarge"
+    }
+}
