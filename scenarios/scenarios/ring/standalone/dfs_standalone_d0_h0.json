@@ -1,5 +1,5 @@
 {
-  "name": "Baseline",
+  "name": "dfs_standalone_d0_h0",
   "defender": {
     "telemetry": "NoTelemetry",
     "strategy": "DoNothing",

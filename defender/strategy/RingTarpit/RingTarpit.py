@@ -50,7 +50,8 @@ class RingTarpit(Strategy):
 
         # Half of credentials go to ring hosts
         credentialActions = []
-        for i in range(0, num_honeycreds / 2):
+        half_credentials = int(num_honeycreds / 2)
+        for i in range(0, half_credentials):
             deploy_host = ring_network.get_random_host()
             target_host = self.network.get_random_decoy()
 
@@ -60,16 +61,13 @@ class RingTarpit(Strategy):
             )
 
         # Other half for intertwining decoys
-        for i in range(0, num_honeycreds / 2):
+        for i in range(0, half_credentials):
             deploy_host = self.network.get_random_decoy()
             target_host = self.network.get_random_decoy()
-            target_user = random.choice(target_host.users)
 
             # Add fake credentials to decoy
             credentialActions.append(
-                AddHoneyCredentials(
-                    deploy_host, target_host, 1, real=True, honey_user=target_user
-                )
+                AddHoneyCredentials(deploy_host, target_host, 1, real=True)
             )
 
         AddHoneyCredentialsActuator.actuateMany(
