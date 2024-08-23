@@ -20,48 +20,43 @@ class AddHoneyCredentials(OpenstackActuator):
         ssh_key_actions = []
         fake_data_actions = []
 
-        for _ in range(action.number):
+        honey_user = action.honey_user
+        if honey_user is None:
+            # Create fake user
             name = fake.name()
-            username = name.replace(" ", "")
+            honey_user = name.replace(" ", "")
             password = fake.password()
 
-            logger.debug(
-                f"Adding honey credentials for {name} on {action.credential_host.name}",
-            )
+        # If real, create new user on honey computer
+        if action.real:
+            create_user_pb = CreateUser(action.honey_host.ip, honey_user, password)
+            action.honey_host.add_user(honey_user, is_decoy=True)
+            user_actions.append(create_user_pb)
 
-            credential_host_user = CreateUser(
-                action.credential_host.ip, username, password
-            )
-            # Update symbolic reasoning
-            action.credential_host.add_user(username, is_decoy=True)
-            user_actions.append(credential_host_user)
+            # Add fake data to user
+            if action.fakeData:
+                fake_data_pb = AddData(action.honey_host.ip, honey_user, "~/decoy.json")
+                fake_data_actions.append(fake_data_pb)
 
-            if action.real:
-                # Create user on honey computer
-                create_user_pb = CreateUser(action.honey_host.ip, username, password)
-                action.honey_host.add_user(username, is_decoy=True)
-
-                user_actions.append(create_user_pb)
-
-                for user in action.credential_host.users:
-                    ssh_pb = SetupServerSSHKeys(
+            for cred_user in action.credential_host.users:
+                ssh_pb = SetupServerSSHKeys(
+                    action.credential_host.ip,
+                    cred_user,
+                    action.honey_host.ip,
+                    honey_user,
+                )
+                ssh_key_actions.append(ssh_pb)
+        else:
+            # If fake just add to ssh config
+            for cred_user in action.credential_host.users:
+                ssh_key_actions.append(
+                    AddToSSHConfig(
                         action.credential_host.ip,
-                        user,
+                        cred_user,
                         action.honey_host.ip,
-                        username,
+                        honey_user,
                     )
-                    ssh_key_actions.append(ssh_pb)
-                    if action.fakeData:
-                        fake_data_pb = AddData(
-                            action.honey_host.ip, username, "~/decoy.json"
-                        )
-                        fake_data_actions.append(fake_data_pb)
-            else:
-                for user in action.credential_host.users:
-                    fake_credential_pb = AddToSSHConfig(
-                        action.credential_host.ip, user, action.honey_host.ip, username
-                    )
-                    ssh_key_actions.append(fake_credential_pb)
+                )
 
         return user_actions, ssh_key_actions, fake_data_actions
 

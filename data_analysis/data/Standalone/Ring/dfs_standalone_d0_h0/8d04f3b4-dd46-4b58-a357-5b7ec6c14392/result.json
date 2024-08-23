@@ -1,0 +1,237 @@
+{
+    "scenario": {
+        "name": "dfs_standalone_d0_h0",
+        "defender": {
+            "telemetry": "NoTelemetry",
+            "strategy": "DoNothing",
+            "capabilities": {
+                "DeployDecoy": 0,
+                "HoneyService": 0,
+                "RestoreServer": 0,
+                "HoneyCredentials": 0
+            }
+        },
+        "attacker": {
+            "name": "RingDFSAttacker"
+        },
+        "deployment_instance": {
+            "name": "RingEnvironment"
+        }
+    },
+    "experiment_time": 1461.0996398925781,
+    "execution_time": 1363.5406470298767,
+    "setup_time": 97.55899286270142,
+    "flags_captured": [],
+    "data_exfiltrated": [
+        {
+            "name": "data_host_8.json",
+            "time_exfiltrated": 72.3179395198822
+        },
+        {
+            "name": "data_host_12.json",
+            "time_exfiltrated": 114.3179395198822
+        },
+        {
+            "name": "data_host_9.json",
+            "time_exfiltrated": 166.3179395198822
+        },
+        {
+            "name": "data_host_19.json",
+            "time_exfiltrated": 219.3179395198822
+        },
+        {
+            "name": "data_host_24.json",
+            "time_exfiltrated": 261.3179395198822
+        },
+        {
+            "name": "data_host_20.json",
+            "time_exfiltrated": 313.3179395198822
+        },
+        {
+            "name": "data_host_14.json",
+            "time_exfiltrated": 370.3179395198822
+        },
+        {
+            "name": "data_host_7.json",
+            "time_exfiltrated": 418.3179395198822
+        },
+        {
+            "name": "data_host_6.json",
+            "time_exfiltrated": 465.3179395198822
+        },
+        {
+            "name": "data_host_2.json",
+            "time_exfiltrated": 517.3179395198822
+        },
+        {
+            "name": "data_host_10.json",
+            "time_exfiltrated": 565.3179395198822
+        },
+        {
+            "name": "data_host_5.json",
+            "time_exfiltrated": 617.3179395198822
+        },
+        {
+            "name": "data_host_21.json",
+            "time_exfiltrated": 669.3179395198822
+        },
+        {
+            "name": "data_host_15.json",
+            "time_exfiltrated": 716.3179395198822
+        },
+        {
+            "name": "data_host_4.json",
+            "time_exfiltrated": 769.3179395198822
+        },
+        {
+            "name": "data_host_1.json",
+            "time_exfiltrated": 827.3179395198822
+        },
+        {
+            "name": "data_host_13.json",
+            "time_exfiltrated": 879.3179395198822
+        },
+        {
+            "name": "data_host_22.json",
+            "time_exfiltrated": 941.3179395198822
+        },
+        {
+            "name": "data_host_18.json",
+            "time_exfiltrated": 994.3179395198822
+        },
+        {
+            "name": "data_host_3.json",
+            "time_exfiltrated": 1041.3179395198822
+        },
+        {
+            "name": "data_host_23.json",
+            "time_exfiltrated": 1094.3179395198822
+        },
+        {
+            "name": "data_host_17.json",
+            "time_exfiltrated": 1146.3179395198822
+        },
+        {
+            "name": "data_host_11.json",
+            "time_exfiltrated": 1193.3179395198822
+        },
+        {
+            "name": "data_host_16.json",
+            "time_exfiltrated": 1246.3179395198822
+        },
+        {
+            "name": "data_host_0.json",
+            "time_exfiltrated": 1303.3179395198822
+        }
+    ],
+    "hosts_infected": [
+        {
+            "name": "host-12",
+            "time_infected": 82.4999623298645
+        },
+        {
+            "name": "host-9",
+            "time_infected": 129.84397983551025
+        },
+        {
+            "name": "host-19",
+            "time_infected": 182.1499273777008
+        },
+        {
+            "name": "host-24",
+            "time_infected": 229.45692610740662
+        },
+        {
+            "name": "host-20",
+            "time_infected": 271.69263315200806
+        },
+        {
+            "name": "host-14",
+            "time_infected": 328.9182963371277
+        },
+        {
+            "name": "host-7",
+            "time_infected": 381.39485335350037
+        },
+        {
+            "name": "host-6",
+            "time_infected": 428.6401278972626
+        },
+        {
+            "name": "host-2",
+            "time_infected": 475.9707033634186
+        },
+        {
+            "name": "host-10",
+            "time_infected": 528.2536449432373
+        },
+        {
+            "name": "host-5",
+            "time_infected": 580.5599880218506
+        },
+        {
+            "name": "host-21",
+            "time_infected": 632.8125042915344
+        },
+        {
+            "name": "host-15",
+            "time_infected": 680.118250131607
+        },
+        {
+            "name": "host-4",
+            "time_infected": 732.3989088535309
+        },
+        {
+            "name": "host-1",
+            "time_infected": 784.996648311615
+        },
+        {
+            "name": "host-13",
+            "time_infected": 837.3957858085632
+        },
+        {
+            "name": "host-22",
+            "time_infected": 894.6757669448853
+        },
+        {
+            "name": "host-18",
+            "time_infected": 952.2309176921844
+        },
+        {
+            "name": "host-3",
+            "time_infected": 1004.772783279419
+        },
+        {
+            "name": "host-23",
+            "time_infected": 1052.1586997509003
+        },
+        {
+            "name": "host-17",
+            "time_infected": 1109.6397213935852
+        },
+        {
+            "name": "host-11",
+            "time_infected": 1156.850457906723
+        },
+        {
+            "name": "host-16",
+            "time_infected": 1204.427829504013
+        },
+        {
+            "name": "host-0",
+            "time_infected": 1261.677591085434
+        },
+        {
+            "name": "host-8",
+            "time_infected": 1313.9414999485016
+        }
+    ],
+    "operation_id": "8d04f3b4-dd46-4b58-a357-5b7ec6c14392",
+    "defender_action_counts": {
+        "shutdown_server": 0,
+        "start_honey_service": 0,
+        "deploy_decoy": 0,
+        "restore_server": 0,
+        "AddHoneyCredentials": 0
+    }
+}

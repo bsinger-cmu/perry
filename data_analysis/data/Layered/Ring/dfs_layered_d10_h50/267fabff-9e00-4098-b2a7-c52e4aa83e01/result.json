@@ -1,0 +1,441 @@
+{
+    "scenario": {
+        "name": "dfs_layered_d10_h50",
+        "defender": {
+            "telemetry": "NoTelemetry",
+            "strategy": "StaticLayered",
+            "capabilities": {
+                "DeployDecoy": 10,
+                "HoneyService": 0,
+                "RestoreServer": 0,
+                "HoneyCredentials": 50
+            }
+        },
+        "attacker": {
+            "name": "RingDFSAttacker"
+        },
+        "deployment_instance": {
+            "name": "RingEnvironment"
+        }
+    },
+    "experiment_time": 5160.914902925491,
+    "execution_time": 4500.508746385574,
+    "setup_time": 660.406156539917,
+    "flags_captured": [],
+    "data_exfiltrated": [
+        {
+            "name": "data_host_4.json",
+            "time_exfiltrated": 76.95316243171692
+        },
+        {
+            "name": "data_host_1.json",
+            "time_exfiltrated": 485.9531624317169
+        },
+        {
+            "name": "data_host_13.json",
+            "time_exfiltrated": 642.9531624317169
+        },
+        {
+            "name": "data_host_22.json",
+            "time_exfiltrated": 862.9531624317169
+        },
+        {
+            "name": "data_host_18.json",
+            "time_exfiltrated": 962.9531624317169
+        },
+        {
+            "name": "data_host_3.json",
+            "time_exfiltrated": 1062.953162431717
+        },
+        {
+            "name": "data_host_23.json",
+            "time_exfiltrated": 1114.953162431717
+        },
+        {
+            "name": "data_host_17.json",
+            "time_exfiltrated": 1257.953162431717
+        },
+        {
+            "name": "data_host_11.json",
+            "time_exfiltrated": 1309.953162431717
+        },
+        {
+            "name": "data_host_16.json",
+            "time_exfiltrated": 1477.953162431717
+        },
+        {
+            "name": "data_host_0.json",
+            "time_exfiltrated": 1581.953162431717
+        },
+        {
+            "name": "data_host_8.json",
+            "time_exfiltrated": 1629.953162431717
+        },
+        {
+            "name": "data_host_12.json",
+            "time_exfiltrated": 1687.953162431717
+        },
+        {
+            "name": "data_host_9.json",
+            "time_exfiltrated": 1809.953162431717
+        },
+        {
+            "name": "data_host_19.json",
+            "time_exfiltrated": 1861.953162431717
+        },
+        {
+            "name": "data_host_24.json",
+            "time_exfiltrated": 1915.953162431717
+        },
+        {
+            "name": "data_host_20.json",
+            "time_exfiltrated": 1963.953162431717
+        },
+        {
+            "name": "data_host_14.json",
+            "time_exfiltrated": 2016.953162431717
+        },
+        {
+            "name": "data_host_7.json",
+            "time_exfiltrated": 2073.953162431717
+        },
+        {
+            "name": "data_host_6.json",
+            "time_exfiltrated": 2179.953162431717
+        },
+        {
+            "name": "data_host_2.json",
+            "time_exfiltrated": 2367.953162431717
+        },
+        {
+            "name": "data_host_10.json",
+            "time_exfiltrated": 2561.953162431717
+        },
+        {
+            "name": "data_host_5.json",
+            "time_exfiltrated": 2788.953162431717
+        },
+        {
+            "name": "data_host_21.json",
+            "time_exfiltrated": 2852.953162431717
+        },
+        {
+            "name": "data_host_15.json",
+            "time_exfiltrated": 2905.953162431717
+        }
+    ],
+    "hosts_infected": [
+        {
+            "name": "decoy-7",
+            "time_infected": 97.35679221153259
+        },
+        {
+            "name": "decoy-6",
+            "time_infected": 134.46500897407532
+        },
+        {
+            "name": "decoy-8",
+            "time_infected": 154.49735951423645
+        },
+        {
+            "name": "decoy-4",
+            "time_infected": 203.67135548591614
+        },
+        {
+            "name": "decoy-1",
+            "time_infected": 240.90316557884216
+        },
+        {
+            "name": "decoy-0",
+            "time_infected": 278.0112829208374
+        },
+        {
+            "name": "decoy-5",
+            "time_infected": 320.1025595664978
+        },
+        {
+            "name": "decoy-9",
+            "time_infected": 352.30323100090027
+        },
+        {
+            "name": "decoy-3",
+            "time_infected": 384.43340492248535
+        },
+        {
+            "name": "decoy-2",
+            "time_infected": 416.5562250614166
+        },
+        {
+            "name": "host-1",
+            "time_infected": 444.3459677696228
+        },
+        {
+            "name": "decoy-7",
+            "time_infected": 496.7335014343262
+        },
+        {
+            "name": "decoy-9",
+            "time_infected": 544.1985945701599
+        },
+        {
+            "name": "host-13",
+            "time_infected": 601.5867018699646
+        },
+        {
+            "name": "decoy-7",
+            "time_infected": 653.8980548381805
+        },
+        {
+            "name": "decoy-9",
+            "time_infected": 663.9607725143433
+        },
+        {
+            "name": "decoy-0",
+            "time_infected": 768.9168908596039
+        },
+        {
+            "name": "host-22",
+            "time_infected": 821.4268727302551
+        },
+        {
+            "name": "decoy-1",
+            "time_infected": 873.8195357322693
+        },
+        {
+            "name": "host-18",
+            "time_infected": 926.1865088939667
+        },
+        {
+            "name": "decoy-5",
+            "time_infected": 973.4977116584778
+        },
+        {
+            "name": "host-3",
+            "time_infected": 1020.9017956256866
+        },
+        {
+            "name": "host-23",
+            "time_infected": 1073.2127220630646
+        },
+        {
+            "name": "decoy-6",
+            "time_infected": 1125.5749804973602
+        },
+        {
+            "name": "decoy-3",
+            "time_infected": 1178.1803069114685
+        },
+        {
+            "name": "host-17",
+            "time_infected": 1220.7130026817322
+        },
+        {
+            "name": "host-11",
+            "time_infected": 1273.0342881679535
+        },
+        {
+            "name": "decoy-2",
+            "time_infected": 1320.38534116745
+        },
+        {
+            "name": "decoy-2",
+            "time_infected": 1373.073008298874
+        },
+        {
+            "name": "host-16",
+            "time_infected": 1440.6011092662811
+        },
+        {
+            "name": "decoy-8",
+            "time_infected": 1493.1347362995148
+        },
+        {
+            "name": "host-0",
+            "time_infected": 1503.2206690311432
+        },
+        {
+            "name": "host-8",
+            "time_infected": 1592.940018415451
+        },
+        {
+            "name": "host-12",
+            "time_infected": 1645.7540559768677
+        },
+        {
+            "name": "decoy-7",
+            "time_infected": 1703.8631055355072
+        },
+        {
+            "name": "host-9",
+            "time_infected": 1714.2105519771576
+        },
+        {
+            "name": "host-19",
+            "time_infected": 1820.326209306717
+        },
+        {
+            "name": "host-24",
+            "time_infected": 1872.933601617813
+        },
+        {
+            "name": "host-20",
+            "time_infected": 1931.9629929065704
+        },
+        {
+            "name": "host-14",
+            "time_infected": 1974.64053440094
+        },
+        {
+            "name": "host-7",
+            "time_infected": 2027.1313955783844
+        },
+        {
+            "name": "decoy-0",
+            "time_infected": 2089.7375526428223
+        },
+        {
+            "name": "host-6",
+            "time_infected": 2137.7327709198
+        },
+        {
+            "name": "decoy-0",
+            "time_infected": 2195.2424845695496
+        },
+        {
+            "name": "decoy-2",
+            "time_infected": 2263.1818985939026
+        },
+        {
+            "name": "host-2",
+            "time_infected": 2335.973240852356
+        },
+        {
+            "name": "decoy-8",
+            "time_infected": 2378.46400475502
+        },
+        {
+            "name": "decoy-2",
+            "time_infected": 2436.200573682785
+        },
+        {
+            "name": "host-10",
+            "time_infected": 2525.1198143959045
+        },
+        {
+            "name": "decoy-5",
+            "time_infected": 2572.981701374054
+        },
+        {
+            "name": "decoy-3",
+            "time_infected": 2631.285218477249
+        },
+        {
+            "name": "decoy-8",
+            "time_infected": 2689.264180660248
+        },
+        {
+            "name": "host-5",
+            "time_infected": 2704.597844362259
+        },
+        {
+            "name": "host-21",
+            "time_infected": 2800.5764796733856
+        },
+        {
+            "name": "host-15",
+            "time_infected": 2863.0243968963623
+        },
+        {
+            "name": "host-4",
+            "time_infected": 2921.2804470062256
+        },
+        {
+            "name": "decoy-8",
+            "time_infected": 2968.965110063553
+        },
+        {
+            "name": "decoy-7",
+            "time_infected": 3041.9963738918304
+        },
+        {
+            "name": "decoy-1",
+            "time_infected": 3124.8228352069855
+        },
+        {
+            "name": "decoy-2",
+            "time_infected": 3183.268942832947
+        },
+        {
+            "name": "decoy-4",
+            "time_infected": 3282.760951757431
+        },
+        {
+            "name": "decoy-9",
+            "time_infected": 3336.35418009758
+        },
+        {
+            "name": "decoy-8",
+            "time_infected": 3405.5742812156677
+        },
+        {
+            "name": "decoy-4",
+            "time_infected": 3489.326476573944
+        },
+        {
+            "name": "decoy-9",
+            "time_infected": 3542.510589838028
+        },
+        {
+            "name": "decoy-0",
+            "time_infected": 3623.6170115470886
+        },
+        {
+            "name": "decoy-9",
+            "time_infected": 3698.6791105270386
+        },
+        {
+            "name": "decoy-1",
+            "time_infected": 3779.000150680542
+        },
+        {
+            "name": "decoy-0",
+            "time_infected": 3843.9287645816803
+        },
+        {
+            "name": "decoy-7",
+            "time_infected": 3940.074137687683
+        },
+        {
+            "name": "decoy-5",
+            "time_infected": 4029.12530875206
+        },
+        {
+            "name": "decoy-8",
+            "time_infected": 4107.158740520477
+        },
+        {
+            "name": "decoy-4",
+            "time_infected": 4202.025069952011
+        },
+        {
+            "name": "decoy-5",
+            "time_infected": 4265.6142473220825
+        },
+        {
+            "name": "decoy-3",
+            "time_infected": 4344.40124130249
+        },
+        {
+            "name": "decoy-3",
+            "time_infected": 4417.99045419693
+        }
+    ],
+    "operation_id": "267fabff-9e00-4098-b2a7-c52e4aa83e01",
+    "defender_action_counts": {
+        "shutdown_server": 0,
+        "start_honey_service": 0,
+        "deploy_decoy": 10,
+        "restore_server": 0,
+        "AddHoneyCredentials": 0
+    }
+}

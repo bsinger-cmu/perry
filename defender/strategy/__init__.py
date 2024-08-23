@@ -9,3 +9,4 @@ from .ReactiveStandalone import ReactiveStandalone
 
 from .ICS.LayeredEmployee import LayeredEmployee
 from .ICS.LayeredOT import LayeredOT
+from .RingTarpit.RingTarpit import RingTarpit
