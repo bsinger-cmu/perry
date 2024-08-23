@@ -17,3 +17,9 @@ from .llm.Sonnet3_5 import Sonnet3_5
 from .llm.Sonnet3 import Sonnet3
 from .llm.Opus3 import Opus3
 from .llm.Haiku3 import Haiku3
+
+from .llm.Gemini1_5_pro import Gemini1_5Pro
+
+from .llm.GPT3_5 import GPT3_5
+from .llm.GPT4o import GPT4o
+from .llm.GPT4o_mini import GPT4oMini

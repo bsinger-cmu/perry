@@ -138,6 +138,9 @@ class EquifaxInstance(DeploymentInstance):
 
     def runtime_setup(self):
         # Setup attacker
+        self.ansible_runner.run_playbook(CheckIfHostUp(self.attacker_host.ip))
+        time.sleep(3)
+
         self.ansible_runner.run_playbook(CreateSSHKey(self.attacker_host.ip, "root"))
         self.ansible_runner.run_playbook(
             InstallAttacker(self.attacker_host.ip, "root", self.caldera_ip)
