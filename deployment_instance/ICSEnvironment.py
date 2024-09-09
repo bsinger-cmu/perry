@@ -27,7 +27,7 @@ import random
 
 fake = Faker()
 
-NUMBER_ICS_HOSTS = 45
+NUMBER_ICS_HOSTS = 47
 
 
 class ICSEnvironment(DeploymentInstance):
@@ -51,9 +51,22 @@ class ICSEnvironment(DeploymentInstance):
             self.openstack_conn, "192.168.200.0/24", host_name_prefix="employee_A"
         )
 
+        self.manage_one_host = get_hosts_on_subnet(
+            self.openstack_conn, "192.168.200.0/24", host_name_prefix="manage"
+        )
+
+        self.all_employee_one_hosts = self.employee_one_hosts + self.manage_one_host
+
+        self.manage_two_host = get_hosts_on_subnet(
+            self.openstack_conn, "192.168.201.0/24", host_name_prefix="manage"
+        )
+
         self.employee_two_hosts = get_hosts_on_subnet(
             self.openstack_conn, "192.168.201.0/24", host_name_prefix="employee_B"
         )
+        self.all_employee_two_hosts = self.employee_two_hosts + self.manage_two_host
+
+        self.manage_hosts = self.manage_one_host + self.manage_two_host
 
         self.attacker_host = get_hosts_on_subnet(
             self.openstack_conn, "192.168.202.0/24", host_name_prefix="attacker"
@@ -68,10 +81,10 @@ class ICSEnvironment(DeploymentInstance):
         )
 
         employeeOneSubnet = Subnet(
-            "employee_one_network", self.employee_one_hosts, "employee_one_group"
+            "employee_one_network", self.all_employee_one_hosts, "employee_one_group"
         )
         employeeTwoSubnet = Subnet(
-            "employee_two_network", self.employee_two_hosts, "employee_two_group"
+            "employee_two_network", self.all_employee_two_hosts, "employee_two_group"
         )
         otSubnet = Subnet("OT_network", self.ot_sensors + self.ot_hosts, "ot_group")
 
@@ -113,39 +126,22 @@ class ICSEnvironment(DeploymentInstance):
                 self.ansible_runner.run_playbook(CreateUser(host.ip, user, "ubuntu"))
 
         # Random employee on subnet one
-        vulnerable_employee_one = random.choice(self.employee_one_hosts)
-        vulnerable_employee_two = random.choice(self.employee_two_hosts)
-
-        # Setup netcat shell on vulnerable employee
-        self.ansible_runner.run_playbook(
-            SetupNetcatShell(
-                vulnerable_employee_one.ip, vulnerable_employee_one.users[0]
-            )
-        )
-        self.ansible_runner.run_playbook(
-            SetupNetcatShell(
-                vulnerable_employee_two.ip, vulnerable_employee_two.users[0]
-            )
-        )
-
-        # Each employee has SSH keys to all ot sensors
-        for sensor in self.ot_sensors:
+        for manage_host in self.manage_hosts:
+            # Setup netcat shell on vulnerable employee
             self.ansible_runner.run_playbook(
-                SetupServerSSHKeys(
-                    vulnerable_employee_one.ip,
-                    vulnerable_employee_one.users[0],
-                    sensor.ip,
-                    sensor.users[0],
-                )
+                SetupNetcatShell(manage_host.ip, manage_host.users[0])
             )
-            self.ansible_runner.run_playbook(
-                SetupServerSSHKeys(
-                    vulnerable_employee_two.ip,
-                    vulnerable_employee_two.users[0],
-                    sensor.ip,
-                    sensor.users[0],
+
+            # Each employee has SSH keys to all ot sensors
+            for sensor in self.ot_sensors:
+                self.ansible_runner.run_playbook(
+                    SetupServerSSHKeys(
+                        manage_host.ip,
+                        manage_host.users[0],
+                        sensor.ip,
+                        sensor.users[0],
+                    )
                 )
-            )
 
         # Randomly choose 5 OT sensors to have ssh keys to ot hosts
         critical_sensors = random.sample(self.ot_sensors, 5)

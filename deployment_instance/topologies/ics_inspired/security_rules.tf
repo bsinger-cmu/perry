@@ -60,7 +60,7 @@ resource "openstack_networking_secgroup_rule_v2" "employee_one_tcp_in" {
   protocol          = "tcp"
   port_range_min    = 1
   port_range_max    = 65535
-  remote_ip_prefix  = "0.0.0.0/0"
+  remote_group_id   = openstack_networking_secgroup_v2.employee_one_group.id
   security_group_id = openstack_networking_secgroup_v2.employee_one_group.id
 }
 resource "openstack_networking_secgroup_rule_v2" "employee_one_tcp_out" {
@@ -79,16 +79,17 @@ resource "openstack_networking_secgroup_v2" "employee_two_group" {
   description = "employee two security group"
 }
 
-# Employee Two can talk to anything
+# Ingress for all TCP in security group
 resource "openstack_networking_secgroup_rule_v2" "employee_two_tcp_in" {
   direction         = "ingress"
   ethertype         = "IPv4"
   protocol          = "tcp"
   port_range_min    = 1
   port_range_max    = 65535
-  remote_ip_prefix  = "0.0.0.0/0"
+  remote_group_id   = openstack_networking_secgroup_v2.employee_two_group.id
   security_group_id = openstack_networking_secgroup_v2.employee_two_group.id
 }
+
 
 resource "openstack_networking_secgroup_rule_v2" "employee_two_tcp_out" {
   direction         = "egress"

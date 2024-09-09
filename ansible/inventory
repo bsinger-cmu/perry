@@ -15,4 +15,4 @@ ansible_ssh_common_args='-i {{ ssh_key_path }}'
 192.168.203.[0:255] ansible_user=root
 
 [nodes:vars]
-ansible_ssh_common_args='-i {{ ssh_key_path }} -o StrictHostKeyChecking=no -o ProxyCommand="ssh -i {{ ssh_key_path }} -o StrictHostKeyChecking=no -W %h:%p -q root@{{ manage_ip }}"'
+ansible_ssh_common_args='-i {{ ssh_key_path }} -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o ProxyCommand="ssh -i {{ ssh_key_path }} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -W %h:%p -q root@{{ manage_ip }}"'

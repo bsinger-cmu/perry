@@ -160,6 +160,24 @@ resource "openstack_compute_instance_v2" "employee_one" {
   depends_on = [openstack_networking_subnet_v2.employee_one_subnet]
 }
 
+resource "openstack_compute_instance_v2" "manage_employee_one" {
+  count       = 1
+  name        = "manage_A_${count.index}"
+  image_name  = "Ubuntu20"
+  flavor_name = "p2.tiny"
+  key_pair    = var.perry_key_name
+  security_groups = [
+    openstack_networking_secgroup_v2.talk_to_manage.name,
+    openstack_networking_secgroup_v2.employee_one_group.name
+  ]
+
+  network {
+    name = "employee_one_network"
+  }
+
+  depends_on = [openstack_networking_subnet_v2.employee_one_subnet]
+}
+
 ### Corporate Subnet Hosts ###
 resource "openstack_compute_instance_v2" "employee_two" {
   count       = 10
@@ -175,6 +193,24 @@ resource "openstack_compute_instance_v2" "employee_two" {
   network {
     name        = "employee_two_network"
     fixed_ip_v4 = "192.168.201.${count.index + 10}"
+  }
+
+  depends_on = [openstack_networking_subnet_v2.employee_two_subnet]
+}
+
+resource "openstack_compute_instance_v2" "manage_employee_two" {
+  count       = 1
+  name        = "manage_B_${count.index}"
+  image_name  = "Ubuntu20"
+  flavor_name = "p2.tiny"
+  key_pair    = var.perry_key_name
+  security_groups = [
+    openstack_networking_secgroup_v2.talk_to_manage.name,
+    openstack_networking_secgroup_v2.employee_two_group.name
+  ]
+
+  network {
+    name        = "employee_two_network"
   }
 
   depends_on = [openstack_networking_subnet_v2.employee_two_subnet]
