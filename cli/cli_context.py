@@ -4,7 +4,7 @@ from ansible.AnsibleRunner import AnsibleRunner
 from attacker.Attacker import Attacker
 from deployment_instance.DeploymentInstance import DeploymentInstance
 from config.Config import Config
-from emulator import Emulator
+from emulator.emulator import Emulator
 
 
 class PerryContext:

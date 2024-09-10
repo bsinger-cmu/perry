@@ -1,11 +1,8 @@
 from colorama import Fore, Style
 from elasticsearch import Elasticsearch
-from os import path
-from datetime import datetime
 
 from rich import print as rprint
 import os
-import uuid
 
 from config.Config import Config
 from ansible.AnsibleRunner import AnsibleRunner
@@ -36,7 +33,7 @@ telemetry_module = importlib.import_module("defender.telemetry")
 class Emulator:
     def __init__(self, config: Config | None = None):
         self.openstack_conn = openstack.connect(cloud="default")
-        self.config: Config | None = None
+        self.config = config
         self.quiet = False
         self.scenario = None
 
@@ -49,27 +46,26 @@ class Emulator:
     def set_scenario(self, scenario):
         self.scenario = scenario
 
+    def run_trial(
+        self, experiment_dir: str, experiment_id: str, timeout_minutes: int = 60
+    ):
+        self.setup(experiment_dir, experiment_id)
+        return self.run(timeout_minutes)
+
     def setup(
         self,
-        output_dir=None,
+        experiment_dir,
+        experiment_id,
         compile=False,
         network_setup=True,
         host_setup=True,
-        experiment_id=None,
     ):
-        if output_dir is None:
-            output_dir = "./output/misc"
-
         if self.scenario is None:
             raise Exception("Scenario not set")
 
         if self.config is None:
             raise Exception("Config not set")
 
-        if experiment_id is None:
-            experiment_id = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-
-        experiment_dir = path.join(output_dir, experiment_id)
         rprint(f"Experiment directory: {experiment_dir}")
 
         # Create experiment directory
@@ -273,16 +269,11 @@ class Emulator:
 
     def check_all_instances(self):
         all_servers = self.openstack_conn.list_servers()
-        all_active = True
         for server in all_servers:
             if server.status != "ACTIVE":
                 print(
                     f"{Fore.RED}Server {server.name} is in {server.status} state {Style.RESET_ALL}"
                 )
-                all_active = False
 
             if server.status == "ERROR":
-                print(f"An error has occured in server {server.name}.")
-                print(f"Server {server.name} is in ERROR state")
-                print(f"Placing warning in goalkeeper metrics")
-                self.goalkeeper.set_warning(f"server_error_state")
+                raise Exception(f"Server {server.name} is in ERROR state")

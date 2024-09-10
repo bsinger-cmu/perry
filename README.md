@@ -85,35 +85,6 @@ You can also use the openstack UI and create a snapshot
 
 - `openstack server image create INSTANCE_ID --name IMAGE_NAME`
 
-# Running the Emulator
-
-To run the emulator in interactive mode and gain access to the emulator's command line interface, run `python InteractiveEmulator.py -i`
-
-There are two pairs of emulator commands:
-
-- `setup` and `run`
-- `load` and `execute`
-
-Commands and their arguments can be found by running `help` in the emulator CLI.
-
-Commands:
-
-- `setup -s scenario.yml -c config.yml` is used to manually setup a scenario with a given config
-  - Note that CONFIG_FNAME is NOT the path to the file, rather simply the name of the config file. The emulator will look for the config file in the `config/` directory and for the scenario file in the `scenarios/` directory automatically.
-- `run -n NUM` is used to run the loaded scenario NUM times
-- `load experiment_config.yml` is used to load an experiment configuration (see `config/experiment_config_example.yml` for an example)
-- `execute` is used to run the loaded experiment configuration
-  - Will continue running all experiments until completed or until stopped with `ctrl-c`. Note that stopping the emulator with `ctrl-c` during the Main Loop _will_ save the results of the experiments and will thus need to be deleted.
-
-For an example of how to use the emulator, run the following commands in the emulator CLI:
-
-1. `load experiment_config_example.yml`
-2. `execute`
-
-There is also a `view` command that can be useful to view the configuration and loaded setup. For example, after running the `load` command, run `view experiments` to see the loaded experiment configuration.
-
-The emulator also catches exceptions and errors so that the emulator does not crash. If an error occurs, the emulator will print the error and continue running. If the error is fatal, the emulator will print the error and exit.
-
 ## Updating conda environment file
 
 To update `environment.yml` file run: `conda env export > environment.yml`

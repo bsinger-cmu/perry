@@ -1,6 +1,5 @@
 import click
 import importlib
-from typing import Optional
 
 from cli.cli_context import PerryContext
 
