@@ -1,6 +1,7 @@
 from colorama import Fore, Style
 from elasticsearch import Elasticsearch
 from os import path
+from datetime import datetime
 
 from rich import print as rprint
 import os
@@ -33,7 +34,7 @@ telemetry_module = importlib.import_module("defender.telemetry")
 
 
 class Emulator:
-    def __init__(self):
+    def __init__(self, config: Config | None = None):
         self.openstack_conn = openstack.connect(cloud="default")
         self.config: Config | None = None
         self.quiet = False
@@ -49,7 +50,12 @@ class Emulator:
         self.scenario = scenario
 
     def setup(
-        self, output_dir=None, compile=False, network_setup=True, host_setup=True
+        self,
+        output_dir=None,
+        compile=False,
+        network_setup=True,
+        host_setup=True,
+        experiment_id=None,
     ):
         if output_dir is None:
             output_dir = "./output/misc"
@@ -60,10 +66,11 @@ class Emulator:
         if self.config is None:
             raise Exception("Config not set")
 
-        experiment_id = str(uuid.uuid4())
-        experiment_dir = path.join(output_dir, experiment_id)
+        if experiment_id is None:
+            experiment_id = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 
-        rprint(f"Experiment ID: {experiment_id}")
+        experiment_dir = path.join(output_dir, experiment_id)
+        rprint(f"Experiment directory: {experiment_dir}")
 
         # Create experiment directory
         if not os.path.exists(experiment_dir):

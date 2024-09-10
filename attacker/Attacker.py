@@ -1,23 +1,25 @@
 from time import sleep
 import requests
 from utility.logging.logging import PerryLogger
-import uuid
+from datetime import datetime
 import subprocess
 import os
+from attacker.config.attacker_config import AttackerConfig
 
 
 class Attacker:
 
-    def __init__(self, caldera_api_key, operation_id=None, name=None, strategy=None):
+    def __init__(self, caldera_api_key, config: AttackerConfig, operation_id=None):
         self.caldera_api_key = caldera_api_key
         self.caldera_process = None
-        self.name = name
-        self.strategy = strategy
+        self.config = config
 
         if operation_id is not None:
             self.operation_id = operation_id
         else:
-            self.operation_id = str(uuid.uuid4())
+            # Use timestamp as operation_id
+            cur_time = datetime.now()
+            self.operation_id = cur_time.strftime("%Y-%m-%d %H:%M:%S")
 
         self.api_headers = {
             "key": self.caldera_api_key,
@@ -48,21 +50,28 @@ class Attacker:
         # Wait for a trusted agent to appear
         self.wait_for_trusted_agent()
 
+        # Send attacker config
+        requests.post(
+            "http://localhost:8888/plugin/deception/initial_parameters",
+            headers=self.api_headers,
+            json=self.config.model_dump_json(),
+        )
+
         json_data = {
-            "name": self.name,
+            "name": self.config.name,
             "id": self.operation_id,
             "adversary": {
                 "adversary_id": "deception_enterprise",
             },
             "planner": {
-                "id": self.strategy,
+                "id": self.config.strategy,
             },
             "source": {
                 "id": "ed32b9c3-9593-4c33-b0db-e2007315096b",
             },
         }
 
-        response = requests.post(
+        requests.post(
             "http://localhost:8888/api/v2/operations",
             headers=self.api_headers,
             json=json_data,
