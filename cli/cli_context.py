@@ -19,10 +19,11 @@ class PerryContext:
         self.openstack_conn = openstack_conn
         self.ansible_runner = ansible_runner
         self.config = config
-        self.emulator = Emulator(self.config)
         self.experiment_dir = experiment_dir
         self.experiment_id = None
 
+        # Set by cli modules
+        self.emulator: Emulator | None = None
         self.environment: DeploymentInstance | None = None
         self.attacker: Attacker | None = None
         self.defender = None

@@ -2,10 +2,7 @@ import click
 
 from cli.cli_context import PerryContext
 from attacker.Attacker import Attacker
-from attacker.config.attacker_config import (
-    AttackerConfig,
-    convert_to_environment,
-)
+from attacker.config.attacker_config import AttackerConfig
 
 
 @click.group()
@@ -16,13 +13,11 @@ def attacker(ctx, strategy: str, env: str):
     context: PerryContext = ctx.obj
 
     # Check if env is valid
-    env_enum = convert_to_environment(env)
-
     # Setup attacker module
     attacker_config = AttackerConfig(
         name=f"{strategy}: {env}",
         strategy=strategy,
-        environment=env_enum,
+        environment=env,
     )
 
     context.attacker = Attacker(

@@ -5,7 +5,7 @@ import json
 
 from cli.cli_context import PerryContext
 from scenarios.Scenario import Scenario, Experiment
-from emulator.experiment_runner import ExperimentRunner
+from emulator.experiment_runner import ExperimentRunner, Emulator
 
 attacker_module = importlib.import_module("attacker")
 
@@ -28,7 +28,7 @@ def single(ctx, scenario: str, timeout_min: int):
         scenario_data = json.load(f)
         scenario_obj = Scenario(**scenario_data)
 
-    context.emulator.set_scenario(scenario_obj)
+    context.emulator = Emulator(context.config, scenario_obj)
 
     context.emulator.setup(context.experiment_dir, context.experiment_id)
     context.emulator.run(timeout_min)
@@ -47,5 +47,5 @@ def batch(ctx, experiment: str):
         for experiment_data in experiment_raw:
             experiments.append(Experiment(**experiment_data))
 
-    experiment_runner = ExperimentRunner(context.emulator, experiments)
+    experiment_runner = ExperimentRunner(experiments, context.config)
     experiment_runner.run()

@@ -9,6 +9,9 @@ from ansible.AnsibleRunner import AnsibleRunner
 from deployment_instance import GoalKeeper
 from defender.arsenal import CountArsenal
 from defender import Defender
+from attacker.Attacker import Attacker
+from attacker.config.attacker_config import AttackerConfig
+from scenarios.Scenario import Scenario
 from utility.logging.logging import PerryLogger, log_event, get_logger
 
 import openstack
@@ -24,26 +27,15 @@ import importlib
 from defender.orchestrator import OpenstackOrchestrator
 
 deployment_instance_module = importlib.import_module("deployment_instance")
-attacker_module = importlib.import_module("attacker")
 defender_module = importlib.import_module("defender")
 strategy_module = importlib.import_module("defender.strategy")
 telemetry_module = importlib.import_module("defender.telemetry")
 
 
 class Emulator:
-    def __init__(self, config: Config | None = None):
+    def __init__(self, config: Config, scenario: Scenario):
         self.openstack_conn = openstack.connect(cloud="default")
         self.config = config
-        self.quiet = False
-        self.scenario = None
-
-    def set_quiet(self, quiet):
-        self.quiet = quiet
-
-    def set_config(self, config: Config):
-        self.config = config
-
-    def set_scenario(self, scenario):
         self.scenario = scenario
 
     def run_trial(
@@ -60,12 +52,6 @@ class Emulator:
         network_setup=True,
         host_setup=True,
     ):
-        if self.scenario is None:
-            raise Exception("Scenario not set")
-
-        if self.config is None:
-            raise Exception("Config not set")
-
         rprint(f"Experiment directory: {experiment_dir}")
 
         # Create experiment directory
@@ -106,15 +92,17 @@ class Emulator:
         # Initialize ansible
         ssh_key_path = self.config.openstack_config.ssh_key_path
         ansible_dir = "./ansible/"
-        ansible_runner = AnsibleRunner(
-            ssh_key_path, None, ansible_dir, experiment_dir, self.quiet
-        )
+        ansible_runner = AnsibleRunner(ssh_key_path, None, ansible_dir, experiment_dir)
 
         # Setup attacker module
         caldera_api_key = self.config.caldera_config.api_key
         self.caldera_api_key = caldera_api_key
-        attacker_ = getattr(attacker_module, self.scenario.attacker.name)
-        self.attacker = attacker_(caldera_api_key, experiment_id)
+        attack_config = AttackerConfig(
+            name=self.scenario.attacker.name,
+            strategy=self.scenario.attacker.name,
+            environment=self.scenario.deployment_instance.name,
+        )
+        self.attacker = Attacker(caldera_api_key, attack_config, experiment_id)
 
         # Setup GoalKeeper
         self.goalkeeper = GoalKeeper(self.attacker, experiment_dir)

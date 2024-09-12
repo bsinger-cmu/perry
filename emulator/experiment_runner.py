@@ -10,13 +10,14 @@ import os
 from datetime import datetime
 
 from emulator.emulator import Emulator
+from config.Config import Config
 from scenarios.Scenario import Experiment, Scenario
 
 
 class ExperimentRunner:
-    def __init__(self, emulator: Emulator, experiments: list[Experiment]):
-        self.emulator = emulator
+    def __init__(self, experiments: list[Experiment], config: Config):
         self.experiments = experiments
+        self.config = config
 
     def run(self):
         # Initialize a rich progress bar
@@ -44,7 +45,7 @@ class ExperimentRunner:
             scenario_obj = Scenario(**scenario_data)
 
         # Set scenario
-        self.emulator.set_scenario(scenario_obj)
+        emulator = Emulator(self.config, scenario_obj)
 
         timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
         experiment_results_dir = f"output/{experiment.name}"
@@ -60,7 +61,7 @@ class ExperimentRunner:
         for trial in range(experiment.trials):
             timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
             experiment_dir = os.path.join(experiment_results_dir, timestamp)
-            self.emulator.run_trial(experiment_dir, timestamp, experiment.timeout)
+            emulator.run_trial(experiment_dir, timestamp, experiment.timeout)
             progress.update(trial_task, advance=1)
 
         progress.remove_task(trial_task)
