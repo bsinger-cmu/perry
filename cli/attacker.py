@@ -1,21 +1,35 @@
 import click
-import importlib
 
 from cli.cli_context import PerryContext
-
-attacker_module = importlib.import_module("attacker")
+from attacker.Attacker import Attacker
+from attacker.config.attacker_config import (
+    AttackerConfig,
+    convert_to_environment,
+)
 
 
 @click.group()
 @click.pass_context
-@click.option("--type", help="The attacker type", required=True, type=str)
-def attacker(ctx, type: str):
+@click.option("--strategy", help="The attacker strategy", required=True, type=str)
+@click.option("--env", help="The attacker environment", required=True, type=str)
+def attacker(ctx, strategy: str, env: str):
     context: PerryContext = ctx.obj
 
+    # Check if env is valid
+    env_enum = convert_to_environment(env)
+
     # Setup attacker module
-    caldera_api_key = context.config.caldera_config.api_key
-    attacker_ = getattr(attacker_module, type)
-    context.attacker = attacker_(caldera_api_key, context.experiment_id)
+    attacker_config = AttackerConfig(
+        name=f"{strategy}: {env}",
+        strategy=strategy,
+        environment=env_enum,
+    )
+
+    context.attacker = Attacker(
+        context.config.caldera_config.api_key,
+        attacker_config,
+        context.experiment_id,
+    )
 
 
 @attacker.command()

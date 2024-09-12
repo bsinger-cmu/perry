@@ -9,7 +9,12 @@ from attacker.config.attacker_config import AttackerConfig
 
 class Attacker:
 
-    def __init__(self, caldera_api_key, config: AttackerConfig, operation_id=None):
+    def __init__(
+        self,
+        caldera_api_key: str,
+        config: AttackerConfig,
+        operation_id=None,
+    ):
         self.caldera_api_key = caldera_api_key
         self.caldera_process = None
         self.config = config
