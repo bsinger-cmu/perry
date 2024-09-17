@@ -3,9 +3,9 @@
   remote_user: root
 
   tasks:
-  - name: Add user
-    ansible.builtin.user:
-      name: "{{ user }}"
-      password: "{{ password | password_hash('sha512') }}"
-      shell: /bin/bash
-      group: admin
+    - name: Add user
+      ansible.builtin.user:
+        name: "{{ user }}"
+        password: "{{ password | password_hash('sha512') }}"
+        shell: /bin/bash
+        group: "{{ group }}"
