@@ -28,6 +28,18 @@ def build(image_name: str):
 @click.option(
     "--image_name", type=str, help="Name of the image to build", required=True
 )
+def run(image_name: str):
+    runner = AnsibleLocalRunner("./ansible")
+    # Load image
+    image_class = getattr(image_classes, image_name)
+    image = image_class(image_name, runner)
+    image.run()
+
+
+@main.command()
+@click.option(
+    "--image_name", type=str, help="Name of the image to build", required=True
+)
 def provision(image_name: str):
     runner = AnsibleLocalRunner("./ansible")
 

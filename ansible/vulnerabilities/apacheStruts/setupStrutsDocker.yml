@@ -58,9 +58,9 @@
         dest: /etc/systemd/system/
         mode: 0755
 
-    - name: Start and Enable Tomcat on sever
-      ansible.builtin.command:
-        cmd: /opt/tomcat/bin/startup.sh
+    # - name: Start and Enable Tomcat on sever
+    #   ansible.builtin.command:
+    #     cmd: /opt/tomcat/bin/startup.sh
 
     - name: Creates directory
       ansible.builtin.file:
