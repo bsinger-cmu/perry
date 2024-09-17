@@ -1,0 +1,28 @@
+version: "3"
+services:
+  attacker:
+    image: ubuntu:latest
+    container_name: attacker
+    volumes:
+      - ./:/home/perry
+    networks:
+      - dev_network
+    tty: true # Keep the container running and interact with it via terminal
+    working_dir: /home/dev
+    command: bash # Run bash so you can access it via the terminal
+
+  perry_box:
+    # path to dockerfile
+    build:
+      dockerfile: docker/Dockerfile.perry
+    volumes:
+      - ./:/home/perry
+    container_name: perry_box
+    networks:
+      - dev_network
+    tty: true # Keep the container running and interact with it via terminal
+    command: bash # Run bash so you can access it via the terminal
+
+networks:
+  dev_network:
+    driver: bridge

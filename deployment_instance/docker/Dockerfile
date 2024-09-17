@@ -1,0 +1,22 @@
+FROM ubuntu:22.04
+
+# Install python and pipx
+RUN apt-get update && \
+    apt-get -y install python3 python3-pip python-is-python3
+
+# Install poetry
+RUN pip install poetry
+
+# Attach directory to container
+COPY . /perry
+
+# Set working directory
+WORKDIR /perry
+
+# Install poetry dependencies
+RUN poetry install
+
+RUN poetry run python perry_dev.py image --image_name ${IMAGE_NAME}
+
+# Run forever
+CMD ["tail", "-f", "/dev/null"]
