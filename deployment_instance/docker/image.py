@@ -6,10 +6,15 @@ from ansible.ansible_local_runner import AnsibleLocalRunner
 
 class Image:
     def __init__(
-        self, name, ansible_runner: AnsibleLocalRunner, start_cmd: str | None = None
+        self,
+        name,
+        ansible_runner: AnsibleLocalRunner,
+        start_cmd: str | None = None,
+        dockerfile: str = "docker/Dockerfile.env_image",
     ):
         self.name = name
         self.ansible_runner = ansible_runner
+        self.dockerfile = dockerfile
 
         self.start_cmd = "tail -f /dev/null"
         if start_cmd:
@@ -18,12 +23,11 @@ class Image:
     def build(self):
         client = docker.from_env()
         path = "."
-        dockerfile = "docker/Dockerfile.env_image"
         tag = self.name.lower()
 
         client.images.build(
             path=path,
-            dockerfile=dockerfile,
+            dockerfile=self.dockerfile,
             tag=tag,
             buildargs={"IMAGE_NAME": self.name},
         )

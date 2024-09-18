@@ -1,7 +1,7 @@
-version: "3"
 services:
   attacker:
-    image: ubuntu:latest
+    build:
+      dockerfile: docker/Dockerfile.attacker
     container_name: attacker
     volumes:
       - ./:/home/perry
@@ -10,6 +10,23 @@ services:
     tty: true # Keep the container running and interact with it via terminal
     working_dir: /home/dev
     command: bash # Run bash so you can access it via the terminal
+    ports:
+      - "8888:8888"
+
+  websever:
+    build:
+      dockerfile: docker/Dockerfile.env_image
+      args:
+        - IMAGE_NAME=Webserver
+    container_name: webserver
+    networks:
+      equifax:
+        ipv4_address: 192.168.200.3
+      dev_network:
+    expose:
+      - "8080"
+      - "22"
+    command: bash -c '/opt/tomcat/bin/startup.sh && tail -f /dev/null'
 
   perry_box:
     # path to dockerfile
@@ -26,3 +43,8 @@ services:
 networks:
   dev_network:
     driver: bridge
+  equifax:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 192.168.200.0/24
