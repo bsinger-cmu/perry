@@ -6,7 +6,8 @@ services:
     volumes:
       - ./:/home/perry
     networks:
-      - dev_network
+      equifax:
+        ipv4_address: 192.168.200.2
     tty: true # Keep the container running and interact with it via terminal
     working_dir: /home/dev
     command: bash # Run bash so you can access it via the terminal
@@ -22,7 +23,6 @@ services:
     networks:
       equifax:
         ipv4_address: 192.168.200.3
-      dev_network:
     expose:
       - "8080"
       - "22"

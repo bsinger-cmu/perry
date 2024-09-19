@@ -1,6 +1,8 @@
 import click
 from deployment_instance.docker.image import Image
 from ansible.ansible_local_runner import AnsibleLocalRunner
+from ansible.ansible_docker_runner import AnsibleDockerRunner
+from deployment_instance.docker.equifax_dev_env import EquifaxDevEnv
 import importlib
 
 # Load image classes from deployment_instance/docker
@@ -47,6 +49,13 @@ def provision(image_name: str):
     image_class = getattr(image_classes, image_name)
     image = image_class(image_name, runner)
     image.ansible_provision()
+
+
+@main.command()
+def test():
+    runner = AnsibleDockerRunner("./ansible")
+    env = EquifaxDevEnv(runner)
+    env.setup()
 
 
 if __name__ == "__main__":

@@ -25,23 +25,23 @@ resource "docker_network" "webserver_network" {
 
 
 resource "docker_container" "attacker" {
-  count    = 1
-  image    = docker_image.ubuntu.name
-  name     = "attacker"
+  count = 1
+  image = docker_image.ubuntu.name
+  name  = "attacker"
   networks_advanced {
     name = docker_network.attacker_network.name
   }
   privileged = true
-  command = ["/bin/bash", "-c", "while true; do sleep 3600; done"]
+  command    = ["/bin/bash", "-c", "while true; do sleep 3600; done"]
 }
 
 resource "docker_container" "webserver" {
-  count    = 1
-  image    = docker_image.ubuntu.name
-  name     = "webserver"
+  count = 1
+  image = docker_image.ubuntu.name
+  name  = "webserver"
   networks_advanced {
     name = docker_network.webserver_network.name
   }
   privileged = true
-  command = ["/bin/bash", "-c", "while true; do sleep 3600; done"]
+  command    = ["/bin/bash", "-c", "while true; do sleep 3600; done"]
 }
