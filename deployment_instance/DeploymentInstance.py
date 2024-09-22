@@ -5,6 +5,7 @@ from deployment_instance.topology_orchestrator import deploy_network, destroy_ne
 from deployment_instance.MasterOrchestrator import MasterOrchestrator
 from colorama import Fore, Style
 from rich import print as rprint
+import openstack
 from openstack.connection import Connection
 from ansible.AnsibleRunner import AnsibleRunner
 import config.Config as Config
@@ -62,9 +63,42 @@ class DeploymentInstance:
 
     def runtime_setup(self):
         return
+    
+    def teardown(self):
+        #Deleting instances
+        print("Deleting instances...")
+        servers = self.openstack_conn.compute.servers()
+        for server in servers:
+            print(f"Deleting instance: {server.name} ({server.id})")
+            self.openstack_conn.compute.delete_server(server.id)
 
+
+        #Deleting security groups and security rules
+        print("Deleting security groups...")
+        security_groups = self.openstack_conn.network.security_groups()
+        for sg in security_groups:
+            print(f"Deleting security group: {sg.name} ({sg.id})")
+            self.openstack_conn.network.delete_security_group(sg.id)
+         
+        #Deleting subnets   
+        print("Deleting subnets...")
+        subnets = self.openstack_conn.network.subnets()
+        for subnet in subnets:
+            print(f"Deleting subnet: {subnet.name} ({subnet.id})")
+            self.openstack_conn.network.delete_subnet(subnet.id)
+            
+        #Deleting networks
+        print("Deleting networks...")
+        networks = self.openstack_conn.network.networks()
+        for network in networks:
+            print(f"Deleting network: {network.name} ({network.id})")
+            self.openstack_conn.network.delete_network(network.id)
+        
+        
     def compile(self, setup_network=True, setup_hosts=True):
         if setup_network:
+            #Reset environment
+            # self.teardown()
             # Redeploy entire network
             self.deploy_topology()
             time.sleep(5)

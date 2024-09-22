@@ -30,6 +30,7 @@ def setup(ctx, skip_network: bool):
     if skip_network:
         click.echo("Skipping network setup")
         ctx.obj.environment.runtime_setup()
+        # ctx.obj.environment.teardown()
     else:
         ctx.obj.environment.setup()
         ctx.obj.environment.runtime_setup()
