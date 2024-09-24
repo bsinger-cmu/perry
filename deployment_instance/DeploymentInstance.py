@@ -3,10 +3,12 @@ import os
 import time
 from deployment_instance.topology_orchestrator import deploy_network, destroy_network
 from deployment_instance.MasterOrchestrator import MasterOrchestrator
+from openstack_helper_functions import teardown_helper
 from colorama import Fore, Style
 from rich import print as rprint
 import openstack
 from openstack.connection import Connection
+from openstack.exceptions import SDKException
 from ansible.AnsibleRunner import AnsibleRunner
 import config.Config as Config
 from .openstack.openstack_processor import get_hosts_on_subnet
@@ -14,8 +16,6 @@ from .openstack.openstack_processor import get_hosts_on_subnet
 from utility.logging import get_logger
 
 logger = get_logger()
-
-NUMBER_ICS_HOSTS = 47
 
 
 def find_manage_server(conn, external_ip):
@@ -46,8 +46,6 @@ class DeploymentInstance:
     ):
         self.ansible_runner: AnsibleRunner = ansible_runner
         self.openstack_conn: Connection = openstack_conn
-        if self.openstack_conn.compute is None:
-            raise Exception
         self.ssh_key_path = "./environment/ssh_keys/"
         self.caldera_ip = external_ip
         self.config = config
@@ -70,118 +68,19 @@ class DeploymentInstance:
     def parse_network(self):
         return
 
-    def check_resources_deleted(self):
-        # Check Instances
-        instances = list(self.openstack_conn.list_servers())
-
-        # Check Floating IPs
-        floating_ips = list(self.openstack_conn.list_floating_ips())
-
-        # Check Routers
-        routers = list(self.openstack_conn.list_routers())
-
-        ports = list(self.openstack_conn.list_ports())
-
-        # Check Networks
-        networks = list(self.openstack_conn.list_networks())
-
-        # Check Subnets
-        subnets = list(self.openstack_conn.list_subnets())
-
-        # Check Security Groups
-        security_groups = list(self.openstack_conn.list_security_groups())
-
-        return (
-            not instances
-            and not floating_ips
-            and not routers
-            and not ports
-            and len(networks) == 2  # the external and shared network will be there
-            and len(security_groups) == 1  # the default security group will be there
-        )
-
     def teardown(self):
         print("Tearing down...")
 
-        # Deleting instances
-        servers = self.openstack_conn.list_servers()
-        for server in servers:
-            current_sgs = server.security_groups
+        conn = self.openstack_conn
 
-            if current_sgs:
-                # Remove each security group from the server
-                for sg in current_sgs:
-                    # Debug the structure of each security group object
-                    sg_name = sg.get("id")
-                    if sg_name:
-                        self.openstack_conn.remove_server_security_groups(
-                            server, sg_name
-                        )
+        teardown_helper.delete_instances(conn)
+        teardown_helper.delete_floating_ips(conn)
+        teardown_helper.delete_routers(conn)
+        teardown_helper.delete_subnets(conn)
+        teardown_helper.delete_networks(conn)
+        teardown_helper.delete_security_groups(conn)
 
-            self.openstack_conn.delete_server(server.id)
-
-        # deleting floating ips
-        floating_ips = self.openstack_conn.list_floating_ips()
-        for floating_ip in floating_ips:
-            try:
-                self.openstack_conn.delete_floating_ip(floating_ip.id)
-            except Exception as e:
-                print(f"Error deleting floating IPs: {e}")
-
-        # Function to delete routers
-        for router in self.openstack_conn.list_routers():
-
-            # First, detach all router interfaces
-            for port in self.openstack_conn.list_ports():
-                if port.device_owner == "network:router_interface":
-                    subnet_id = port.fixed_ips[0]["subnet_id"]
-                    self.openstack_conn.remove_router_interface(
-                        router, subnet_id=subnet_id
-                    )
-
-            # Finally, delete the router
-            self.openstack_conn.delete_router(router.id)
-
-        # Attempt to delete all associated ports
-        networks = self.openstack_conn.list_networks()
-        for network in networks:
-            # Get all ports associated with the network
-            ports = self.openstack_conn.list_ports()
-            for port in ports:
-                try:
-                    self.openstack_conn.delete_port(port.id)
-                except Exception as e:
-                    print(f"Error deleting port {port.id}: {e}")
-
-        # Deleting subnets
-        subnets = self.openstack_conn.list_subnets()
-        for subnet in subnets:
-            if subnet.name != "shared-subnet":
-                try:
-                    self.openstack_conn.delete_subnet(subnet.id)
-                except Exception as e:
-                    print(f"Failed to delete subnet {subnet.id}: {e}\n")
-
-        # Attempt to delete all networks
-        # Get all networks
-        networks = self.openstack_conn.list_networks()
-        for network in networks:
-            if network.name != "shared" or network.name != "external":
-                try:
-                    self.openstack_conn.delete_network(network.id)
-                except Exception as e:
-                    print(f"Error deleting network {network.name}: {e}")
-
-        # Deleting security groups and security rules
-        security_groups = self.openstack_conn.list_security_groups()
-        for sg in security_groups:
-            if sg.name != "default":
-                try:
-                    self.openstack_conn.delete_security_group(sg.id)
-                except Exception as e:
-                    print(f"Error deleting security group {sg.name} ({sg.id}): {e}")
-
-        while not self.check_resources_deleted():
+        while not teardown_helper.check_resources_deleted(conn):
             time.sleep(5)
 
     def compile(self, setup_network=True, setup_hosts=True):
@@ -190,7 +89,7 @@ class DeploymentInstance:
             self.deploy_topology()
             time.sleep(5)
 
-            # self.find_management_server(self.caldera_ip)
+            self.find_management_server(self.caldera_ip)
 
         if setup_hosts:
             # Setup instances
@@ -208,7 +107,6 @@ class DeploymentInstance:
         self.rebuild_error_hosts()
 
     def deploy_topology(self):
-        # destroy_network(self.topology)
         self.teardown()
         deploy_network(self.topology)
 
