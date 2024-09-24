@@ -44,8 +44,6 @@ class RingEnvironment(DeploymentInstance):
         self.flags = {}
         self.root_flags = {}
 
-        self.parse_network()
-
     def parse_network(self):
         self.ring_hosts = get_hosts_on_subnet(
             self.openstack_conn, "192.168.200.0/24", host_name_prefix="host"

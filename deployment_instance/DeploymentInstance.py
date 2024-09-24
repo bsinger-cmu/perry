@@ -3,11 +3,15 @@ import os
 import time
 from deployment_instance.topology_orchestrator import deploy_network, destroy_network
 from deployment_instance.MasterOrchestrator import MasterOrchestrator
+from openstack_helper_functions import teardown_helper
 from colorama import Fore, Style
 from rich import print as rprint
+import openstack
 from openstack.connection import Connection
+from openstack.exceptions import SDKException
 from ansible.AnsibleRunner import AnsibleRunner
 import config.Config as Config
+from .openstack.openstack_processor import get_hosts_on_subnet
 
 from utility.logging import get_logger
 
@@ -54,8 +58,6 @@ class DeploymentInstance:
         self.flags = {}
         self.root_flags = {}
 
-        self.find_management_server(external_ip)
-
     # Protofunction, this is where you define everything needed to setup the instance
     def compile_setup(self):
         return
@@ -63,11 +65,31 @@ class DeploymentInstance:
     def runtime_setup(self):
         return
 
+    def parse_network(self):
+        return
+
+    def teardown(self):
+        print("Tearing down...")
+
+        conn = self.openstack_conn
+
+        teardown_helper.delete_instances(conn)
+        teardown_helper.delete_floating_ips(conn)
+        teardown_helper.delete_routers(conn)
+        teardown_helper.delete_subnets(conn)
+        teardown_helper.delete_networks(conn)
+        teardown_helper.delete_security_groups(conn)
+
+        while not teardown_helper.check_resources_deleted(conn):
+            time.sleep(5)
+
     def compile(self, setup_network=True, setup_hosts=True):
         if setup_network:
             # Redeploy entire network
             self.deploy_topology()
             time.sleep(5)
+
+            self.find_management_server(self.caldera_ip)
 
         if setup_hosts:
             # Setup instances
@@ -77,13 +99,15 @@ class DeploymentInstance:
         self.save_all_snapshots()
 
     def setup(self):
+        self.find_management_server(self.caldera_ip)
+        self.parse_network()
         # Load snapshots
         self.load_all_snapshots()
         time.sleep(10)
         self.rebuild_error_hosts()
 
     def deploy_topology(self):
-        destroy_network(self.topology)
+        self.teardown()
         deploy_network(self.topology)
 
     def find_management_server(self, external_ip):
