@@ -6,6 +6,11 @@ import time
 def deploy_network(name):
     deployment_dir = os.path.join("deployment_instance/topologies", name)
 
+    print("Initializing Terraform directory...")
+    result = subprocess.run(
+        ["terraform", "init"], cwd=deployment_dir, capture_output=True, text=True
+    )
+
     print("Deploying network (might take a minute)...")
     process = subprocess.Popen(
         ["terraform", "apply", "-var-file=../../credentials.tfvars", "-auto-approve"],
