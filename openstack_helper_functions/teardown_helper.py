@@ -84,26 +84,26 @@ def delete_security_groups(conn):
             pass
 
 
-def check_resources_deleted(self):
+def check_resources_deleted(conn):
     # Check Instances
-    instances = list(self.openstack_conn.list_servers())
+    instances = list(conn.list_servers())
 
     # Check Floating IPs
-    floating_ips = list(self.openstack_conn.list_floating_ips())
+    floating_ips = list(conn.list_floating_ips())
 
     # Check Routers
-    routers = list(self.openstack_conn.list_routers())
+    routers = list(conn.list_routers())
 
-    ports = list(self.openstack_conn.list_ports())
+    ports = list(conn.list_ports())
 
     # Check Networks
-    networks = list(self.openstack_conn.list_networks())
+    networks = list(conn.list_networks())
 
     # Check Subnets
-    subnets = list(self.openstack_conn.list_subnets())
+    subnets = list(conn.list_subnets())
 
     # Check Security Groups
-    security_groups = list(self.openstack_conn.list_security_groups())
+    security_groups = list(conn.list_security_groups())
 
     return (
         not instances

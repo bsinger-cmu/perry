@@ -2,29 +2,35 @@ import subprocess
 import os
 import time
 
-def deploy_network(name):
-    deployment_dir = os.path.join('deployment_instance/topologies', name)
 
-    print('Deploying network (might take a minute)...')
-    process = subprocess.Popen(['terraform', 'apply', '-var-file=../../credentials.tfvars', '-auto-approve'], 
-                                cwd=deployment_dir,
-                                stdout=subprocess.PIPE,
-                                universal_newlines=True)
-    
+def deploy_network(name):
+    deployment_dir = os.path.join("deployment_instance/topologies", name)
+
+    print("Deploying network (might take a minute)...")
+    process = subprocess.Popen(
+        ["terraform", "apply", "-var-file=../../credentials.tfvars", "-auto-approve"],
+        cwd=deployment_dir,
+        stdout=subprocess.PIPE,
+        universal_newlines=True,
+    )
+
     stdout, stderr = process.communicate()
 
     # Wait a few seconds for the network to be deployed
     # TODO ping server to see if it is up
-    print('Finished!')
+    print("Finished!")
+
 
 def destroy_network(name):
-    deployment_dir = os.path.join('deployment_instance/topologies', name)
+    deployment_dir = os.path.join("deployment_instance/topologies", name)
 
-    print('Destroying network (might take a minute)...')
-    process = subprocess.Popen(['terraform', 'destroy', '-var-file=../../credentials.tfvars', '-auto-approve'], 
-                                cwd=deployment_dir,
-                                stdout=subprocess.PIPE,
-                                universal_newlines=True)
-    
+    print("Destroying network (might take a minute)...")
+    process = subprocess.Popen(
+        ["terraform", "destroy", "-var-file=../../credentials.tfvars", "-auto-approve"],
+        cwd=deployment_dir,
+        stdout=subprocess.PIPE,
+        universal_newlines=True,
+    )
+
     stdout, stderr = process.communicate()
-    print('Finished!')
+    print("Finished!")

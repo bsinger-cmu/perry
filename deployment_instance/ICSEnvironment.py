@@ -65,7 +65,7 @@ class ICSEnvironment(DeploymentInstance):
         self.all_employee_two_hosts = self.employee_two_hosts + self.manage_two_host
 
         self.manage_hosts = self.manage_one_host + self.manage_two_host
-        
+
         self.attacker_host = get_hosts_on_subnet(
             self.openstack_conn, "192.168.202.0/24", host_name_prefix="attacker"
         )[0]
