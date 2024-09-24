@@ -44,8 +44,6 @@ class ICSEnvironment(DeploymentInstance):
         self.flags = {}
         self.root_flags = {}
 
-        self.parse_network()
-
     def parse_network(self):
         self.employee_one_hosts = get_hosts_on_subnet(
             self.openstack_conn, "192.168.200.0/24", host_name_prefix="employee_A"
@@ -101,9 +99,7 @@ class ICSEnvironment(DeploymentInstance):
             )
 
     def compile_setup(self):
-        log_event("Deployment Instace", "Setting up ICS network")
-        self.find_management_server(self.caldera_ip)
-        self.parse_network()
+        log_event("Deployment Instance", "Setting up ICS network")
 
         self.ansible_runner.run_playbook(CheckIfHostUp(self.employee_one_hosts[0].ip))
         time.sleep(3)

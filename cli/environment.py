@@ -32,6 +32,7 @@ def setup(ctx, skip_network: bool):
         ctx.obj.environment.runtime_setup()
         # ctx.obj.environment.teardown()
     else:
+        ctx.obj.environment.deploy_topology()
         ctx.obj.environment.setup()
         ctx.obj.environment.runtime_setup()
 
