@@ -1,7 +1,7 @@
-from .HighLevelEvent import HighLevelEvent
+from .event import Event
 
 
-class SSHEvent(HighLevelEvent):
+class SSHEvent(Event):
 
     def __init__(self, source_ip: str, target_ip: str, port: int) -> None:
         super().__init__()

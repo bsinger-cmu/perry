@@ -9,6 +9,7 @@ from ansible.AnsibleRunner import AnsibleRunner
 from deployment_instance import GoalKeeper
 from defender.arsenal import CountArsenal
 from defender import Defender
+from defender.telemetry.telemetry_service import TelemetryService
 from attacker.Attacker import Attacker
 from attacker.config.attacker_config import AttackerConfig
 from scenarios.Scenario import Scenario
@@ -144,6 +145,7 @@ class Emulator:
         ### Telemetry ###
         telemetry_ = getattr(telemetry_module, self.scenario.defender.telemetry)
         telemetry = telemetry_(elasticsearch_conn, self.deployment_instance.network)
+        telemetry_service = TelemetryService(telemetry)
 
         ### Arsenal ###
         arsenal = CountArsenal(self.scenario.defender.capabilities)
@@ -163,10 +165,16 @@ class Emulator:
 
         ### Strategy ###
         strategy_ = getattr(strategy_module, self.scenario.defender.strategy)
-        strategy = strategy_(arsenal, self.deployment_instance.network, orchestrator)
+        strategy = strategy_(
+            arsenal, self.deployment_instance.network, orchestrator, telemetry_service
+        )
 
         self.defender = Defender(
-            arsenal, strategy, telemetry, orchestrator, self.deployment_instance.network
+            arsenal,
+            strategy,
+            telemetry_service,
+            orchestrator,
+            self.deployment_instance.network,
         )
 
         self.defender.start()

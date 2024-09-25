@@ -9,7 +9,6 @@ from defender.orchestrator.openstack_actuators import (
     AddHoneyCredentials as AddHoneyCredentialsActuator,
 )
 
-from defender.telemetry.events import HighLevelEvent
 from . import Strategy
 
 import random
@@ -18,7 +17,7 @@ from utility.logging import log_event
 
 class StaticStandalone(Strategy):
     # Run actions before the scenario starts
-    def initialize(self) -> list[Action]:
+    def initialize(self):
         log_event("StaticStandalone", "Initializing StaticStandalone strategy")
         num_decoys = self.arsenal.storage["DeployDecoy"]
         num_honeycreds = self.arsenal.storage["HoneyCredentials"]
@@ -65,10 +64,6 @@ class StaticStandalone(Strategy):
             credential_actions, self.orchestrator.ansible_runner
         )
 
-        return []
-
     # Run actions during the scenario
-    def run(self, new_events: list[HighLevelEvent]) -> list[Action]:
-        actions = []
-
-        return actions
+    def run(self):
+        pass

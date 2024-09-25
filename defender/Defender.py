@@ -1,44 +1,35 @@
 from .orchestrator import OpenstackOrchestrator
 from .arsenal import Arsenal
 from .strategy import Strategy
-from .telemetry import TelemetryAnalysis
+from .telemetry.telemetry_service import TelemetryService
 
 from deployment_instance.network import Network
 
-from queue import Queue
+from .telemetry.telemetry_service import TelemetryService
 
 
 class Defender:
-    strategy: Strategy
-    telemetryAnalysis: TelemetryAnalysis
-    arsenal: Arsenal
-    orchestrator: OpenstackOrchestrator
-    network: Network
-
     def __init__(
         self,
         arsenal: Arsenal,
         strategy: Strategy,
-        telemetryAnalysis: TelemetryAnalysis,
+        telemetry_service: TelemetryService,
         orchestrator: OpenstackOrchestrator,
         network: Network,
     ):
         self.metrics = {}
         self.arsenal = arsenal
         self.strategy = strategy
-        self.telemetry_analysis = telemetryAnalysis
+        self.telemetry_service = telemetry_service
         self.orchestrator = orchestrator
         self.network = network
 
     def start(self):
         # Run initial strategy setup
-        initial_actions = self.strategy.initialize()
-        self.orchestrator.run(initial_actions)
+        self.strategy.initialize()
 
     def run(self):
         # Process telemetry
-        new_events = self.telemetry_analysis.process_low_level_events()
+        self.telemetry_service.process_telemetry()
         # Run strategy
-        actions = self.strategy.run(new_events)
-        # Run strategy actions
-        self.orchestrator.run(actions)
+        self.strategy.run()

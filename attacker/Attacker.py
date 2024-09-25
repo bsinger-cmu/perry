@@ -5,6 +5,7 @@ from datetime import datetime
 import subprocess
 import os
 from attacker.config.attacker_config import AttackerConfig
+import psutil
 
 
 class Attacker:
@@ -32,7 +33,17 @@ class Attacker:
         }
         return
 
+    def kill_existing_caldera(self):
+        # Find and terminate any running Caldera server processes
+        for proc in psutil.process_iter(["pid", "name", "cmdline"]):
+            # Check if the process matches the Caldera server
+            if "server.py" in proc.info["cmdline"]:
+                proc.terminate()  # Send a SIGTERM
+                proc.wait(timeout=5)  # Wait for process to terminate
+
     def start_server(self, caldera_python_env, caldera_path):
+        self.kill_existing_caldera()
+
         # Start Caldera
         self.caldera_process = subprocess.Popen(
             [caldera_python_env, "server.py", "--insecure", "--fresh"],

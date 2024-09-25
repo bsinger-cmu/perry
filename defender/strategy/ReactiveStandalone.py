@@ -1,12 +1,11 @@
 from deployment_instance.network import Host
 from defender.capabilities import (
-    Action,
     DeployDecoy,
     AddHoneyCredentials,
     RestoreServer,
 )
 
-from defender.telemetry.events import HighLevelEvent, DecoyCredentialUsed, SSHEvent
+from defender.telemetry.events import Event, DecoyCredentialUsed, SSHEvent
 from . import Strategy
 
 from utility.logging import log_event
@@ -14,8 +13,7 @@ from utility.logging import log_event
 
 class ReactiveStandalone(Strategy):
     # Run actions before the scenario starts
-    def initialize(self) -> list[Action]:
-        log_event("ReactiveLayered", "Initializing ReactiveLayered strategy")
+    def initialize(self):
         num_decoys = self.arsenal.storage["DeployDecoy"]
         num_honeycreds = self.arsenal.storage["HoneyCredentials"]
 
@@ -56,44 +54,39 @@ class ReactiveStandalone(Strategy):
                     [AddHoneyCredentials(deploy_host, target_host, 1, real=False)]
                 )
 
-        return []
+        self.telemetry_service.subscribe(
+            DecoyCredentialUsed, self.handle_decoy_credential
+        )
+        self.telemetry_service.subscribe(SSHEvent, self.handle_ssh_event)
 
-    # Run actions during the scenario
-    def run(self, new_events: list[HighLevelEvent]) -> list[Action]:
+    def handle_decoy_credential(self, event: DecoyCredentialUsed):
+        log_event("Decoy used", f"Decoy used on host {event.source_ip}")
+        if self.max_restores == -1 or self.restore_count < self.max_restores:
+            # Restore host if attacker is detected
+            attacker_ip = event.source_ip
+            restoreAction = RestoreServer(attacker_ip)
+            self.orchestrator.run([restoreAction])
+            self.restore_count += 1
+
+    def handle_ssh_event(self, event: SSHEvent):
         actions = []
-
-        # Process events
-        for event in new_events:
-            if isinstance(event, DecoyCredentialUsed):
-                log_event("Decoy used", f"Decoy used on host {event.source_ip}")
-                if self.max_restores == -1 or self.restore_count < self.max_restores:
-                    # Restore host if attacker is detected
-                    attacker_ip = event.source_ip
-                    restoreAction = RestoreServer(attacker_ip)
-                    actions.append(restoreAction)
-                    self.restore_count += 1
-
-            if isinstance(event, SSHEvent):
+        if self.network.is_ip_decoy(event.target_ip):
+            if self.max_restores == -1 or self.restore_count < self.max_restores:
                 # fmt: off
-                log_event("SSH connection detected", f"SSH connection from {event.source_ip} to {event.target_ip}:{event.port}")
+                log_event("Restoring hosts", f"Restoring host {event.source_ip} after SSH connection detected")
                 # fmt: on
 
-                if self.network.is_ip_decoy(event.target_ip):
-                    if (
-                        self.max_restores == -1
-                        or self.restore_count < self.max_restores
-                    ):
-                        # fmt: off
-                        log_event("Restoring hosts", f"Restoring host {event.source_ip} after SSH connection detected")
-                        # fmt: on
+                # Restore host if SSH connection is detected
+                restoreAction = RestoreServer(event.source_ip)
+                actions.append(restoreAction)
+                self.restore_count += 1
 
-                        # Restore host if SSH connection is detected
-                        restoreAction = RestoreServer(event.source_ip)
-                        actions.append(restoreAction)
-                        self.restore_count += 1
+                # Can restore decoy as many times as you want
+                restoreAction = RestoreServer(event.target_ip)
+                actions.append(restoreAction)
 
-                        # Can restore decoy as many times as you want
-                        restoreAction = RestoreServer(event.target_ip)
-                        actions.append(restoreAction)
+        self.orchestrator.run(actions)
 
-        return actions
+    # Run actions during the scenario
+    def run(self):
+        pass

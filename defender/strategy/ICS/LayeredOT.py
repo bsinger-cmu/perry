@@ -9,7 +9,7 @@ from defender.orchestrator.openstack_actuators import (
     AddHoneyCredentials as AddHoneyCredentialsActuator,
 )
 
-from defender.telemetry.events import HighLevelEvent
+from defender.telemetry.events import Event
 from defender.strategy import Strategy
 
 import random
@@ -67,7 +67,7 @@ class LayeredOT(Strategy):
         return []
 
     # Run actions during the scenario
-    def run(self, new_events: list[HighLevelEvent]) -> list[Action]:
+    def run(self, new_events: list[Event]) -> list[Action]:
         actions = []
 
         return actions

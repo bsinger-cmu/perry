@@ -1,9 +1,11 @@
-from .events import HighLevelEvent
+from .events import Event
 from elasticsearch import Elasticsearch
 from deployment_instance.network import Network
 
+from abc import ABC, abstractmethod
 
-class TelemetryAnalysis:
+
+class TelemetryAnalysis(ABC):
     def __init__(self, elasticsearch_conn: Elasticsearch, network: Network):
         self.elasticsearch_conn = elasticsearch_conn
         self.network = network
@@ -16,7 +18,7 @@ class TelemetryAnalysis:
         if not self.elasticsearch_conn.indices.exists(index="sysflow"):
             self.elasticsearch_conn.indices.create(index="sysflow")
 
-    def get_new_telemetry(self):
+    def get_new_telemetry(self) -> list[dict]:
         # Get new deception alerts
         last_second_query = {"range": {"@timestamp": {"gte": "now-10s"}}}
         alert_query_data = self.elasticsearch_conn.search(
@@ -52,5 +54,6 @@ class TelemetryAnalysis:
 
         return new_telemetry
 
-    def process_low_level_events(self) -> list[HighLevelEvent]:
-        return []
+    @abstractmethod
+    def process_low_level_events(self, new_telemetry: list[dict]) -> list[Event]:
+        pass

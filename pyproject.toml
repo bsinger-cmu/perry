@@ -18,6 +18,9 @@ colorama = "^0.4.6"
 faker = "^28.4.1"
 elasticsearch = "^8.15.1"
 passlib = "^1.7.4"
+black = "^24.8.0"
+flake8 = "^7.1.1"
+psutil = "^6.0.0"
 
 
 [build-system]

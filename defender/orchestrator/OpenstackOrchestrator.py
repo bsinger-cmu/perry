@@ -10,13 +10,14 @@ from defender import capabilities
 from openstack.connection import Connection
 from config.Config import Config
 from deployment_instance.network import Network
+from ansible.AnsibleRunner import AnsibleRunner
 
 
 class OpenstackOrchestrator(Orchestrator):
     def __init__(
         self,
         openstack_conn: Connection,
-        ansible_runner,
+        ansible_runner: AnsibleRunner,
         external_elasticsearch_server,
         elasticsearch_api_key,
         config: Config,

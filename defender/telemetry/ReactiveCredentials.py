@@ -1,6 +1,6 @@
 from .TelemetryAnalysis import TelemetryAnalysis
 
-from .events import HighLevelEvent, SSHEvent, DecoyCredentialUsed
+from .events import Event, SSHEvent, DecoyCredentialUsed
 
 from utility.logging import PerryLogger
 
@@ -8,9 +8,8 @@ logger = PerryLogger.get_logger()
 
 
 class ReactiveCredentials(TelemetryAnalysis):
-    def process_low_level_events(self) -> list[HighLevelEvent]:
+    def process_low_level_events(self, new_telemetry: list[dict]) -> list[Event]:
         high_level_events = []
-        new_telemetry = self.get_new_telemetry()
 
         for alert in new_telemetry:
             alert_data = alert["_source"]

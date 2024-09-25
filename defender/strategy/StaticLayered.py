@@ -1,7 +1,5 @@
 from deployment_instance.network import Host
 from defender.capabilities import (
-    Action,
-    StartHoneyService,
     DeployDecoy,
     AddHoneyCredentials,
 )
@@ -9,18 +7,12 @@ from defender.capabilities import (
 from defender.orchestrator.openstack_actuators import (
     AddHoneyCredentials as AddHoneyCredentialsActuator,
 )
-
-from defender.telemetry.events import HighLevelEvent
 from . import Strategy
-
-import random
-from utility.logging import log_event
 
 
 class StaticLayered(Strategy):
     # Run actions before the scenario starts
-    def initialize(self) -> list[Action]:
-        log_event("StaticLayered", "Initializing StaticLayered strategy")
+    def initialize(self):
         num_decoys = self.arsenal.storage["DeployDecoy"]
         num_honeycreds = self.arsenal.storage["HoneyCredentials"]
 
@@ -62,10 +54,6 @@ class StaticLayered(Strategy):
             credentialActions, self.orchestrator.ansible_runner
         )
 
-        return []
-
     # Run actions during the scenario
-    def run(self, new_events: list[HighLevelEvent]) -> list[Action]:
-        actions = []
-
-        return actions
+    def run(self):
+        pass

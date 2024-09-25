@@ -1,7 +1,7 @@
 from deployment_instance.network import Host
 from defender.capabilities import Action, DeployDecoy, DeployDecoy
 
-from defender.telemetry.events import HighLevelEvent
+from defender.telemetry.events import Event
 from . import Strategy
 
 from utility.logging import log_event
@@ -9,7 +9,7 @@ from utility.logging import log_event
 
 class NaiveDecoyHost(Strategy):
     # Run actions before the scenario starts
-    def initialize(self) -> list[Action]:
+    def initialize(self):
         log_event("StaticStandalone", "Initializing StaticStandalone strategy")
         num_decoys = self.arsenal.storage["DeployDecoy"]
         actions = []
@@ -38,10 +38,7 @@ class NaiveDecoyHost(Strategy):
 
         # Initialize decoys so we can setup fake credentials
         self.orchestrator.run(actions)
-        return []
 
     # Run actions during the scenario
-    def run(self, new_events: list[HighLevelEvent]) -> list[Action]:
-        actions = []
-
-        return actions
+    def run(self):
+        pass

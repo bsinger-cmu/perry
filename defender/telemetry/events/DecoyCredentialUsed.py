@@ -1,7 +1,7 @@
-from .HighLevelEvent import HighLevelEvent
+from .event import Event
 
 
-class DecoyCredentialUsed(HighLevelEvent):
+class DecoyCredentialUsed(Event):
 
     def __init__(self, source_ip: str, decoy_user: str) -> None:
         super().__init__()
