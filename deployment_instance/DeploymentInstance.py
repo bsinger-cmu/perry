@@ -17,6 +17,10 @@ from utility.logging import get_logger
 
 logger = get_logger()
 
+NUM_PERMANENT_SUBNETS = 1
+NUM_PERMANENT_NETS = 2
+NUM_PERMANENT_SECURITY_GROUPS = 1
+
 
 def find_manage_server(conn, external_ip):
     """Finds management server that can be used to talk to other servers
@@ -74,14 +78,28 @@ class DeploymentInstance:
         conn = self.openstack_conn
 
         teardown_helper.delete_instances(conn)
-        teardown_helper.delete_floating_ips(conn)
-        teardown_helper.delete_routers(conn)
-        teardown_helper.delete_subnets(conn)
-        teardown_helper.delete_networks(conn)
-        teardown_helper.delete_security_groups(conn)
+        while conn.list_servers():
+            time.sleep(0.5)
 
-        while not teardown_helper.check_resources_deleted(conn):
-            time.sleep(5)
+        teardown_helper.delete_floating_ips(conn)
+        while conn.list_floating_ips():
+            time.sleep(0.5)
+
+        teardown_helper.delete_routers(conn)
+        while conn.list_routers():
+            time.sleep(0.5)
+
+        teardown_helper.delete_subnets(conn)
+        while len(conn.list_subnets()) > NUM_PERMANENT_SUBNETS:
+            time.sleep(0.5)
+
+        teardown_helper.delete_networks(conn)
+        while len(conn.list_networks()) > NUM_PERMANENT_NETS:
+            time.sleep(0.5)
+
+        teardown_helper.delete_security_groups(conn)
+        while len(conn.list_security_groups()) > NUM_PERMANENT_SECURITY_GROUPS:
+            time.sleep(0.5)
 
     def compile(self, setup_network=True, setup_hosts=True):
         if setup_network:

@@ -82,34 +82,3 @@ def delete_security_groups(conn):
             conn.delete_security_group(sg.id)
         except SDKException:
             pass
-
-
-def check_resources_deleted(conn):
-    # Check Instances
-    instances = list(conn.list_servers())
-
-    # Check Floating IPs
-    floating_ips = list(conn.list_floating_ips())
-
-    # Check Routers
-    routers = list(conn.list_routers())
-
-    ports = list(conn.list_ports())
-
-    # Check Networks
-    networks = list(conn.list_networks())
-
-    # Check Subnets
-    subnets = list(conn.list_subnets())
-
-    # Check Security Groups
-    security_groups = list(conn.list_security_groups())
-
-    return (
-        not instances
-        and not floating_ips
-        and not routers
-        and not ports
-        and len(networks) == 2  # the external and shared network will be there
-        and len(security_groups) == 1  # the default security group will be there
-    )
