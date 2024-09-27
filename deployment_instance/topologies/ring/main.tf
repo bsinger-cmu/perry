@@ -3,6 +3,9 @@
 data "openstack_networking_network_v2" "external_network" {
   name = "external"
 }
+module "manage_rules" {
+  source = "../modules/"
+}
 
 resource "openstack_networking_network_v2" "manage_network" {
   name           = "manage_network"
@@ -79,8 +82,8 @@ resource "openstack_compute_instance_v2" "manage_host" {
   flavor_name = "m1.small"
   key_pair    = var.perry_key_name
   security_groups = [
-    openstack_networking_secgroup_v2.talk_to_manage.name,
-    openstack_networking_secgroup_v2.manage_freedom.name
+    module.manage_rules.talk_to_manage_name,
+    module.manage_rules.manage_freedom_name
   ]
 
   network {
@@ -106,7 +109,7 @@ resource "openstack_compute_instance_v2" "ring_host" {
   flavor_name = "p2.tiny"
   key_pair    = var.perry_key_name
   security_groups = [
-    openstack_networking_secgroup_v2.talk_to_manage.name,
+    module.manage_rules.talk_to_manage_name,
     openstack_networking_secgroup_v2.employee_one_group.name
   ]
 
@@ -126,7 +129,7 @@ resource "openstack_compute_instance_v2" "attacker" {
   flavor_name = "m1.small"
   key_pair    = var.perry_key_name
   security_groups = [
-    openstack_networking_secgroup_v2.talk_to_manage.name,
+    module.manage_rules.talk_to_manage_name,
     openstack_networking_secgroup_v2.attacker.name
   ]
 

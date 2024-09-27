@@ -1,56 +1,8 @@
-### Management rules, all servers need SSH access from management network ###
-resource "openstack_networking_secgroup_v2" "talk_to_manage" {
-  name        = "talk_to_manage"
-  description = ""
-}
-
-resource "openstack_networking_secgroup_rule_v2" "manage_ssh_in" {
-  direction         = "ingress"
-  ethertype         = "IPv4"
-  protocol          = "tcp"
-  port_range_min    = 22
-  port_range_max    = 22
-  remote_ip_prefix  = "192.168.198.0/24"
-  security_group_id = openstack_networking_secgroup_v2.talk_to_manage.id
-}
-
-resource "openstack_networking_secgroup_rule_v2" "manage_ssh_out" {
-  direction         = "egress"
-  ethertype         = "IPv4"
-  protocol          = "tcp"
-  port_range_min    = 22
-  port_range_max    = 22
-  remote_ip_prefix  = "192.168.198.0/24"
-  security_group_id = openstack_networking_secgroup_v2.talk_to_manage.id
-}
-resource "openstack_networking_secgroup_v2" "manage_freedom" {
-  name        = "manage_freedom"
-  description = ""
-}
-
-resource "openstack_networking_secgroup_rule_v2" "manage_freedom_ssh_out" {
-  direction         = "egress"
-  ethertype         = "IPv4"
-  protocol          = "tcp"
-  port_range_min    = 22
-  port_range_max    = 22
-  remote_ip_prefix  = "0.0.0.0/0"
-  security_group_id = openstack_networking_secgroup_v2.manage_freedom.id
-}
-resource "openstack_networking_secgroup_rule_v2" "manage_freedom_ssh_in" {
-  direction         = "ingress"
-  ethertype         = "IPv4"
-  protocol          = "tcp"
-  port_range_min    = 22
-  port_range_max    = 22
-  remote_ip_prefix  = "0.0.0.0/0"
-  security_group_id = openstack_networking_secgroup_v2.manage_freedom.id
-}
-
 ### Webserver Network Rules ###
 resource "openstack_networking_secgroup_v2" "webserver" {
-  name        = "webserver"
-  description = "Webserver security group"
+  name                 = "webserver"
+  description          = "Webserver security group"
+  delete_default_rules = true
 }
 
 # Webservers can talk to anything
@@ -76,8 +28,9 @@ resource "openstack_networking_secgroup_rule_v2" "webserver_tcp_out" {
 
 ### Critical Company Network Rules ###
 resource "openstack_networking_secgroup_v2" "critical_company" {
-  name        = "critical_company"
-  description = "critical company security group"
+  name                 = "critical_company"
+  description          = "critical company security group"
+  delete_default_rules = true
 }
 
 # Everyone in critical company can talk to each other
@@ -123,8 +76,9 @@ resource "openstack_networking_secgroup_rule_v2" "critical_company_webserver_tcp
 
 ### Attacker Network Rules ###
 resource "openstack_networking_secgroup_v2" "attacker" {
-  name        = "attacker"
-  description = "attacker security group"
+  name                 = "attacker"
+  description          = "attacker security group"
+  delete_default_rules = true
 }
 
 # Attackers can talk to anything

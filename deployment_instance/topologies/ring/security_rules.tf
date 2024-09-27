@@ -1,56 +1,8 @@
-### Management rules, all servers need SSH access from management network ###
-resource "openstack_networking_secgroup_v2" "talk_to_manage" {
-  name        = "talk_to_manage"
-  description = ""
-}
-
-resource "openstack_networking_secgroup_rule_v2" "manage_ssh_in" {
-  direction         = "ingress"
-  ethertype         = "IPv4"
-  protocol          = "tcp"
-  port_range_min    = 22
-  port_range_max    = 22
-  remote_ip_prefix  = "192.168.198.0/24"
-  security_group_id = openstack_networking_secgroup_v2.talk_to_manage.id
-}
-
-resource "openstack_networking_secgroup_rule_v2" "manage_ssh_out" {
-  direction         = "egress"
-  ethertype         = "IPv4"
-  protocol          = "tcp"
-  port_range_min    = 22
-  port_range_max    = 22
-  remote_ip_prefix  = "192.168.198.0/24"
-  security_group_id = openstack_networking_secgroup_v2.talk_to_manage.id
-}
-resource "openstack_networking_secgroup_v2" "manage_freedom" {
-  name        = "manage_freedom"
-  description = ""
-}
-
-resource "openstack_networking_secgroup_rule_v2" "manage_freedom_ssh_out" {
-  direction         = "egress"
-  ethertype         = "IPv4"
-  protocol          = "tcp"
-  port_range_min    = 22
-  port_range_max    = 22
-  remote_ip_prefix  = "0.0.0.0/0"
-  security_group_id = openstack_networking_secgroup_v2.manage_freedom.id
-}
-resource "openstack_networking_secgroup_rule_v2" "manage_freedom_ssh_in" {
-  direction         = "ingress"
-  ethertype         = "IPv4"
-  protocol          = "tcp"
-  port_range_min    = 22
-  port_range_max    = 22
-  remote_ip_prefix  = "0.0.0.0/0"
-  security_group_id = openstack_networking_secgroup_v2.manage_freedom.id
-}
-
 ### Employee One Network Rules ###
 resource "openstack_networking_secgroup_v2" "employee_one_group" {
-  name        = "employee_one_group"
-  description = "employee one security group"
+  name                 = "employee_one_group"
+  description          = "employee one security group"
+  delete_default_rules = true
 }
 
 # Employee One can talk to anything
@@ -75,8 +27,9 @@ resource "openstack_networking_secgroup_rule_v2" "employee_one_tcp_out" {
 
 ### Employee Two Network Rules ###
 resource "openstack_networking_secgroup_v2" "employee_two_group" {
-  name        = "employee_two_group"
-  description = "employee two security group"
+  name                 = "employee_two_group"
+  description          = "employee two security group"
+  delete_default_rules = true
 }
 
 # Employee Two can talk to anything
@@ -103,8 +56,9 @@ resource "openstack_networking_secgroup_rule_v2" "employee_two_tcp_out" {
 
 ### OT Network ###
 resource "openstack_networking_secgroup_v2" "ot_group" {
-  name        = "ot_group"
-  description = "OT network security group"
+  name                 = "ot_group"
+  description          = "OT network security group"
+  delete_default_rules = true
 }
 
 # OT can only talk to Employee One and Employee Two and the management network
@@ -150,8 +104,9 @@ resource "openstack_networking_secgroup_rule_v2" "ot_tcp_out" {
 
 ### Attacker Network Rules ###
 resource "openstack_networking_secgroup_v2" "attacker" {
-  name        = "attacker"
-  description = "attacker security group"
+  name                 = "attacker"
+  description          = "attacker security group"
+  delete_default_rules = true
 }
 
 # Attackers can talk to anything

@@ -3,6 +3,9 @@
 data "openstack_networking_network_v2" "external_network" {
   name = "external"
 }
+module "manage_rules" {
+  source = "../modules/"
+}
 
 resource "openstack_networking_network_v2" "manage_network" {
   name           = "manage_network"

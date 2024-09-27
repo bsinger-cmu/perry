@@ -3,6 +3,9 @@
 data "openstack_networking_network_v2" "external_network" {
   name = "external"
 }
+module "manage_rules" {
+  source = "../modules/"
+}
 
 resource "openstack_networking_network_v2" "manage_network" {
   name           = "manage_network"
@@ -120,8 +123,8 @@ resource "openstack_compute_instance_v2" "manage_host" {
   flavor_name = "m1.small"
   key_pair    = var.perry_key_name
   security_groups = [
-    openstack_networking_secgroup_v2.talk_to_manage.name,
-    openstack_networking_secgroup_v2.manage_freedom.name
+    module.manage_rules.talk_to_manage_name,
+    module.manage_rules.manage_freedom_name
   ]
 
   network {
@@ -147,7 +150,7 @@ resource "openstack_compute_instance_v2" "employee_one" {
   flavor_name = "p2.tiny"
   key_pair    = var.perry_key_name
   security_groups = [
-    openstack_networking_secgroup_v2.talk_to_manage.name,
+    module.manage_rules.talk_to_manage_name,
     openstack_networking_secgroup_v2.employee_one_group.name
   ]
 
@@ -167,7 +170,7 @@ resource "openstack_compute_instance_v2" "manage_employee_one" {
   flavor_name = "p2.tiny"
   key_pair    = var.perry_key_name
   security_groups = [
-    openstack_networking_secgroup_v2.talk_to_manage.name,
+    module.manage_rules.talk_to_manage_name,
     openstack_networking_secgroup_v2.employee_one_group.name
   ]
 
@@ -186,7 +189,7 @@ resource "openstack_compute_instance_v2" "employee_two" {
   flavor_name = "p2.tiny"
   key_pair    = var.perry_key_name
   security_groups = [
-    openstack_networking_secgroup_v2.talk_to_manage.name,
+    module.manage_rules.talk_to_manage_name,
     openstack_networking_secgroup_v2.employee_two_group.name
   ]
 
@@ -205,12 +208,12 @@ resource "openstack_compute_instance_v2" "manage_employee_two" {
   flavor_name = "p2.tiny"
   key_pair    = var.perry_key_name
   security_groups = [
-    openstack_networking_secgroup_v2.talk_to_manage.name,
+    module.manage_rules.talk_to_manage_name,
     openstack_networking_secgroup_v2.employee_two_group.name
   ]
 
   network {
-    name        = "employee_two_network"
+    name = "employee_two_network"
   }
 
   depends_on = [openstack_networking_subnet_v2.employee_two_subnet]
@@ -223,7 +226,7 @@ resource "openstack_compute_instance_v2" "ot_sensors" {
   flavor_name = "p2.tiny"
   key_pair    = var.perry_key_name
   security_groups = [
-    openstack_networking_secgroup_v2.talk_to_manage.name,
+    module.manage_rules.talk_to_manage_name,
     openstack_networking_secgroup_v2.ot_group.name
   ]
 
@@ -242,7 +245,7 @@ resource "openstack_compute_instance_v2" "ot_hosts" {
   flavor_name = "p2.tiny"
   key_pair    = var.perry_key_name
   security_groups = [
-    openstack_networking_secgroup_v2.talk_to_manage.name,
+    module.manage_rules.talk_to_manage_name,
     openstack_networking_secgroup_v2.ot_group.name
   ]
 
@@ -262,7 +265,7 @@ resource "openstack_compute_instance_v2" "attacker" {
   flavor_name = "m1.small"
   key_pair    = var.perry_key_name
   security_groups = [
-    openstack_networking_secgroup_v2.talk_to_manage.name,
+    module.manage_rules.talk_to_manage_name,
     openstack_networking_secgroup_v2.attacker.name
   ]
 
