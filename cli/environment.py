@@ -43,3 +43,18 @@ def setup(ctx, skip_network: bool):
 def compile(ctx, skip_network: bool, skip_host: bool):
     click.echo("Compiling the environment (can take several hours)...")
     ctx.obj.environment.compile(not skip_network, not skip_host)
+
+
+@env.command()
+@click.pass_context
+def teardown(ctx):
+    click.echo("Tearing down the environment...")
+    ctx.obj.environment.teardown()
+    click.echo("Environment has been torn down")
+
+
+@env.command()
+@click.pass_context
+def deploy_network(ctx):
+    click.echo("Setting up network...")
+    ctx.obj.environment.deploy_topology()
