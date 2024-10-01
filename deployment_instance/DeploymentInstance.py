@@ -107,7 +107,7 @@ class DeploymentInstance:
             self.deploy_topology()
             time.sleep(5)
 
-            self.find_management_server(self.caldera_ip)
+            self.find_management_server()
 
         if setup_hosts:
             # Setup instances
@@ -117,7 +117,7 @@ class DeploymentInstance:
         self.save_all_snapshots()
 
     def setup(self):
-        self.find_management_server(self.caldera_ip)
+        self.find_management_server()
         self.parse_network()
         # Load snapshots
         self.load_all_snapshots()
@@ -128,8 +128,10 @@ class DeploymentInstance:
         self.teardown()
         deploy_network(self.topology)
 
-    def find_management_server(self, external_ip):
-        manage_server, manage_ip = find_manage_server(self.openstack_conn, external_ip)
+    def find_management_server(self):
+        manage_server, manage_ip = find_manage_server(
+            self.openstack_conn, self.caldera_ip
+        )
         logger.debug(f"Found management server: {manage_ip}")
         self.ansible_runner.update_management_ip(manage_ip)
 

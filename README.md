@@ -88,3 +88,5 @@ You can also use the openstack UI and create a snapshot
 ## Updating conda environment file
 
 To update `environment.yml` file run: `conda env export > environment.yml`
+
+`sudo systemctl restart devstack@*`

@@ -29,6 +29,8 @@ def setup(ctx, skip_network: bool):
     click.echo("Setting up the environment...")
     if skip_network:
         click.echo("Skipping network setup")
+        ctx.obj.environment.find_management_server()
+        ctx.obj.environment.parse_network()
         ctx.obj.environment.runtime_setup()
     else:
         ctx.obj.environment.deploy_topology()

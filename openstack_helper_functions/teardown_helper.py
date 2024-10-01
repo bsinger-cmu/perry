@@ -57,27 +57,42 @@ def delete_ports(conn):
                 pass
 
 
+subnet_exclude_list = ["shared-subnet"]
+
+
 def delete_subnets(conn):
     subnets = conn.list_subnets()
     for subnet in subnets:
+        if subnet.name in subnet_exclude_list:
+            continue
         try:
             conn.delete_subnet(subnet.id)
         except SDKException:
             pass
 
 
+network_exclude_list = ["shared", "external", "public"]
+
+
 def delete_networks(conn):
     networks = conn.list_networks()
     for network in networks:
+        if network.name in network_exclude_list:
+            continue
         try:
             conn.delete_network(network.id)
         except SDKException:
             pass
 
 
+security_group_exclude_list = ["default"]
+
+
 def delete_security_groups(conn):
     security_groups = conn.list_security_groups()
     for sg in security_groups:
+        if sg.name in security_group_exclude_list:
+            continue
         try:
             conn.delete_security_group(sg.id)
         except SDKException:
