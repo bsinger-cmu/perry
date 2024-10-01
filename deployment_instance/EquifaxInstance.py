@@ -85,7 +85,7 @@ class EquifaxInstance(DeploymentInstance):
 
     def compile_setup(self):
         log_event("Deployment Instace", "Setting up Equifax Instance")
-        self.find_management_server(self.caldera_ip)
+        self.find_management_server()
         self.parse_network()
 
         self.ansible_runner.run_playbook(CheckIfHostUp(self.webservers[0].ip))

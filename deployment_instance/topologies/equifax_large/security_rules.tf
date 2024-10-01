@@ -1,8 +1,7 @@
 ### Webserver Network Rules ###
 resource "openstack_networking_secgroup_v2" "webserver" {
-  name                 = "webserver"
-  description          = "Webserver security group"
-  delete_default_rules = true
+  name        = "webserver"
+  description = "Webserver security group"
 }
 
 # Webservers can talk to anything
@@ -28,9 +27,8 @@ resource "openstack_networking_secgroup_rule_v2" "webserver_tcp_out" {
 
 ### Critical Company Network Rules ###
 resource "openstack_networking_secgroup_v2" "critical_company" {
-  name                 = "critical_company"
-  description          = "critical company security group"
-  delete_default_rules = true
+  name        = "critical_company"
+  description = "critical company security group"
 }
 
 # Everyone in critical company can talk to each other
@@ -76,9 +74,8 @@ resource "openstack_networking_secgroup_rule_v2" "critical_company_webserver_tcp
 
 ### Attacker Network Rules ###
 resource "openstack_networking_secgroup_v2" "attacker" {
-  name                 = "attacker"
-  description          = "attacker security group"
-  delete_default_rules = true
+  name        = "attacker"
+  description = "attacker security group"
 }
 
 # Attackers can talk to anything

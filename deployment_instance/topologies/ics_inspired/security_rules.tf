@@ -1,8 +1,7 @@
 ### Employee One Network Rules ###
 resource "openstack_networking_secgroup_v2" "employee_one_group" {
-  name                 = "employee_one_group"
-  description          = "employee one security group"
-  delete_default_rules = true
+  name        = "employee_one_group"
+  description = "employee one security group"
 }
 
 # Employee One can talk to anything
@@ -27,9 +26,8 @@ resource "openstack_networking_secgroup_rule_v2" "employee_one_tcp_out" {
 
 ### Employee Two Network Rules ###
 resource "openstack_networking_secgroup_v2" "employee_two_group" {
-  name                 = "employee_two_group"
-  description          = "employee two security group"
-  delete_default_rules = true
+  name        = "employee_two_group"
+  description = "employee two security group"
 }
 
 # Ingress for all TCP in security group
@@ -57,9 +55,8 @@ resource "openstack_networking_secgroup_rule_v2" "employee_two_tcp_out" {
 
 ### OT Network ###
 resource "openstack_networking_secgroup_v2" "ot_group" {
-  name                 = "ot_group"
-  description          = "OT network security group"
-  delete_default_rules = true
+  name        = "ot_group"
+  description = "OT network security group"
 }
 
 # OT can only talk to Employee One and Employee Two and the management network
@@ -105,9 +102,8 @@ resource "openstack_networking_secgroup_rule_v2" "ot_tcp_out" {
 
 ### Attacker Network Rules ###
 resource "openstack_networking_secgroup_v2" "attacker" {
-  name                 = "attacker"
-  description          = "attacker security group"
-  delete_default_rules = true
+  name        = "attacker"
+  description = "attacker security group"
 }
 
 # Attackers can talk to anything
