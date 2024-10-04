@@ -123,11 +123,13 @@ class Attacker:
         llm_log = logs["llm"]
         perry_log = logs["perry"]
 
-        with open(os.path.join(output_dir, "llm_log.log"), "w") as f:
-            f.write(llm_log)
+        if llm_log is not None:
+            with open(os.path.join(output_dir, "llm_log.log"), "w") as f:
+                f.write(llm_log)
 
-        with open(os.path.join(output_dir, "perry_attacker.log"), "w") as f:
-            f.write(perry_log)
+        if perry_log is not None:
+            with open(os.path.join(output_dir, "perry_attacker.log"), "w") as f:
+                f.write(perry_log)
 
     def still_running(self):
         operation_details = self.get_operation_details()
