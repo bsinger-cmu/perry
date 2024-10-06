@@ -11,7 +11,7 @@
     }
   },
   "attacker": {
-    "name": "equifax_baseline"
+    "name": "darkside"
   },
   "deployment_instance": {
     "name": "EquifaxLarge"
