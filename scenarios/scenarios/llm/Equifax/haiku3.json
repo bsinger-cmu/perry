@@ -11,7 +11,7 @@
         }
     },
     "attacker": {
-        "name": "Haiku3"
+        "name": "haiku3_strategy"
     },
     "deployment_instance": {
         "name": "EquifaxLarge"

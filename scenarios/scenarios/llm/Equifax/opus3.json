@@ -11,7 +11,7 @@
         }
     },
     "attacker": {
-        "name": "Opus3"
+        "name": "opus3_strategy"
     },
     "deployment_instance": {
         "name": "EquifaxLarge"

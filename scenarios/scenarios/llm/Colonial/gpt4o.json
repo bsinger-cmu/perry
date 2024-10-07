@@ -11,7 +11,7 @@
         }
     },
     "attacker": {
-        "name": "GPT4o"
+        "name": "gpt4o_strategy"
     },
     "deployment_instance": {
         "name": "ICSEnvironment"

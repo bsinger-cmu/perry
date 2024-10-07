@@ -11,7 +11,7 @@
         }
     },
     "attacker": {
-        "name": "GPT3_5"
+        "name": "gpt3_5_strategy"
     },
     "deployment_instance": {
         "name": "EquifaxLarge"

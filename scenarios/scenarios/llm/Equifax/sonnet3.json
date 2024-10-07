@@ -11,7 +11,7 @@
         }
     },
     "attacker": {
-        "name": "Sonnet3"
+        "name": "sonnet3_strategy"
     },
     "deployment_instance": {
         "name": "EquifaxLarge"
