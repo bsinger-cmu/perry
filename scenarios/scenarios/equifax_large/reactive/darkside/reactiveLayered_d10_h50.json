@@ -7,7 +7,7 @@
       "DeployDecoy": 10,
       "HoneyService": 0,
       "RestoreServer": -1,
-      "HoneyCredentials": 10
+      "HoneyCredentials": 50
     }
   },
   "attacker": {
