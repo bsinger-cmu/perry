@@ -48,12 +48,12 @@ class ReactiveLayered(Strategy):
         credentials_per_subnet = int(num_honeycreds / len(self.network.subnets))
         for subnet in self.network.subnets:
             for i in range(0, credentials_per_subnet):
-                deploy_host = subnet.get_random_host()
-                target_host = self.network.get_random_decoy()
+                host = subnet.get_random_host()
+                decoy_host = self.network.get_random_decoy()
 
                 # Add fake credentials to decoy
                 self.orchestrator.run(
-                    [AddHoneyCredentials(deploy_host, target_host, 1, real=True)]
+                    [AddHoneyCredentials(host, decoy_host, 1, real=True)]
                 )
 
         self.telemetry_service.subscribe(SSHEvent, self.handle_ssh_event)

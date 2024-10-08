@@ -15,24 +15,22 @@ class InstallSysFlow(AnsiblePlaybook):
         self.name = "defender/sysflow/install_sysflow.yml"
         self.params = {"host": hosts}
 
-        # If pipeline.local.json does not exist, create it
-        if os.path.exists(PIPELINE_PATH) is False:
-            # Read template file
-            with open(PIPELINE_TEMPLATE_PATH, "r") as f:
-                pipeline_template = json.load(f)
+        # Read template file
+        with open(PIPELINE_TEMPLATE_PATH, "r") as f:
+            pipeline_template = json.load(f)
 
-            for processor in pipeline_template["pipeline"]:
-                if processor["processor"] == "exporter":
-                    processor["es.addresses"] = (
-                        "https://"
-                        + elastic_config.external_ip
-                        + ":"
-                        + str(elastic_config.elastic_config.port)
-                    )
-                    processor["es.username"] = "elastic"
-                    processor["es.password"] = elastic_config.elastic_config.api_key
-                    processor["es.index"] = "sysflow"
+        for processor in pipeline_template["pipeline"]:
+            if processor["processor"] == "exporter":
+                processor["es.addresses"] = (
+                    "https://"
+                    + elastic_config.external_ip
+                    + ":"
+                    + str(elastic_config.elastic_config.port)
+                )
+                processor["es.username"] = "elastic"
+                processor["es.password"] = elastic_config.elastic_config.api_key
+                processor["es.index"] = "sysflow"
 
-            # Write to pipeline.local.json
-            with open(PIPELINE_PATH, "w") as f:
-                json.dump(pipeline_template, f)
+        # Write to pipeline.local.json
+        with open(PIPELINE_PATH, "w") as f:
+            json.dump(pipeline_template, f)

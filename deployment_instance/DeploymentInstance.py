@@ -135,45 +135,6 @@ class DeploymentInstance:
         logger.debug(f"Found management server: {manage_ip}")
         self.ansible_runner.update_management_ip(manage_ip)
 
-    def check_flag(self, flag):
-        if flag in self.flags:
-            return self.flags[flag]
-        return 0
-
-    def save_flags(self, file_name="flags.json"):
-        with open(os.path.join("temp_flags", file_name), "w") as f:
-            json.dump(self.flags, f)
-
-    def save_root_flags(self, file_name="root_flags.json"):
-        with open(os.path.join("temp_flags", file_name), "w") as f:
-            json.dump(self.root_flags, f)
-
-    def save_all_flags(self, file_name="flags.json", root_file_name="root_flags.json"):
-        rprint("Saving all flags to file...")
-        self.save_flags(file_name)
-        self.save_root_flags(root_file_name)
-
-    def load_flags(self, file_name="flags.json"):
-        with open(os.path.join("temp_flags", file_name), "r") as f:
-            self.flags = json.load(f)
-
-    def load_root_flags(self, file_name="root_flags.json"):
-        with open(os.path.join("temp_flags", file_name), "r") as f:
-            self.root_flags = json.load(f)
-
-    def load_all_flags(self, file_name="flags.json", root_file_name="root_flags.json"):
-        logger.debug("Loading all flags from file...")
-        self.load_flags(file_name)
-        self.load_root_flags(root_file_name)
-
-    def print_all_flags(self):
-        rprint("Flags:")
-        for host, flag in self.flags.items():
-            rprint(f"\t{host}: '{flag}'")
-        rprint("Root Flags:")
-        for host, flag in self.root_flags.items():
-            rprint(f"\t{host}: '{flag}'")
-
     def _load_instances(self):
         if self.all_instances is None:
             self.all_instances = self.openstack_conn.list_servers()
@@ -182,7 +143,7 @@ class DeploymentInstance:
         image = self.openstack_conn.get_image(snapshot_name)
         if image:
             logger.debug(f"Image '{snapshot_name}' already exists. Deleting...")
-            self.openstack_conn.delete_image(image.id, wait=True)
+            self.openstack_conn.delete_image(image.id, wait=True)  # type: ignore
 
         logger.debug(f"Creating snapshot {snapshot_name} for instance {instance.id}...")
         image = self.openstack_conn.create_image_snapshot(
