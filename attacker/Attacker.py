@@ -36,10 +36,11 @@ class Attacker:
     def kill_existing_caldera(self):
         # Find and terminate any running Caldera server processes
         for proc in psutil.process_iter(["pid", "name", "cmdline"]):
-            # Check if the process matches the Caldera server
-            if "server.py" in proc.info["cmdline"]:
-                proc.terminate()  # Send a SIGTERM
-                proc.wait(timeout=5)  # Wait for process to terminate
+            if proc and proc.info:
+                # Check if the process matches the Caldera server
+                if "server.py" in proc.info["cmdline"]:
+                    proc.terminate()  # Send a SIGTERM
+                    proc.wait(timeout=5)  # Wait for process to terminate
 
     def start_server(self, caldera_python_env, caldera_path):
         self.kill_existing_caldera()
