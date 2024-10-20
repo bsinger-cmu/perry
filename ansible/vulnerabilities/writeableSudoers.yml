@@ -1,0 +1,10 @@
+---
+- hosts: "{{ host }}"
+  remote_user: root
+
+  tasks:
+  - name: Set vulnerable sudoers permissions
+    file:
+      path: "/etc/sudoers"
+      state: file
+      mode: a+rw

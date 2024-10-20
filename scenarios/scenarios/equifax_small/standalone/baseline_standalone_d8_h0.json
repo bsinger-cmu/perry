@@ -1,0 +1,19 @@
+{
+  "name": "baseline_standalone_d8_h0",
+  "defender": {
+    "telemetry": "NoTelemetry",
+    "strategy": "StaticStandalone",
+    "capabilities": {
+      "DeployDecoy": 8,
+      "HoneyService": 0,
+      "RestoreServer": 0,
+      "HoneyCredentials": 0
+    }
+  },
+  "attacker": {
+    "name": "EquifaxBaselineAttacker"
+  },
+  "deployment_instance": {
+    "name": "EquifaxSmall"
+  }
+}

@@ -1,0 +1,56 @@
+FROM ubuntu:22.04
+SHELL ["/bin/bash", "-c"]
+
+RUN apt-get update && \
+    apt-get -y install git python3 python3-pip python3-venv git curl golang-go
+
+RUN git clone https://github.com/mitre/caldera.git
+WORKDIR /caldera
+
+# Set up python virtualenv
+ENV VIRTUAL_ENV=/opt/venv/caldera
+RUN python3 -m venv $VIRTUAL_ENV
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+
+# Install pip requirements
+RUN pip3 install --no-cache-dir -r requirements.txt
+
+# Set up config file and disable atomic by default
+RUN python3 -c "import app; import app.utility.config_generator; app.utility.config_generator.ensure_local_config();"; \
+    sed -i '/\- atomic/d' conf/local.yml;
+
+# Install Node.js, npm, and other build VueJS front-end
+RUN apt-get update && \
+    apt-get install -y nodejs npm && \
+    # Directly use npm to install dependencies and build the application
+    (cd plugins/magma && npm install) && \
+    (cd plugins/magma && npm run build) && \
+    # Remove Node.js, npm, and other unnecessary packages
+    apt-get remove -y nodejs npm && \
+    apt-get autoremove -y && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+# Default HTTP port for web interface and agent beacons over HTTP
+EXPOSE 8888
+
+# Default HTTPS port for web interface and agent beacons over HTTPS (requires SSL plugin to be enabled)
+EXPOSE 8443
+
+# TCP and UDP contact ports
+EXPOSE 7010
+EXPOSE 7011/udp
+
+# Websocket contact port
+EXPOSE 7012
+
+# Default port to listen for DNS requests for DNS tunneling C2 channel
+EXPOSE 8853
+
+# Default port to listen for SSH tunneling requests
+EXPOSE 8022
+
+# Default FTP port for FTP C2 channel
+EXPOSE 2222
+
+ENTRYPOINT ["python3", "server.py", "--insecure", "--fresh"]
