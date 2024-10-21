@@ -1,0 +1,437 @@
+{
+    "scenario": {
+        "name": "darkside_reactiveLayered_d10_h50",
+        "defender": {
+            "telemetry": "SimpleTelemetryAnalysis",
+            "strategy": "ReactiveLayered",
+            "capabilities": {
+                "DeployDecoy": 10,
+                "HoneyService": 0,
+                "RestoreServer": -1,
+                "HoneyCredentials": 50
+            }
+        },
+        "attacker": {
+            "name": "darkside"
+        },
+        "deployment_instance": {
+            "name": "EquifaxLarge"
+        }
+    },
+    "experiment_time": 4509.868730306625,
+    "execution_time": 2552.476273536682,
+    "setup_time": 1957.3924567699432,
+    "flags_captured": [],
+    "data_exfiltrated": [
+        {
+            "name": "data_database_0.json",
+            "time_exfiltrated": 1875.3820037841797
+        },
+        {
+            "name": "data_database_10.json",
+            "time_exfiltrated": 1891.3820037841797
+        },
+        {
+            "name": "data_database_11.json",
+            "time_exfiltrated": 1906.3820037841797
+        },
+        {
+            "name": "data_database_12.json",
+            "time_exfiltrated": 1922.3820037841797
+        },
+        {
+            "name": "data_database_13.json",
+            "time_exfiltrated": 1942.3820037841797
+        },
+        {
+            "name": "data_database_14.json",
+            "time_exfiltrated": 1957.3820037841797
+        },
+        {
+            "name": "data_database_15.json",
+            "time_exfiltrated": 1972.3820037841797
+        },
+        {
+            "name": "data_database_16.json",
+            "time_exfiltrated": 1987.3820037841797
+        },
+        {
+            "name": "data_database_17.json",
+            "time_exfiltrated": 2008.3820037841797
+        },
+        {
+            "name": "data_database_18.json",
+            "time_exfiltrated": 2023.3820037841797
+        },
+        {
+            "name": "data_database_19.json",
+            "time_exfiltrated": 2038.3820037841797
+        },
+        {
+            "name": "data_database_2.json",
+            "time_exfiltrated": 2054.3820037841797
+        },
+        {
+            "name": "data_database_20.json",
+            "time_exfiltrated": 2069.3820037841797
+        },
+        {
+            "name": "data_database_21.json",
+            "time_exfiltrated": 2089.3820037841797
+        },
+        {
+            "name": "data_database_22.json",
+            "time_exfiltrated": 2105.3820037841797
+        },
+        {
+            "name": "data_database_23.json",
+            "time_exfiltrated": 2120.3820037841797
+        },
+        {
+            "name": "data_database_25.json",
+            "time_exfiltrated": 2135.3820037841797
+        },
+        {
+            "name": "data_database_27.json",
+            "time_exfiltrated": 2150.3820037841797
+        },
+        {
+            "name": "data_database_28.json",
+            "time_exfiltrated": 2165.3820037841797
+        },
+        {
+            "name": "data_database_29.json",
+            "time_exfiltrated": 2180.3820037841797
+        },
+        {
+            "name": "data_database_3.json",
+            "time_exfiltrated": 2196.3820037841797
+        },
+        {
+            "name": "data_database_30.json",
+            "time_exfiltrated": 2211.3820037841797
+        },
+        {
+            "name": "data_database_31.json",
+            "time_exfiltrated": 2237.3820037841797
+        },
+        {
+            "name": "data_database_32.json",
+            "time_exfiltrated": 2252.3820037841797
+        },
+        {
+            "name": "data_database_33.json",
+            "time_exfiltrated": 2272.3820037841797
+        },
+        {
+            "name": "data_database_34.json",
+            "time_exfiltrated": 2287.3820037841797
+        },
+        {
+            "name": "data_database_36.json",
+            "time_exfiltrated": 2308.3820037841797
+        },
+        {
+            "name": "data_database_37.json",
+            "time_exfiltrated": 2323.3820037841797
+        },
+        {
+            "name": "data_database_38.json",
+            "time_exfiltrated": 2338.3820037841797
+        },
+        {
+            "name": "data_database_39.json",
+            "time_exfiltrated": 2358.3820037841797
+        },
+        {
+            "name": "data_database_40.json",
+            "time_exfiltrated": 2374.3820037841797
+        },
+        {
+            "name": "data_database_41.json",
+            "time_exfiltrated": 2389.3820037841797
+        },
+        {
+            "name": "data_database_42.json",
+            "time_exfiltrated": 2410.3820037841797
+        },
+        {
+            "name": "data_database_43.json",
+            "time_exfiltrated": 2425.3820037841797
+        },
+        {
+            "name": "data_database_44.json",
+            "time_exfiltrated": 2440.3820037841797
+        },
+        {
+            "name": "data_database_45.json",
+            "time_exfiltrated": 2471.3820037841797
+        },
+        {
+            "name": "data_database_46.json",
+            "time_exfiltrated": 2471.3820037841797
+        },
+        {
+            "name": "data_database_47.json",
+            "time_exfiltrated": 2486.3820037841797
+        },
+        {
+            "name": "data_database_6.json",
+            "time_exfiltrated": 2502.3820037841797
+        },
+        {
+            "name": "data_database_7.json",
+            "time_exfiltrated": 2517.3820037841797
+        },
+        {
+            "name": "data_database_8.json",
+            "time_exfiltrated": 2533.3820037841797
+        },
+        {
+            "name": "data_database_9.json",
+            "time_exfiltrated": 2548.3820037841797
+        }
+    ],
+    "hosts_infected": [
+        {
+            "name": "decoy-4",
+            "time_infected": 80.32104969024658
+        },
+        {
+            "name": "webserver-0",
+            "time_infected": 112.46031832695007
+        },
+        {
+            "name": "decoy-7",
+            "time_infected": 127.5234866142273
+        },
+        {
+            "name": "decoy-6",
+            "time_infected": 142.58583617210388
+        },
+        {
+            "name": "decoy-9",
+            "time_infected": 157.63467359542847
+        },
+        {
+            "name": "decoy-0",
+            "time_infected": 177.67428135871887
+        },
+        {
+            "name": "decoy-3",
+            "time_infected": 192.73847460746765
+        },
+        {
+            "name": "decoy-2",
+            "time_infected": 207.79984664916992
+        },
+        {
+            "name": "webserver-1",
+            "time_infected": 222.84486722946167
+        },
+        {
+            "name": "database-16",
+            "time_infected": 250.0360243320465
+        },
+        {
+            "name": "database-43",
+            "time_infected": 260.0868294239044
+        },
+        {
+            "name": "database-13",
+            "time_infected": 270.1491873264313
+        },
+        {
+            "name": "database-44",
+            "time_infected": 285.18608689308167
+        },
+        {
+            "name": "database-33",
+            "time_infected": 295.24701857566833
+        },
+        {
+            "name": "database-18",
+            "time_infected": 305.28589034080505
+        },
+        {
+            "name": "database-45",
+            "time_infected": 320.3187065124512
+        },
+        {
+            "name": "database-28",
+            "time_infected": 330.37082147598267
+        },
+        {
+            "name": "database-47",
+            "time_infected": 345.40575218200684
+        },
+        {
+            "name": "database-0",
+            "time_infected": 360.47192335128784
+        },
+        {
+            "name": "database-42",
+            "time_infected": 375.528600692749
+        },
+        {
+            "name": "database-10",
+            "time_infected": 385.5890121459961
+        },
+        {
+            "name": "database-22",
+            "time_infected": 395.6494436264038
+        },
+        {
+            "name": "database-32",
+            "time_infected": 405.7119793891907
+        },
+        {
+            "name": "database-17",
+            "time_infected": 420.7424635887146
+        },
+        {
+            "name": "database-21",
+            "time_infected": 435.79786443710327
+        },
+        {
+            "name": "database-40",
+            "time_infected": 450.85943627357483
+        },
+        {
+            "name": "database-8",
+            "time_infected": 460.9214859008789
+        },
+        {
+            "name": "database-26",
+            "time_infected": 471.07668805122375
+        },
+        {
+            "name": "database-27",
+            "time_infected": 481.14011907577515
+        },
+        {
+            "name": "database-14",
+            "time_infected": 491.2026307582855
+        },
+        {
+            "name": "database-1",
+            "time_infected": 506.2721412181854
+        },
+        {
+            "name": "database-11",
+            "time_infected": 521.3128399848938
+        },
+        {
+            "name": "database-34",
+            "time_infected": 531.3446624279022
+        },
+        {
+            "name": "database-23",
+            "time_infected": 541.4062950611115
+        },
+        {
+            "name": "database-24",
+            "time_infected": 551.4356541633606
+        },
+        {
+            "name": "database-5",
+            "time_infected": 561.4970653057098
+        },
+        {
+            "name": "database-4",
+            "time_infected": 576.5633552074432
+        },
+        {
+            "name": "database-30",
+            "time_infected": 586.6246478557587
+        },
+        {
+            "name": "database-38",
+            "time_infected": 596.6898171901703
+        },
+        {
+            "name": "database-41",
+            "time_infected": 606.843944311142
+        },
+        {
+            "name": "database-12",
+            "time_infected": 621.8768582344055
+        },
+        {
+            "name": "database-2",
+            "time_infected": 636.9389815330505
+        },
+        {
+            "name": "database-25",
+            "time_infected": 646.9920134544373
+        },
+        {
+            "name": "database-31",
+            "time_infected": 662.0575988292694
+        },
+        {
+            "name": "database-29",
+            "time_infected": 677.1220746040344
+        },
+        {
+            "name": "database-19",
+            "time_infected": 692.2234733104706
+        },
+        {
+            "name": "database-46",
+            "time_infected": 707.2861149311066
+        },
+        {
+            "name": "database-6",
+            "time_infected": 717.3492548465729
+        },
+        {
+            "name": "database-36",
+            "time_infected": 727.4121832847595
+        },
+        {
+            "name": "database-3",
+            "time_infected": 742.4732699394226
+        },
+        {
+            "name": "database-39",
+            "time_infected": 752.5308465957642
+        },
+        {
+            "name": "database-20",
+            "time_infected": 762.592866897583
+        },
+        {
+            "name": "database-35",
+            "time_infected": 772.6571500301361
+        },
+        {
+            "name": "database-9",
+            "time_infected": 782.7234826087952
+        },
+        {
+            "name": "database-15",
+            "time_infected": 792.7882709503174
+        },
+        {
+            "name": "database-7",
+            "time_infected": 802.8486573696136
+        },
+        {
+            "name": "database-37",
+            "time_infected": 812.9138343334198
+        },
+        {
+            "name": "webserver-1",
+            "time_infected": 932.6301820278168
+        }
+    ],
+    "operation_id": "2024-10-18_18-34-17",
+    "defender_action_counts": {
+        "shutdown_server": 0,
+        "start_honey_service": 0,
+        "deploy_decoy": 10,
+        "restore_server": 52,
+        "AddHoneyCredentials": 50
+    }
+}

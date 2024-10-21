@@ -1,13 +1,13 @@
 {
     "scenario": {
-        "name": "darkside_standalone_d10_h50",
+        "name": "darkside_reactiveStandalone_d10_h50",
         "defender": {
-            "telemetry": "NoTelemetry",
-            "strategy": "StaticStandalone",
+            "telemetry": "ReactiveCredentials",
+            "strategy": "ReactiveStandalone",
             "capabilities": {
                 "DeployDecoy": 10,
                 "HoneyService": 0,
-                "RestoreServer": 0,
+                "RestoreServer": -1,
                 "HoneyCredentials": 50
             }
         },
@@ -18,23 +18,23 @@
             "name": "EquifaxLarge"
         }
     },
-    "experiment_time": 753.5582265853882,
-    "execution_time": 204.27352452278137,
-    "setup_time": 549.2847020626068,
+    "experiment_time": 1489.8198170661926,
+    "execution_time": 229.26654863357544,
+    "setup_time": 1260.5532684326172,
     "flags_captured": [],
     "data_exfiltrated": [],
     "hosts_infected": [
         {
-            "name": "webserver-0",
-            "time_infected": 75.4911584854126
+            "name": "webserver-1",
+            "time_infected": 70.46144199371338
         }
     ],
-    "operation_id": "2024-10-07_12-17-27",
+    "operation_id": "2024-10-09_15-20-54",
     "defender_action_counts": {
         "shutdown_server": 0,
         "start_honey_service": 0,
         "deploy_decoy": 10,
-        "restore_server": 0,
-        "AddHoneyCredentials": 0
+        "restore_server": 2,
+        "AddHoneyCredentials": 50
     }
 }
