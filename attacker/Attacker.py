@@ -37,8 +37,9 @@ class Attacker:
         # Find and terminate any running Caldera server processes
         for proc in psutil.process_iter(["pid", "name", "cmdline"]):
             if proc and proc.info:
+                cmdline = proc.info["cmdline"]
                 # Check if the process matches the Caldera server
-                if "server.py" in proc.info["cmdline"]:
+                if cmdline and "server.py" in cmdline:
                     proc.terminate()  # Send a SIGTERM
                     proc.wait(timeout=5)  # Wait for process to terminate
 

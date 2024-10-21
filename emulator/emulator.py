@@ -215,7 +215,7 @@ class Emulator:
                 instance_check_counter = 0
                 self.check_all_instances()
 
-            time.sleep(0.5)
+            time.sleep(1)
             finish_counter += 1
 
         self.attacker.stop_operation()
