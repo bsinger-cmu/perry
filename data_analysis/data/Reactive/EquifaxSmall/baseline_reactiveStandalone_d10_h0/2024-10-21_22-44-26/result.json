@@ -1,0 +1,149 @@
+{
+    "scenario": {
+        "name": "baseline_reactiveStandalone_d10_h0",
+        "defender": {
+            "telemetry": "ReactiveCredentials",
+            "strategy": "ReactiveStandalone",
+            "capabilities": {
+                "DeployDecoy": 10,
+                "HoneyService": 0,
+                "RestoreServer": -1,
+                "HoneyCredentials": 0
+            }
+        },
+        "attacker": {
+            "name": "equifax_baseline"
+        },
+        "deployment_instance": {
+            "name": "EquifaxSmall"
+        }
+    },
+    "experiment_time": 1113.2972617149353,
+    "execution_time": 701.2113590240479,
+    "setup_time": 412.08590269088745,
+    "flags_captured": [],
+    "data_exfiltrated": [
+        {
+            "name": "data_database_1.json",
+            "time_exfiltrated": 176.56368160247803
+        },
+        {
+            "name": "data_database_8.json",
+            "time_exfiltrated": 213.56368160247803
+        },
+        {
+            "name": "data_database_0.json",
+            "time_exfiltrated": 255.56368160247803
+        },
+        {
+            "name": "data_database_7.json",
+            "time_exfiltrated": 298.563681602478
+        },
+        {
+            "name": "data_database_6.json",
+            "time_exfiltrated": 340.563681602478
+        },
+        {
+            "name": "data_database_11.json",
+            "time_exfiltrated": 383.563681602478
+        },
+        {
+            "name": "data_database_5.json",
+            "time_exfiltrated": 425.563681602478
+        },
+        {
+            "name": "data_database_2.json",
+            "time_exfiltrated": 472.563681602478
+        },
+        {
+            "name": "data_database_9.json",
+            "time_exfiltrated": 510.563681602478
+        },
+        {
+            "name": "data_database_10.json",
+            "time_exfiltrated": 547.563681602478
+        },
+        {
+            "name": "data_database_3.json",
+            "time_exfiltrated": 589.563681602478
+        },
+        {
+            "name": "data_database_4.json",
+            "time_exfiltrated": 632.563681602478
+        }
+    ],
+    "hosts_infected": [
+        {
+            "name": "decoy-9",
+            "time_infected": 45.23411989212036
+        },
+        {
+            "name": "webserver-0",
+            "time_infected": 117.39258933067322
+        },
+        {
+            "name": "database-1",
+            "time_infected": 144.56660890579224
+        },
+        {
+            "name": "database-8",
+            "time_infected": 186.8964741230011
+        },
+        {
+            "name": "database-0",
+            "time_infected": 224.22172951698303
+        },
+        {
+            "name": "database-7",
+            "time_infected": 271.56368350982666
+        },
+        {
+            "name": "database-6",
+            "time_infected": 308.9237062931061
+        },
+        {
+            "name": "database-11",
+            "time_infected": 351.28337812423706
+        },
+        {
+            "name": "database-5",
+            "time_infected": 393.6462461948395
+        },
+        {
+            "name": "database-2",
+            "time_infected": 435.95263719558716
+        },
+        {
+            "name": "database-9",
+            "time_infected": 483.3181824684143
+        },
+        {
+            "name": "database-10",
+            "time_infected": 520.6549100875854
+        },
+        {
+            "name": "database-3",
+            "time_infected": 557.9920375347137
+        },
+        {
+            "name": "database-4",
+            "time_infected": 600.3641591072083
+        },
+        {
+            "name": "webserver-1",
+            "time_infected": 647.7393012046814
+        },
+        {
+            "name": "decoy-7",
+            "time_infected": 684.9409759044647
+        }
+    ],
+    "operation_id": "2024-10-21_22-44-26",
+    "defender_action_counts": {
+        "shutdown_server": 0,
+        "start_honey_service": 0,
+        "deploy_decoy": 10,
+        "restore_server": 14,
+        "AddHoneyCredentials": 0
+    }
+}
