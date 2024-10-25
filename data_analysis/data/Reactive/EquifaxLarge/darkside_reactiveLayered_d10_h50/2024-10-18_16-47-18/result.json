@@ -1,0 +1,81 @@
+{
+    "scenario": {
+        "name": "darkside_reactiveLayered_d10_h50",
+        "defender": {
+            "telemetry": "SimpleTelemetryAnalysis",
+            "strategy": "ReactiveLayered",
+            "capabilities": {
+                "DeployDecoy": 10,
+                "HoneyService": 0,
+                "RestoreServer": -1,
+                "HoneyCredentials": 50
+            }
+        },
+        "attacker": {
+            "name": "darkside"
+        },
+        "deployment_instance": {
+            "name": "EquifaxLarge"
+        }
+    },
+    "experiment_time": 2853.4814739227295,
+    "execution_time": 788.6300177574158,
+    "setup_time": 2064.8514561653137,
+    "flags_captured": [],
+    "data_exfiltrated": [
+        {
+            "name": "data_database_28.json",
+            "time_exfiltrated": 786.8391671180725
+        }
+    ],
+    "hosts_infected": [
+        {
+            "name": "webserver-0",
+            "time_infected": 95.40602660179138
+        },
+        {
+            "name": "database-28",
+            "time_infected": 127.57980179786682
+        },
+        {
+            "name": "webserver-0",
+            "time_infected": 495.90571665763855
+        },
+        {
+            "name": "decoy-7",
+            "time_infected": 510.96933031082153
+        },
+        {
+            "name": "decoy-3",
+            "time_infected": 531.0375099182129
+        },
+        {
+            "name": "webserver-1",
+            "time_infected": 546.0910496711731
+        },
+        {
+            "name": "decoy-9",
+            "time_infected": 561.1510179042816
+        },
+        {
+            "name": "decoy-4",
+            "time_infected": 588.3152279853821
+        },
+        {
+            "name": "decoy-8",
+            "time_infected": 598.3547160625458
+        },
+        {
+            "name": "webserver-1",
+            "time_infected": 710.6690356731415
+        }
+    ],
+    "operation_id": "2024-10-18_16-47-18",
+    "defender_action_counts": {
+        "shutdown_server": 0,
+        "start_honey_service": 0,
+        "deploy_decoy": 10,
+        "restore_server": 26,
+        "AddHoneyCredentials": 50
+    }
+}

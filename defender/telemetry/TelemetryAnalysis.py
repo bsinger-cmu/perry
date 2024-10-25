@@ -4,6 +4,10 @@ from deployment_instance.network import Network
 
 from abc import ABC, abstractmethod
 
+from utility.logging import PerryLogger
+
+logger = PerryLogger.get_logger()
+
 
 class TelemetryAnalysis(ABC):
     def __init__(self, elasticsearch_conn: Elasticsearch, network: Network):
@@ -11,35 +15,50 @@ class TelemetryAnalysis(ABC):
         self.network = network
         self.parsed_telemetry_ids = set()
 
-        # Create indeces if they don't exist
-        if not self.elasticsearch_conn.indices.exists(index="deception_alerts"):
-            self.elasticsearch_conn.indices.create(index="deception_alerts")
-
         if not self.elasticsearch_conn.indices.exists(index="sysflow"):
             self.elasticsearch_conn.indices.create(index="sysflow")
 
     def get_new_telemetry(self) -> list[dict]:
-        # Get new deception alerts
-        last_second_query = {"range": {"@timestamp": {"gte": "now-10s"}}}
-        alert_query_data = self.elasticsearch_conn.search(
-            index="deception_alerts", query=last_second_query
-        )
-
         # Query last 10s of sysflow data with category network
-        last_second_query = {
+        ssh_process = {
             "bool": {
                 "must": [
-                    {"range": {"@timestamp": {"gte": "now-10s"}}},
+                    {"range": {"@timestamp": {"gte": "now-5s"}}},
+                    {
+                        "bool": {
+                            "should": [
+                                {"match": {"event.category": "process"}},
+                                {"match": {"process.name": "ssh"}},
+                            ]
+                        }
+                    },
                 ]
             }
         }
-        sysflow_data = self.elasticsearch_conn.search(
-            index="sysflow", query=last_second_query
+
+        ssh_traces = {
+            "bool": {
+                "must": [
+                    {"range": {"@timestamp": {"gte": "now-5s"}}},
+                    {
+                        "bool": {
+                            "should": [
+                                {"match": {"event.category": "network"}},
+                                {"match": {"destination.port": 22}},
+                            ]
+                        }
+                    },
+                ]
+            }
+        }
+
+        process_data = self.elasticsearch_conn.search(
+            index="sysflow", query=ssh_process
         )
+        traces_data = self.elasticsearch_conn.search(index="sysflow", query=ssh_traces)
 
         # Get documents from query
-        raw_telemetry = alert_query_data["hits"]["hits"]
-        raw_telemetry += sysflow_data["hits"]["hits"]
+        raw_telemetry = process_data["hits"]["hits"] + traces_data["hits"]["hits"]
 
         # Filter out already parsed telemetry
         new_telemetry = [

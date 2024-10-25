@@ -11,7 +11,7 @@
     }
   },
   "attacker": {
-    "name": "EquifaxBaselineAttacker"
+    "name": "equifax_baseline"
   },
   "deployment_instance": {
     "name": "EquifaxSmall"

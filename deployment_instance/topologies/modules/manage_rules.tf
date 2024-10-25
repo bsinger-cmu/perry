@@ -82,6 +82,26 @@ resource "openstack_networking_secgroup_rule_v2" "manage_attacker_out" {
   security_group_id = openstack_networking_secgroup_v2.talk_to_manage.id
 }
 
+# Elasticsearch
+resource "openstack_networking_secgroup_rule_v2" "manage_elasticsearch_in" {
+  direction         = "ingress"
+  ethertype         = "IPv4"
+  protocol          = "tcp"
+  port_range_min    = 9200
+  port_range_max    = 9200
+  remote_ip_prefix  = "0.0.0.0/0"
+  security_group_id = openstack_networking_secgroup_v2.talk_to_manage.id
+}
+resource "openstack_networking_secgroup_rule_v2" "manage_elasticsearch_out" {
+  direction         = "egress"
+  ethertype         = "IPv4"
+  protocol          = "tcp"
+  port_range_min    = 9200
+  port_range_max    = 9200
+  remote_ip_prefix  = "0.0.0.0/0"
+  security_group_id = openstack_networking_secgroup_v2.talk_to_manage.id
+}
+
 
 
 resource "openstack_networking_secgroup_v2" "manage_freedom" {

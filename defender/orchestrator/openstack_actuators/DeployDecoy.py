@@ -77,6 +77,7 @@ class DeployDecoy(OpenstackActuator):
                 print("Deploying apache vulnerability...")
                 print("Reseting ssh config")
                 self.ansible_runner.run_playbook(ResetSSHConfig(server_ip, "tomcat"))
+                time.sleep(5)
 
             if action.honeySSHService:
                 print("Deploying honey service...")

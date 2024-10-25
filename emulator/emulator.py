@@ -14,6 +14,7 @@ from attacker.Attacker import Attacker
 from attacker.config.attacker_config import AttackerConfig
 from scenarios.Scenario import Scenario
 from utility.logging.logging import PerryLogger, log_event, get_logger
+from openstack_helper_functions.server_helpers import delete_decoy_servers
 
 import openstack
 
@@ -80,15 +81,7 @@ class Emulator:
         log_event("Emulator setup", f"Elastic search api key: {elasticsearch_api_key}")
 
         # Delete all decoy instances on openstack
-        all_servers = self.openstack_conn.list_servers()
-        deleted_decoys = False
-        for server in all_servers:
-            if "decoy" in server.name:
-                print(f"Deleting decoy server: {server.name}")
-                self.openstack_conn.delete_server(server.id)
-                deleted_decoys = True
-        if deleted_decoys:
-            time.sleep(5)
+        delete_decoy_servers(self.openstack_conn)
 
         # Initialize ansible
         ssh_key_path = self.config.openstack_config.ssh_key_path
@@ -222,7 +215,7 @@ class Emulator:
                 instance_check_counter = 0
                 self.check_all_instances()
 
-            time.sleep(0.5)
+            time.sleep(1)
             finish_counter += 1
 
         self.attacker.stop_operation()

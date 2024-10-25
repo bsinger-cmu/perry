@@ -27,10 +27,12 @@ class AddHoneyCredentials(OpenstackActuator):
             honey_user = name.replace(" ", "")
             password = fake.password()
 
+        # Add decoy user to environment service
+        action.honey_host.add_user(honey_user, is_decoy=True)
+
         # If real, create new user on honey computer
         if action.real:
             create_user_pb = CreateUser(action.honey_host.ip, honey_user, password)
-            action.honey_host.add_user(honey_user, is_decoy=True)
             user_actions.append(create_user_pb)
 
             # Add fake data to user

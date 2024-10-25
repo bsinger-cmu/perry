@@ -1,0 +1,245 @@
+{
+    "scenario": {
+        "name": "darkside_reactiveLayered_d10_h50",
+        "defender": {
+            "telemetry": "SimpleTelemetryAnalysis",
+            "strategy": "ReactiveLayered",
+            "capabilities": {
+                "DeployDecoy": 10,
+                "HoneyService": 0,
+                "RestoreServer": -1,
+                "HoneyCredentials": 50
+            }
+        },
+        "attacker": {
+            "name": "darkside"
+        },
+        "deployment_instance": {
+            "name": "EquifaxLarge"
+        }
+    },
+    "experiment_time": 3612.309151172638,
+    "execution_time": 1699.4750473499298,
+    "setup_time": 1912.8341038227081,
+    "flags_captured": [],
+    "data_exfiltrated": [
+        {
+            "name": "data_database_0.json",
+            "time_exfiltrated": 1418.3890221118927
+        },
+        {
+            "name": "data_database_10.json",
+            "time_exfiltrated": 1433.3890221118927
+        },
+        {
+            "name": "data_database_11.json",
+            "time_exfiltrated": 1448.3890221118927
+        },
+        {
+            "name": "data_database_14.json",
+            "time_exfiltrated": 1463.3890221118927
+        },
+        {
+            "name": "data_database_19.json",
+            "time_exfiltrated": 1479.3890221118927
+        },
+        {
+            "name": "data_database_20.json",
+            "time_exfiltrated": 1494.3890221118927
+        },
+        {
+            "name": "data_database_23.json",
+            "time_exfiltrated": 1509.3890221118927
+        },
+        {
+            "name": "data_database_24.json",
+            "time_exfiltrated": 1529.3890221118927
+        },
+        {
+            "name": "data_database_26.json",
+            "time_exfiltrated": 1544.3890221118927
+        },
+        {
+            "name": "data_database_28.json",
+            "time_exfiltrated": 1560.3890221118927
+        },
+        {
+            "name": "data_database_29.json",
+            "time_exfiltrated": 1575.3890221118927
+        },
+        {
+            "name": "data_database_35.json",
+            "time_exfiltrated": 1590.3890221118927
+        },
+        {
+            "name": "data_database_38.json",
+            "time_exfiltrated": 1605.3890221118927
+        },
+        {
+            "name": "data_database_4.json",
+            "time_exfiltrated": 1620.3890221118927
+        },
+        {
+            "name": "data_database_42.json",
+            "time_exfiltrated": 1635.3890221118927
+        },
+        {
+            "name": "data_database_45.json",
+            "time_exfiltrated": 1650.3890221118927
+        },
+        {
+            "name": "data_database_47.json",
+            "time_exfiltrated": 1666.3890221118927
+        },
+        {
+            "name": "data_database_5.json",
+            "time_exfiltrated": 1681.3890221118927
+        },
+        {
+            "name": "data_database_8.json",
+            "time_exfiltrated": 1696.3890221118927
+        }
+    ],
+    "hosts_infected": [
+        {
+            "name": "webserver-0",
+            "time_infected": 80.40113401412964
+        },
+        {
+            "name": "database-47",
+            "time_infected": 112.58460545539856
+        },
+        {
+            "name": "database-30",
+            "time_infected": 122.6473217010498
+        },
+        {
+            "name": "database-28",
+            "time_infected": 132.69768929481506
+        },
+        {
+            "name": "database-5",
+            "time_infected": 147.7599582672119
+        },
+        {
+            "name": "database-12",
+            "time_infected": 162.79986667633057
+        },
+        {
+            "name": "database-0",
+            "time_infected": 172.86122155189514
+        },
+        {
+            "name": "database-26",
+            "time_infected": 182.90331506729126
+        },
+        {
+            "name": "database-42",
+            "time_infected": 192.9649839401245
+        },
+        {
+            "name": "database-45",
+            "time_infected": 208.02988171577454
+        },
+        {
+            "name": "database-24",
+            "time_infected": 218.09444499015808
+        },
+        {
+            "name": "database-23",
+            "time_infected": 233.15708303451538
+        },
+        {
+            "name": "database-20",
+            "time_infected": 248.22285389900208
+        },
+        {
+            "name": "database-4",
+            "time_infected": 258.28009152412415
+        },
+        {
+            "name": "database-36",
+            "time_infected": 268.33906149864197
+        },
+        {
+            "name": "database-10",
+            "time_infected": 283.3981168270111
+        },
+        {
+            "name": "database-35",
+            "time_infected": 293.46345376968384
+        },
+        {
+            "name": "database-11",
+            "time_infected": 308.6032040119171
+        },
+        {
+            "name": "database-43",
+            "time_infected": 323.66531133651733
+        },
+        {
+            "name": "database-29",
+            "time_infected": 333.72805666923523
+        },
+        {
+            "name": "database-19",
+            "time_infected": 348.78915643692017
+        },
+        {
+            "name": "database-14",
+            "time_infected": 358.8501572608948
+        },
+        {
+            "name": "database-38",
+            "time_infected": 373.89111948013306
+        },
+        {
+            "name": "database-8",
+            "time_infected": 398.9834711551666
+        },
+        {
+            "name": "decoy-7",
+            "time_infected": 409.01198267936707
+        },
+        {
+            "name": "webserver-0",
+            "time_infected": 641.8538243770599
+        },
+        {
+            "name": "webserver-1",
+            "time_infected": 662.0053043365479
+        },
+        {
+            "name": "decoy-3",
+            "time_infected": 682.0367574691772
+        },
+        {
+            "name": "decoy-7",
+            "time_infected": 697.104542016983
+        },
+        {
+            "name": "decoy-8",
+            "time_infected": 729.2513501644135
+        },
+        {
+            "name": "webserver-1",
+            "time_infected": 856.7123687267303
+        },
+        {
+            "name": "decoy-2",
+            "time_infected": 1186.7435421943665
+        },
+        {
+            "name": "decoy-9",
+            "time_infected": 1236.211832523346
+        }
+    ],
+    "operation_id": "2024-10-18_20-38-01",
+    "defender_action_counts": {
+        "shutdown_server": 0,
+        "start_honey_service": 0,
+        "deploy_decoy": 10,
+        "restore_server": 46,
+        "AddHoneyCredentials": 50
+    }
+}
