@@ -107,7 +107,8 @@ class DeploymentInstance:
             self.deploy_topology()
             time.sleep(5)
 
-            self.find_management_server()
+        self.find_management_server()
+        self.parse_network()
 
         if setup_hosts:
             # Setup instances
