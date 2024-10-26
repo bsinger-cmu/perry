@@ -1,0 +1,34 @@
+---
+- hosts: "{{ host }}"
+  remote_user: root
+
+  # 
+  tasks:
+    - name: Remove automatic updates
+      apt:
+        name: unattended-upgrades
+        state: absent
+
+    - name: Base dependencies
+      apt:
+        pkg:
+          - metasploit-framework
+          - curl
+          - wget
+          - sshpass
+          - nmap
+          - ncat
+          - python3
+          - python3-pip
+        state: present
+        update_cache: yes
+
+    # Depedency for stormssh (for parsing ssh configs)
+    - name: Upgrade pyopenssl
+      ansible.builtin.pip:
+        name: pyopenssl
+        extra_args: --upgrade
+
+    - name: Install stormssh
+      ansible.builtin.pip:
+        name: stormssh
