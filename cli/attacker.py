@@ -9,7 +9,10 @@ from attacker.config.attacker_config import AttackerConfig
 @click.pass_context
 @click.option("--strategy", help="The attacker strategy", required=True, type=str)
 @click.option("--env", help="The attacker environment", required=True, type=str)
-def attacker(ctx, strategy: str, env: str):
+@click.option(
+    "--abstraction", help="The level of Perry's abstraction", required=False, type=str
+)
+def attacker(ctx, strategy: str, env: str, abstraction: str):
     context: PerryContext = ctx.obj
 
     # Check if env is valid
@@ -18,6 +21,7 @@ def attacker(ctx, strategy: str, env: str):
         name=f"{strategy}: {env}",
         strategy=strategy,
         environment=env,
+        abstraction=abstraction,
     )
 
     context.attacker = Attacker(
