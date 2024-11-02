@@ -5,7 +5,11 @@ from defender.capabilities import (
     RestoreServer,
 )
 
-from defender.telemetry.events import Event, DecoyCredentialUsed, SSHEvent
+from defender.telemetry.events import (
+    DecoyHostInteraction,
+    DecoyCredentialUsed,
+    SSHEvent,
+)
 from . import Strategy
 
 from utility.logging import log_event
@@ -54,12 +58,11 @@ class ReactiveStandalone(Strategy):
                     [AddHoneyCredentials(deploy_host, target_host, 1, real=False)]
                 )
 
-        self.telemetry_service.subscribe(
-            DecoyCredentialUsed, self.handle_decoy_credential
-        )
+        self.telemetry_service.subscribe(DecoyCredentialUsed, self.handle_interaction)
+        self.telemetry_service.subscribe(DecoyHostInteraction, self.handle_interaction)
         self.telemetry_service.subscribe(SSHEvent, self.handle_ssh_event)
 
-    def handle_decoy_credential(self, event: DecoyCredentialUsed):
+    def handle_interaction(self, event: DecoyCredentialUsed | DecoyHostInteraction):
         log_event("Decoy used", f"Decoy used on host {event.source_ip}")
         if self.max_restores == -1 or self.restore_count < self.max_restores:
             # Restore host if attacker is detected

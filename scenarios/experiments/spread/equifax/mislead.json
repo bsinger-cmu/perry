@@ -1,0 +1,27 @@
+[
+  {
+    "name": "persistentdfs_mislead",
+    "trials": 5,
+    "scenario": "equifax_large/reactive/persistent_dfs/simple_honeypot.json"
+  },
+  {
+    "name": "dfs_mislead",
+    "trials": 5,
+    "scenario": "equifax_large/reactive/dfs/simple_honeypot.json"
+  },
+  {
+    "name": "equifax_mislead",
+    "trials": 5,
+    "scenario": "equifax_large/reactive/equifax/simple_honeypot.json"
+  },
+  {
+    "name": "darkside_mislead",
+    "trials": 5,
+    "scenario": "equifax_large/reactive/darkside/simple_honeypot.json"
+  },
+  {
+    "name": "targeted_mislead",
+    "trials": 5,
+    "scenario": "equifax_large/mislead/targeted/simple_honeypot.json"
+  }
+]

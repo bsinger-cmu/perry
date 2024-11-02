@@ -1,6 +1,6 @@
 from .TelemetryAnalysis import TelemetryAnalysis
 
-from .events import Event, AttackerOnHost, SSHEvent
+from .events import Event, DecoyHostInteraction, SSHEvent
 
 from utility.logging import log_event
 
@@ -15,14 +15,14 @@ class SimpleTelemetryAnalysis(TelemetryAnalysis):
             if alert["_index"] == "sysflow":
                 if alert_data["event"]["category"] != "network":
                     continue
-                # if destination in alert data
+
                 if "destination" in alert_data:
-                    if alert_data["destination"]["port"] == 22:
-                        ssh_event = SSHEvent(
+                    if self.network.is_ip_decoy(alert_data["destination"]["ip"]):
+                        log_event("Decoy host interaction", alert_data["source"]["ip"])
+                        attacker_on_host_event = DecoyHostInteraction(
                             alert_data["source"]["ip"],
                             alert_data["destination"]["ip"],
-                            alert_data["destination"]["port"],
                         )
-                        high_level_events.append(ssh_event)
+                        high_level_events.append(attacker_on_host_event)
 
         return high_level_events

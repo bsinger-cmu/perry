@@ -1,5 +1,5 @@
 {
-  "name": "dfs_standalone_d10_h0",
+  "name": "dfs_standalone_d10_h50",
   "defender": {
     "telemetry": "NoTelemetry",
     "strategy": "StaticStandalone",
