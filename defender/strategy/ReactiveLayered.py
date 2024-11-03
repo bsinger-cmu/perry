@@ -61,19 +61,17 @@ class ReactiveLayered(Strategy):
     def handle_ssh_event(self, event: SSHEvent):
         actions = []
         if self.network.is_ip_decoy(event.target_ip):
-            if self.max_restores == -1 or self.restore_count < self.max_restores:
-                # fmt: off
-                log_event("Restoring hosts", f"Restoring host {event.source_ip} after SSH connection detected")
-                # fmt: on
+            # fmt: off
+            log_event("Restoring hosts", f"Restoring host {event.source_ip} after SSH connection detected")
+            # fmt: on
 
-                # Restore host if SSH connection is detected
-                restoreAction = RestoreServer(event.source_ip)
-                actions.append(restoreAction)
-                self.restore_count += 1
+            # Restore host if SSH connection is detected
+            restoreAction = RestoreServer(event.source_ip)
+            actions.append(restoreAction)
 
-                # Can restore decoy as many times as you want
-                restoreAction = RestoreServer(event.target_ip)
-                actions.append(restoreAction)
+            # Can restore decoy as many times as you want
+            restoreAction = RestoreServer(event.target_ip)
+            actions.append(restoreAction)
 
         self.orchestrator.run(actions)
 
