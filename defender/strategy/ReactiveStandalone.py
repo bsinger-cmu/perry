@@ -63,30 +63,35 @@ class ReactiveStandalone(Strategy):
         self.telemetry_service.subscribe(SSHEvent, self.handle_ssh_event)
 
     def handle_interaction(self, event: DecoyCredentialUsed | DecoyHostInteraction):
-        log_event("Decoy used", f"Decoy used on host {event.source_ip}")
-        if self.max_restores == -1 or self.restore_count < self.max_restores:
-            # Restore host if attacker is detected
-            attacker_ip = event.source_ip
-            restoreAction = RestoreServer(attacker_ip)
-            self.orchestrator.run([restoreAction])
+        actions = []
+
+        # Restore host if attacker is detected
+        log_event("Restoring host:", f"Restoring host {event.source_ip}")
+        actions.append(RestoreServer(event.source_ip))
+        self.restore_count += 1
+
+        if isinstance(event, DecoyHostInteraction):
+            log_event("Restoring host:", f"Restoring host {event.target_ip}")
+            actions.append(RestoreServer(event.target_ip))
             self.restore_count += 1
+
+        self.orchestrator.run(actions)
 
     def handle_ssh_event(self, event: SSHEvent):
         actions = []
         if self.network.is_ip_decoy(event.target_ip):
-            if self.max_restores == -1 or self.restore_count < self.max_restores:
-                # fmt: off
-                log_event("Restoring hosts", f"Restoring host {event.source_ip} after SSH connection detected")
-                # fmt: on
+            # fmt: off
+            log_event("Restoring hosts", f"Restoring host {event.source_ip} after SSH connection detected")
+            # fmt: on
 
-                # Restore host if SSH connection is detected
-                restoreAction = RestoreServer(event.source_ip)
-                actions.append(restoreAction)
-                self.restore_count += 1
+            # Restore host if SSH connection is detected
+            restoreAction = RestoreServer(event.source_ip)
+            actions.append(restoreAction)
+            self.restore_count += 1
 
-                # Can restore decoy as many times as you want
-                restoreAction = RestoreServer(event.target_ip)
-                actions.append(restoreAction)
+            # Can restore decoy as many times as you want
+            restoreAction = RestoreServer(event.target_ip)
+            actions.append(restoreAction)
 
         self.orchestrator.run(actions)
 

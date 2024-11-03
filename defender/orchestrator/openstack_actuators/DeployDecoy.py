@@ -14,11 +14,22 @@ class DeployDecoy(OpenstackActuator):
         image = self.openstack_conn.get_image("decoy")
         image_exists = image is not None
 
+        manage_image_used = False
+        web_image_used = False
+
         if not image_exists:
             if action.apacheVulnerability:
                 # Use a webserver image
-                image = self.openstack_conn.image.find_image("webserver_0_image")
-                if image is None:
+                manage_image = self.openstack_conn.image.find_image("manage_A_0_image")
+                web_image = self.openstack_conn.image.find_image("webserver_0_image")
+                
+                if manage_image is not None:
+                    image = manage_image
+                    manage_image_used = True
+                elif web_image is not None:
+                    image = web_image
+                    web_image_used = True
+                else:
                     raise Exception("Error decoy image not found")
             else:
                 # Create server
@@ -76,7 +87,12 @@ class DeployDecoy(OpenstackActuator):
             if action.apacheVulnerability:
                 print("Deploying apache vulnerability...")
                 print("Reseting ssh config")
-                self.ansible_runner.run_playbook(ResetSSHConfig(server_ip, "tomcat"))
+                
+                name = 'tomcat'
+                if manage_image_used:
+                    name = 'manageA0'
+                
+                self.ansible_runner.run_playbook(ResetSSHConfig(server_ip, name))
                 time.sleep(5)
 
             if action.honeySSHService:

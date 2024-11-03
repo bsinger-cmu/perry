@@ -6,7 +6,11 @@ from defender.capabilities import (
     RestoreServer,
 )
 
-from defender.telemetry.events import Event, AttackerOnHost, SSHEvent
+from defender.telemetry.events import (
+    DecoyHostInteraction,
+    DecoyCredentialUsed,
+    SSHEvent,
+)
 from . import Strategy
 
 from utility.logging import log_event
@@ -56,7 +60,24 @@ class ReactiveLayered(Strategy):
                     [AddHoneyCredentials(host, decoy_host, 1, real=True)]
                 )
 
+        self.telemetry_service.subscribe(DecoyCredentialUsed, self.handle_interaction)
+        self.telemetry_service.subscribe(DecoyHostInteraction, self.handle_interaction)
         self.telemetry_service.subscribe(SSHEvent, self.handle_ssh_event)
+
+    def handle_interaction(self, event: DecoyCredentialUsed | DecoyHostInteraction):
+        actions = []
+
+        # Restore host if attacker is detected
+        log_event("Restoring host:", f"Restoring host {event.source_ip}")
+        actions.append(RestoreServer(event.source_ip))
+        self.restore_count += 1
+
+        if isinstance(event, DecoyHostInteraction):
+            log_event("Restoring host:", f"Restoring host {event.target_ip}")
+            actions.append(RestoreServer(event.target_ip))
+            self.restore_count += 1
+
+        self.orchestrator.run(actions)
 
     def handle_ssh_event(self, event: SSHEvent):
         actions = []
