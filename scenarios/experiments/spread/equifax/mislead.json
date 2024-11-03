@@ -1,27 +1,27 @@
 [
   {
+    "name": "targeted_mislead",
+    "trials": 5,
+    "scenario": "equifax_large/mislead/targeted/d10_h0.json"
+  },
+  {
     "name": "persistentdfs_mislead",
     "trials": 5,
-    "scenario": "equifax_large/reactive/persistent_dfs/simple_honeypot.json"
+    "scenario": "equifax_large/standalone/persistent_dfs/d10_h0.json"
   },
   {
     "name": "dfs_mislead",
     "trials": 5,
-    "scenario": "equifax_large/reactive/dfs/simple_honeypot.json"
+    "scenario": "equifax_large/standalone/dfs/d10_h0.json"
   },
   {
     "name": "equifax_mislead",
     "trials": 5,
-    "scenario": "equifax_large/reactive/equifax/simple_honeypot.json"
+    "scenario": "equifax_large/standalone/equifax/d10_h0.json"
   },
   {
     "name": "darkside_mislead",
     "trials": 5,
-    "scenario": "equifax_large/reactive/darkside/simple_honeypot.json"
-  },
-  {
-    "name": "targeted_mislead",
-    "trials": 5,
-    "scenario": "equifax_large/mislead/targeted/simple_honeypot.json"
+    "scenario": "equifax_large/standalone/darkside/d10_h0.json"
   }
 ]
