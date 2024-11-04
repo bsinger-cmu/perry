@@ -1,16 +1,10 @@
 import pandas as pd
 from statistics import mean
 
-from deployment_instance import ExperimentResult, FlagInformation, DataExfiltrated
-
-
-def get_flags_captured(data: list[ExperimentResult]):
-    flags_data: list[list[FlagInformation]] = []
-
-    for experiment in data:
-        flags_data.append(experiment.flags_captured)
-
-    return flags_data
+from deployment_instance.Result import (
+    ExperimentResult,
+    DataExfiltrated,
+)
 
 
 def get_data_exfiltrated(data: list[ExperimentResult]):
@@ -170,68 +164,106 @@ def get_runtime_data(experiment_data):
     return runtime_data
 
 
-# Sort flags by created_on timestamp
-def sort_flags_by_timestamp(flags):
-    return sorted(flags, key=lambda k: k["time_taken"])
+def total_control_host_capture_times(
+    data: dict[str, ExperimentResult], experiment_name: str
+):
+    critical_hosts = [
+        "control-host-0",
+        "control-host-1",
+        "control-host-2",
+        "control-host-3",
+        "control-host-4",
+    ]
+    df = pd.DataFrame(
+        columns=[
+            "experiment_name",
+            "experiment_id",
+            "avg_time_infected",
+            "percent_hosts_infected",
+        ]
+    )
 
+    for exp_id, result in data.items():
+        capture_times = []
+        for host in result.hosts_infected:
+            if host.name in critical_hosts:
+                capture_times.append(host.time_infected)
 
-def get_experiment_flag_time_taken(experiment_data, flag_num):
-    data = []
-    for experiment in experiment_data:
-        if len(experiment["flags_captured"]) < flag_num:
-            continue
-        # Sort flags by time_taken
-        experiment["flags"] = sort_flags_by_timestamp(experiment["flags_captured"])
-        # Get time_taken for flag_num
-        flag = experiment["flags"][flag_num - 1]
-        # Convert time_taken to minutes
-        time_taken = flag["time_taken"] / 60
-        data.append(time_taken)
-    return data
+        # Calculate the number and average time of infected hosts
+        infected_count = len(capture_times)
+        percent_hosts_infected = (infected_count / len(critical_hosts)) * 100
 
-
-def get_flag_time_taken(experiment_data, flag_nums):
-    data = {}
-    for experiment_type in experiment_data.keys():
-        data[experiment_type] = {}
-
-        if isinstance(flag_nums, list):
-            for flag_num in flag_nums:
-                data[experiment_type][flag_num] = get_experiment_flag_time_taken(
-                    experiment_data[experiment_type], flag_num
-                )
+        if infected_count > 0:
+            avg_time_infected = (
+                sum(capture_times) / infected_count / 60
+            )  # Convert to minutes
         else:
-            data[experiment_type] = get_experiment_flag_time_taken(
-                experiment_data[experiment_type], flag_nums
-            )
-    return data
+            avg_time_infected = None  # or use 0 if you prefer
+
+        # Append row to the dataframe
+        df.loc[df.shape[0]] = [
+            experiment_name,
+            exp_id,
+            avg_time_infected,
+            percent_hosts_infected,
+        ]
+
+    return df
 
 
-def get_avg_flag_time_taken(experiment_data, flag_nums):
-    data = {}
-    for experiment_type in experiment_data.keys():
-        data[experiment_type] = []
-        for flag_num in flag_nums:
-            time_taken_flags = get_experiment_flag_time_taken(
-                experiment_data[experiment_type], flag_num
-            )
-
-            if len(time_taken_flags) != 0:
-                data[experiment_type].append(mean(time_taken_flags))
-    return data
+critical_hosts = [
+    "control-host-0",
+    "control-host-1",
+    "control-host-2",
+    "control-host-3",
+    "control-host-4",
+]
 
 
-def get_flag_time_taken_pd(experiment_data, flag_num):
-    data = pd.DataFrame()
-    for experiment_type in experiment_data.keys():
-        times_for_flag = get_experiment_flag_time_taken(
-            experiment_data[experiment_type], flag_num
-        )
+def total_control_host_capture_times(
+    data: dict[str, ExperimentResult], num_expected_files
+):
+    df = pd.DataFrame(
+        columns=[
+            "experiment",
+            "experiment_num",
+            "hosts_infected",
+            "percent_hosts_infected",
+            "time_per_host",
+        ]
+    )
 
-        data = pd.concat(
-            [data, pd.DataFrame(times_for_flag, columns=[experiment_type])], axis=1
-        )
-    # Flags start at 1 not 0
-    data.index += 1
+    for experiment_num, experiment_result in enumerate(list(data.values())):
+        hosts_infected = get_num_critical_hosts_infected(experiment_result)
+        avg_time_infected = get_avg_time_infected(experiment_result)
+        if avg_time_infected is not None:
+            avg_time_infected = avg_time_infected / 60
 
-    return data
+        df.loc[df.shape[0]] = [
+            experiment_result.scenario.name,
+            experiment_num,
+            hosts_infected,
+            hosts_infected / len(critical_hosts) * 100,
+            avg_time_infected,
+        ]
+
+    return df
+
+
+def get_num_critical_hosts_infected(exp: ExperimentResult):
+    infected_hosts = [host.name for host in exp.hosts_infected]
+    num_critical_hosts_infected = len(set(critical_hosts).intersection(infected_hosts))
+    return num_critical_hosts_infected
+
+
+def get_avg_time_infected(exp: ExperimentResult):
+    infected_hosts = [host.name for host in exp.hosts_infected]
+    critical_host_times = []
+    for host in exp.hosts_infected:
+        if host.name in critical_hosts:
+            critical_host_times.append(host.time_infected)
+    if len(critical_host_times) > 0:
+        avg_time_infected = sum(critical_host_times) / len(critical_host_times)
+    else:
+        avg_time_infected = None
+    return avg_time_infected
