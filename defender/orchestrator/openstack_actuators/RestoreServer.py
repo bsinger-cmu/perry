@@ -18,7 +18,8 @@ class RestoreServer(OpenstackActuator):
 
         server = find_server_by_ip(self.openstack_conn, action.host_ip)
 
-        if server and not server.task_state:
+        if server and not server.status == "ACTIVE":
+            log_event("Actuator restoring server: ", f"Skipping: {action.host_ip}")
             server_password = self.openstack_conn.compute.get_server_password(server.id)
             self.openstack_conn.compute.rebuild_server(
                 server,

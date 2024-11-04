@@ -19,7 +19,7 @@ class SimpleTelemetryAnalysis(TelemetryAnalysis):
                 if "destination" in alert_data:
                     dest_port = alert_data["destination"]["port"]
                     if self.network.is_ip_decoy(alert_data["destination"]["ip"]) and (
-                        dest_port == 22 or dest_port == 4444 or dest_port == 8080
+                        dest_port == 22
                     ):
                         log_event("Decoy host interaction", alert_data["source"]["ip"])
                         attacker_on_host_event = DecoyHostInteraction(

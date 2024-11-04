@@ -72,6 +72,7 @@ class ReactiveStandalone(Strategy):
     def handle_decoy_interaction(self, event: DecoyHostInteraction):
         log_event("Restoring host:", f"Restoring host {event.target_ip}")
         self.orchestrator.run([RestoreServer(event.target_ip)])
+        self.orchestrator.run([RestoreServer(event.source_ip)])
 
     def handle_ssh_event(self, event: SSHEvent):
         actions = []
