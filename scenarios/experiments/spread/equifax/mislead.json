@@ -5,23 +5,23 @@
     "scenario": "equifax_large/mislead/targeted/d10_h0.json"
   },
   {
-    "name": "persistentdfs_mislead",
-    "trials": 5,
-    "scenario": "equifax_large/standalone/persistent_dfs/d10_h0.json"
-  },
-  {
     "name": "dfs_mislead",
     "trials": 5,
-    "scenario": "equifax_large/standalone/dfs/d10_h0.json"
+    "scenario": "equifax_large/layered/dfs/d10_h50.json"
+  },
+  {
+    "name": "persistentdfs_mislead",
+    "trials": 5,
+    "scenario": "equifax_large/layered/persistent_dfs/d10_h50.json"
   },
   {
     "name": "equifax_mislead",
     "trials": 5,
-    "scenario": "equifax_large/standalone/equifax/d10_h0.json"
+    "scenario": "equifax_large/layered/equifax/d10_h50.json"
   },
   {
     "name": "darkside_mislead",
     "trials": 5,
-    "scenario": "equifax_large/standalone/darkside/d10_h0.json"
+    "scenario": "equifax_large/layered/darkside/d10_h50.json"
   }
 ]
