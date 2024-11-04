@@ -1,0 +1,35 @@
+{
+    "scenario": {
+        "name": "darkside_standalone_d10_h50",
+        "defender": {
+            "telemetry": "NoTelemetry",
+            "strategy": "StaticStandalone",
+            "capabilities": {
+                "DeployDecoy": 10,
+                "HoneyService": 0,
+                "RestoreServer": 0,
+                "HoneyCredentials": 50
+            }
+        },
+        "attacker": {
+            "name": "darkside"
+        },
+        "deployment_instance": {
+            "name": "ICSEnvironment"
+        }
+    },
+    "experiment_time": 588.6371417045593,
+    "execution_time": 34.87675738334656,
+    "setup_time": 553.7603843212128,
+    "flags_captured": [],
+    "data_exfiltrated": [],
+    "hosts_infected": [],
+    "operation_id": "2024-11-04_04-55-56",
+    "defender_action_counts": {
+        "shutdown_server": 0,
+        "start_honey_service": 0,
+        "deploy_decoy": 10,
+        "restore_server": 0,
+        "AddHoneyCredentials": 0
+    }
+}
