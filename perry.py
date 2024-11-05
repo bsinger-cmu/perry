@@ -9,6 +9,7 @@ from config.Config import Config
 from cli.attacker import attacker
 from cli.environment import env
 from cli.experiment import experiment
+from cli.benchmark import bench
 from cli.cli_context import PerryContext
 
 
@@ -43,6 +44,7 @@ def main(ctx):
 main.add_command(attacker)
 main.add_command(env)
 main.add_command(experiment)
+main.add_command(bench)
 
 
 if __name__ == "__main__":

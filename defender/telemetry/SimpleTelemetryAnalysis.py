@@ -40,9 +40,7 @@ class SimpleTelemetryAnalysis(TelemetryAnalysis):
                             high_level_events.append(attacker_on_host_event)
 
                     if self.network.is_ip_decoy(alert_data["host"]["ip"]):
-                        if dest_port == 8888:
-                            log_event("debug", cmd_ln)
-                            if "/usr/bin/curl" in cmd_ln:
+                        if dest_port == 8888 and "/usr/bin/curl" in cmd_ln:
                                 # fmt: off
                                 log_event("Decoy host interaction", alert_data["source"]["ip"])
                                 # fmt: on
@@ -51,13 +49,5 @@ class SimpleTelemetryAnalysis(TelemetryAnalysis):
                                     alert_data["destination"]["ip"],
                                 )
                                 high_level_events.append(attacker_on_host_event)
-
-                    if "decoy" in alert_data["host"]["id"] and dest_port == 8888:
-                        log_event("debug", "This rule fired")
-                        attacker_on_host_event = DecoyHostInteraction(
-                            alert_data["source"]["ip"],
-                            alert_data["destination"]["ip"],
-                        )
-                        high_level_events.append(attacker_on_host_event)
 
         return high_level_events
