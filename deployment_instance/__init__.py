@@ -1,5 +1,4 @@
 from .DeploymentInstance import DeploymentInstance
-from .EnterpriseInstance import EnterpriseInstance
 from .EquifaxInstance import EquifaxInstance
 from .EquifaxLarge import EquifaxLarge
 from .EquifaxMedium import EquifaxMedium
