@@ -1,0 +1,180 @@
+{
+    "scenario": {
+        "name": "dfs_layered_d10_h50",
+        "defender": {
+            "telemetry": "NoTelemetry",
+            "strategy": "StaticLayered",
+            "capabilities": {
+                "DeployDecoy": 10,
+                "HoneyService": 0,
+                "RestoreServer": 0,
+                "HoneyCredentials": 50
+            }
+        },
+        "attacker": {
+            "name": "network_DFS"
+        },
+        "deployment_instance": {
+            "name": "ICSEnvironment"
+        }
+    },
+    "experiment_time": 2381.7174055576324,
+    "execution_time": 1339.6014461517334,
+    "setup_time": 1042.115959405899,
+    "flags_captured": [],
+    "data_exfiltrated": [],
+    "hosts_infected": [
+        {
+            "name": "decoy-9",
+            "time_infected": 117.61001563072205
+        },
+        {
+            "name": "decoy-5",
+            "time_infected": 154.84511542320251
+        },
+        {
+            "name": "manage-b-0",
+            "time_infected": 187.12963438034058
+        },
+        {
+            "name": "sensor-1",
+            "time_infected": 219.31524276733398
+        },
+        {
+            "name": "decoy-5",
+            "time_infected": 229.3716390132904
+        },
+        {
+            "name": "sensor-19",
+            "time_infected": 288.9311354160309
+        },
+        {
+            "name": "sensor-7",
+            "time_infected": 321.20410561561584
+        },
+        {
+            "name": "sensor-12",
+            "time_infected": 393.6740689277649
+        },
+        {
+            "name": "control-host-0",
+            "time_infected": 425.91672801971436
+        },
+        {
+            "name": "sensor-2",
+            "time_infected": 463.2930634021759
+        },
+        {
+            "name": "sensor-18",
+            "time_infected": 485.5350253582001
+        },
+        {
+            "name": "control-host-4",
+            "time_infected": 512.767406463623
+        },
+        {
+            "name": "sensor-4",
+            "time_infected": 540.080224275589
+        },
+        {
+            "name": "control-host-2",
+            "time_infected": 577.3254721164703
+        },
+        {
+            "name": "decoy-0",
+            "time_infected": 604.591726064682
+        },
+        {
+            "name": "decoy-7",
+            "time_infected": 631.928971529007
+        },
+        {
+            "name": "sensor-10",
+            "time_infected": 659.2438480854034
+        },
+        {
+            "name": "decoy-6",
+            "time_infected": 686.4596636295319
+        },
+        {
+            "name": "decoy-6",
+            "time_infected": 713.7655780315399
+        },
+        {
+            "name": "sensor-17",
+            "time_infected": 736.152069568634
+        },
+        {
+            "name": "sensor-14",
+            "time_infected": 746.2151143550873
+        },
+        {
+            "name": "decoy-6",
+            "time_infected": 825.71222448349
+        },
+        {
+            "name": "sensor-3",
+            "time_infected": 853.135947227478
+        },
+        {
+            "name": "control-host-3",
+            "time_infected": 905.4138700962067
+        },
+        {
+            "name": "sensor-5",
+            "time_infected": 927.8704969882965
+        },
+        {
+            "name": "sensor-6",
+            "time_infected": 960.1484384536743
+        },
+        {
+            "name": "sensor-15",
+            "time_infected": 975.209792137146
+        },
+        {
+            "name": "sensor-16",
+            "time_infected": 1049.8873310089111
+        },
+        {
+            "name": "control-host-1",
+            "time_infected": 1087.1594631671906
+        },
+        {
+            "name": "sensor-8",
+            "time_infected": 1124.6438846588135
+        },
+        {
+            "name": "sensor-9",
+            "time_infected": 1151.8912980556488
+        },
+        {
+            "name": "sensor-0",
+            "time_infected": 1194.2715802192688
+        },
+        {
+            "name": "sensor-13",
+            "time_infected": 1216.494508266449
+        },
+        {
+            "name": "sensor-11",
+            "time_infected": 1253.8443171977997
+        },
+        {
+            "name": "decoy-3",
+            "time_infected": 1286.2427592277527
+        },
+        {
+            "name": "decoy-6",
+            "time_infected": 1318.5969831943512
+        }
+    ],
+    "operation_id": "2024-11-05_08-13-10",
+    "defender_action_counts": {
+        "shutdown_server": 0,
+        "start_honey_service": 0,
+        "deploy_decoy": 10,
+        "restore_server": 0,
+        "AddHoneyCredentials": 0
+    }
+}
