@@ -164,53 +164,6 @@ def get_runtime_data(experiment_data):
     return runtime_data
 
 
-def total_control_host_capture_times(
-    data: dict[str, ExperimentResult], experiment_name: str
-):
-    critical_hosts = [
-        "control-host-0",
-        "control-host-1",
-        "control-host-2",
-        "control-host-3",
-        "control-host-4",
-    ]
-    df = pd.DataFrame(
-        columns=[
-            "experiment_name",
-            "experiment_id",
-            "avg_time_infected",
-            "percent_hosts_infected",
-        ]
-    )
-
-    for exp_id, result in data.items():
-        capture_times = []
-        for host in result.hosts_infected:
-            if host.name in critical_hosts:
-                capture_times.append(host.time_infected)
-
-        # Calculate the number and average time of infected hosts
-        infected_count = len(capture_times)
-        percent_hosts_infected = (infected_count / len(critical_hosts)) * 100
-
-        if infected_count > 0:
-            avg_time_infected = (
-                sum(capture_times) / infected_count / 60
-            )  # Convert to minutes
-        else:
-            avg_time_infected = None  # or use 0 if you prefer
-
-        # Append row to the dataframe
-        df.loc[df.shape[0]] = [
-            experiment_name,
-            exp_id,
-            avg_time_infected,
-            percent_hosts_infected,
-        ]
-
-    return df
-
-
 critical_hosts = [
     "control-host-0",
     "control-host-1",
@@ -229,6 +182,7 @@ def total_control_host_capture_times(
             "experiment_num",
             "hosts_infected",
             "percent_hosts_infected",
+            "time_taken",
             "time_per_host",
         ]
     )
@@ -236,6 +190,7 @@ def total_control_host_capture_times(
     for experiment_num, experiment_result in enumerate(list(data.values())):
         hosts_infected = get_num_critical_hosts_infected(experiment_result)
         avg_time_infected = get_avg_time_infected(experiment_result)
+        time_taken = get_time_of_last_critical(experiment_result) / 60
         if avg_time_infected is not None:
             avg_time_infected = avg_time_infected / 60
 
@@ -244,6 +199,7 @@ def total_control_host_capture_times(
             experiment_num,
             hosts_infected,
             hosts_infected / len(critical_hosts) * 100,
+            time_taken,
             avg_time_infected,
         ]
 
@@ -267,3 +223,15 @@ def get_avg_time_infected(exp: ExperimentResult):
     else:
         avg_time_infected = None
     return avg_time_infected
+
+
+def get_time_of_last_critical(exp: ExperimentResult):
+    critical_host_times = []
+    for host in exp.hosts_infected:
+        if host.name in critical_hosts:
+            critical_host_times.append(host.time_infected)
+    if len(critical_host_times) > 0:
+        last_time_infected = max(critical_host_times)
+    else:
+        last_time_infected = 0
+    return last_time_infected

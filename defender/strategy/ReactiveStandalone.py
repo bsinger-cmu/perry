@@ -66,21 +66,15 @@ class ReactiveStandalone(Strategy):
 
     def handle_interaction(self, event: DecoyCredentialUsed):
         # Restore host if attacker is detected
-        log_event("Restoring host:", f"Restoring host {event.source_ip}")
         self.orchestrator.run([RestoreServer(event.source_ip)])
 
     def handle_decoy_interaction(self, event: DecoyHostInteraction):
-        log_event("Restoring host:", f"Restoring host {event.target_ip}")
         self.orchestrator.run([RestoreServer(event.target_ip)])
         self.orchestrator.run([RestoreServer(event.source_ip)])
 
     def handle_ssh_event(self, event: SSHEvent):
         actions = []
         if self.network.is_ip_decoy(event.target_ip):
-            # fmt: off
-            log_event("Restoring hosts", f"Restoring host {event.source_ip} after SSH connection detected")
-            # fmt: on
-
             # Restore host if SSH connection is detected
             restoreAction = RestoreServer(event.source_ip)
             actions.append(restoreAction)
