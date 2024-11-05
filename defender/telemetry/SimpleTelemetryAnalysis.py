@@ -2,7 +2,9 @@ from .TelemetryAnalysis import TelemetryAnalysis
 
 from .events import Event, DecoyHostInteraction, SSHEvent
 
-from utility.logging import log_event
+from utility.logging import log_event, get_logger
+
+logger = get_logger()
 
 
 class SimpleTelemetryAnalysis(TelemetryAnalysis):
@@ -15,17 +17,27 @@ class SimpleTelemetryAnalysis(TelemetryAnalysis):
             if alert["_index"] == "sysflow":
                 if alert_data["event"]["category"] != "network":
                     continue
+                
+                cmd_ln = alert_data["process"]["command_line"]
+                dest_port = alert_data["destination"]["port"]
+                dest_ip = alert_data["destination"]["ip"]
 
-                if "destination" in alert_data:
-                    dest_port = alert_data["destination"]["port"]
-                    if self.network.is_ip_decoy(alert_data["destination"]["ip"]) and (
-                        dest_port == 22
-                    ):
-                        log_event("Decoy host interaction", alert_data["source"]["ip"])
-                        attacker_on_host_event = DecoyHostInteraction(
-                            alert_data["source"]["ip"],
-                            alert_data["destination"]["ip"],
-                        )
-                        high_level_events.append(attacker_on_host_event)
+                if "destination" in alert_data and "process" in alert_data:
+                    if self.network.is_ip_decoy(dest_ip):
+                        if dest_port == 4444 and '/usr/bin/ncat --no-shutdown -i' in cmd_ln:
+                            log_event("Decoy host interaction", alert_data["source"]["ip"])
+                            attacker_on_host_event = DecoyHostInteraction(
+                                alert_data["source"]["ip"],
+                                alert_data["destination"]["ip"],
+                            )
+                            high_level_events.append(attacker_on_host_event)
+
+                        if dest_port == 8888 and '/usr/bin/curl -s -X POST' in cmd_ln:
+                            log_event("Decoy host interaction", alert_data["source"]["ip"])
+                            attacker_on_host_event = DecoyHostInteraction(
+                                alert_data["source"]["ip"],
+                                alert_data["destination"]["ip"],
+                            )
+                            high_level_events.append(attacker_on_host_event)
 
         return high_level_events

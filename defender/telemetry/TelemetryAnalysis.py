@@ -23,7 +23,7 @@ class TelemetryAnalysis(ABC):
         ssh_process = {
             "bool": {
                 "must": [
-                    {"range": {"@timestamp": {"gte": "now-5s"}}},
+                    {"range": {"@timestamp": {"gte": "now-10s"}}},
                     {
                         "bool": {
                             "should": [
@@ -36,15 +36,14 @@ class TelemetryAnalysis(ABC):
             }
         }
 
-        ssh_traces = {
+        network_traces = {
             "bool": {
                 "must": [
-                    {"range": {"@timestamp": {"gte": "now-5s"}}},
+                    {"range": {"@timestamp": {"gte": "now-10s"}}},
                     {
                         "bool": {
                             "should": [
                                 {"match": {"event.category": "network"}},
-                                {"match": {"destination.port": 22}},
                             ]
                         }
                     },
@@ -55,7 +54,7 @@ class TelemetryAnalysis(ABC):
         process_data = self.elasticsearch_conn.search(
             index="sysflow", query=ssh_process
         )
-        traces_data = self.elasticsearch_conn.search(index="sysflow", query=ssh_traces)
+        traces_data = self.elasticsearch_conn.search(index="sysflow", query=network_traces)
 
         # Get documents from query
         raw_telemetry = process_data["hits"]["hits"] + traces_data["hits"]["hits"]
