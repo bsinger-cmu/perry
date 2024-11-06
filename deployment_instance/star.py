@@ -52,6 +52,7 @@ class Star(DeploymentInstance):
         self.attacker_host = get_hosts_on_subnet(
             self.openstack_conn, "192.168.202.0/24", host_name_prefix="attacker"
         )[0]
+        self.attacker_host.users.append("root")
 
         ringSubnet = Subnet("ring_network", self.star_hosts, "employee_one_group")
 
@@ -101,7 +102,7 @@ class Star(DeploymentInstance):
             self.ansible_runner.run_playbook(action)
 
         # Add fake data to each host
-        for host in self.network.get_all_hosts():
+        for host in self.star_hosts:
             self.ansible_runner.run_playbook(
                 AddData(host.ip, host.users[0], f"~/data_{host.name}.json")
             )
