@@ -1,17 +1,17 @@
 {
-  "name": "dfs_tarpit_d10_h100",
+  "name": "persistentdfs_standalone_d10_h50",
   "defender": {
     "telemetry": "NoTelemetry",
-    "strategy": "RingTarpit",
+    "strategy": "StaticStandalone",
     "capabilities": {
       "DeployDecoy": 10,
       "HoneyService": 0,
       "RestoreServer": 0,
-      "HoneyCredentials": 100
+      "HoneyCredentials": 50
     }
   },
   "attacker": {
-    "name": "RingDFSAttacker"
+    "name": "persistent_dfs_planner"
   },
   "deployment_instance": {
     "name": "RingEnvironment"

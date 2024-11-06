@@ -1,17 +1,17 @@
 {
-  "name": "dfs_standalone_d10_h50",
+  "name": "equifax_reactiveSimple",
   "defender": {
-    "telemetry": "NoTelemetry",
-    "strategy": "StaticStandalone",
+    "telemetry": "SimpleTelemetryAnalysis",
+    "strategy": "ReactiveStandalone",
     "capabilities": {
       "DeployDecoy": 10,
       "HoneyService": 0,
       "RestoreServer": 0,
-      "HoneyCredentials": 50
+      "HoneyCredentials": 0
     }
   },
   "attacker": {
-    "name": "RingDFSAttacker"
+    "name": "targeted"
   },
   "deployment_instance": {
     "name": "RingEnvironment"

@@ -1,17 +1,17 @@
 {
-  "name": "dfs_standalone_d0_h0",
+  "name": "dfs_standalone_d10_h50",
   "defender": {
     "telemetry": "NoTelemetry",
-    "strategy": "DoNothing",
+    "strategy": "StaticStandalone",
     "capabilities": {
-      "DeployDecoy": 0,
+      "DeployDecoy": 10,
       "HoneyService": 0,
       "RestoreServer": 0,
-      "HoneyCredentials": 0
+      "HoneyCredentials": 50
     }
   },
   "attacker": {
-    "name": "RingDFSAttacker"
+    "name": "network_DFS"
   },
   "deployment_instance": {
     "name": "RingEnvironment"
