@@ -74,10 +74,14 @@ def get_data_exfiltration_times(
     return df
 
 
-def get_exfiltration_time_df(data: dict[str, ExperimentResult], num_expected_files):
+def get_exfiltration_time_df(
+    data: dict[str, ExperimentResult], num_expected_files, defender_name="defender"
+):
     df = pd.DataFrame(
         columns=[
             "experiment",
+            "defender",
+            "attacker",
             "experiment_num",
             "time_exfiltrated",
             "time_per_file",
@@ -90,6 +94,8 @@ def get_exfiltration_time_df(data: dict[str, ExperimentResult], num_expected_fil
         if len(experiment_result.data_exfiltrated) == 0:
             df.loc[df.shape[0]] = [
                 experiment_result.scenario.name,
+                defender_name,
+                experiment_result.scenario.attacker.name,
                 experiment_num,
                 0,
                 0,
@@ -105,6 +111,8 @@ def get_exfiltration_time_df(data: dict[str, ExperimentResult], num_expected_fil
 
         df.loc[df.shape[0]] = [
             experiment_result.scenario.name,
+            defender_name,
+            experiment_result.scenario.attacker.name,
             experiment_num,
             time_exfiltrated / 60,
             time_per_file / 60,
@@ -193,6 +201,8 @@ def total_control_host_capture_times(
         time_taken = get_time_of_last_critical(experiment_result) / 60
         if avg_time_infected is not None:
             avg_time_infected = avg_time_infected / 60
+        else:
+            avg_time_infected = 0
 
         df.loc[df.shape[0]] = [
             experiment_result.scenario.name,
