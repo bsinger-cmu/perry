@@ -137,8 +137,7 @@ class DeploymentInstance:
         self.ansible_runner.update_management_ip(manage_ip)
 
     def _load_instances(self):
-        if self.all_instances is None:
-            self.all_instances = self.openstack_conn.list_servers()
+        self.all_instances = self.openstack_conn.list_servers()
 
     def save_snapshot(self, instance, snapshot_name):
         image = self.openstack_conn.get_image(snapshot_name)
