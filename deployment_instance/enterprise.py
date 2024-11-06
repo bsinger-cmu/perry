@@ -45,8 +45,6 @@ class Enterprise(DeploymentInstance):
         self.number_of_hosts = number_of_hosts
 
     def parse_network(self):
-        ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24", "10.0.4.0/24"]
-
         self.branch_one = get_hosts_on_subnet(self.openstack_conn, "10.0.1.0/24")
         self.branch_two = get_hosts_on_subnet(self.openstack_conn, "10.0.2.0/24")
         self.branch_three = get_hosts_on_subnet(self.openstack_conn, "10.0.3.0/24")

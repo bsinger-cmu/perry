@@ -65,11 +65,6 @@ resource "openstack_networking_router_interface_v2" "router_interface_manage_ext
 }
 
 # Connect subnets
-resource "openstack_networking_router_interface_v2" "router_interface_manage_company" {
-  router_id = openstack_networking_router_v2.router_external.id
-  subnet_id = openstack_networking_subnet_v2.router_interface.id
-}
-
 resource "openstack_networking_router_interface_v2" "router_interface_manage_attacker" {
   router_id = openstack_networking_router_v2.router_external.id
   subnet_id = openstack_networking_subnet_v2.attacker_subnet.id
@@ -77,24 +72,90 @@ resource "openstack_networking_router_interface_v2" "router_interface_manage_att
 
 
 # Router to connect subnets
-resource "openstack_networking_router_v2" "router" {
-  name = "tree-topology-router"
-}
-
 resource "openstack_networking_router_interface_v2" "router_interface" {
   count     = 4
-  router_id = openstack_networking_router_v2.router.id
+  router_id = openstack_networking_router_v2.router_external.id
   subnet_id = openstack_networking_subnet_v2.subnets[count.index].id
 }
 
 # Instances for leaf nodes
-resource "openstack_compute_instance_v2" "leaf_nodes" {
+resource "openstack_compute_instance_v2" "br1_leaf_nodes" {
   count       = 5
-  name        = "leaf-node-${count.index + 1}"
+  name        = "br1-node-${count.index + 1}"
   image_name  = "Ubuntu20"
   flavor_name = "p2.tiny"
+  key_pair    = var.perry_key_name
   network {
-    uuid = openstack_networking_network_v2.root_network.id
+    uuid        = openstack_networking_network_v2.root_network.id
+    fixed_ip_v4 = "10.0.1.${count.index + 10}"
   }
   security_groups = ["default", module.manage_rules.talk_to_manage_name]
+  depends_on      = [openstack_networking_subnet_v2.subnets[0]]
+}
+
+resource "openstack_compute_instance_v2" "br2_leaf_nodes" {
+  count       = 5
+  name        = "br2-node-${count.index + 1}"
+  image_name  = "Ubuntu20"
+  flavor_name = "p2.tiny"
+  key_pair    = var.perry_key_name
+  network {
+    uuid        = openstack_networking_network_v2.root_network.id
+    fixed_ip_v4 = "10.0.2.${count.index + 10}"
+  }
+  security_groups = ["default", module.manage_rules.talk_to_manage_name]
+  depends_on      = [openstack_networking_subnet_v2.subnets[1], openstack_compute_instance_v2.br1_leaf_nodes]
+}
+
+resource "openstack_compute_instance_v2" "br3_leaf_nodes" {
+  count       = 5
+  name        = "br3-node-${count.index + 1}"
+  image_name  = "Ubuntu20"
+  flavor_name = "p2.tiny"
+  key_pair    = var.perry_key_name
+  network {
+    uuid        = openstack_networking_network_v2.root_network.id
+    fixed_ip_v4 = "10.0.3.${count.index + 10}"
+  }
+  security_groups = ["default", module.manage_rules.talk_to_manage_name]
+  depends_on      = [openstack_networking_subnet_v2.subnets[2], openstack_compute_instance_v2.br2_leaf_nodes]
+}
+
+resource "openstack_compute_instance_v2" "br4_leaf_nodes" {
+  count       = 5
+  name        = "br4-node-${count.index + 1}"
+  image_name  = "Ubuntu20"
+  flavor_name = "p2.tiny"
+  key_pair    = var.perry_key_name
+  network {
+    uuid        = openstack_networking_network_v2.root_network.id
+    fixed_ip_v4 = "10.0.4.${count.index + 10}"
+  }
+  security_groups = ["default", module.manage_rules.talk_to_manage_name]
+  depends_on      = [openstack_networking_subnet_v2.subnets[3], openstack_compute_instance_v2.br3_leaf_nodes]
+}
+
+resource "openstack_compute_instance_v2" "manage_host" {
+  name        = "manage_host"
+  image_name  = "Ubuntu20"
+  flavor_name = "m1.small"
+  key_pair    = var.perry_key_name
+  security_groups = [
+    module.manage_rules.talk_to_manage_name,
+    module.manage_rules.manage_freedom_name
+  ]
+
+  network {
+    name = "manage_network"
+  }
+  depends_on = [openstack_networking_subnet_v2.manage]
+}
+
+resource "openstack_networking_floatingip_v2" "manage_floating_ip" {
+  pool = "external"
+}
+
+resource "openstack_compute_floatingip_associate_v2" "fip_manage" {
+  floating_ip = openstack_networking_floatingip_v2.manage_floating_ip.address
+  instance_id = openstack_compute_instance_v2.manage_host.id
 }

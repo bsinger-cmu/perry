@@ -11,3 +11,7 @@ from .kali_environments.EquifaxKali import EquifaxKali
 
 from .GoalKeeper import GoalKeeper
 from .Result import ExperimentResult, FlagInformation, FlagType, DataExfiltrated
+
+from .star import Star
+from .dumbbell import Dumbbell
+from .enterprise import Enterprise
