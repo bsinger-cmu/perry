@@ -19,6 +19,11 @@ resource "openstack_networking_network_v2" "attacker_network" {
   description    = "The attacker network"
 }
 
+resource "openstack_networking_network_v2" "root_network" {
+  count = 4
+  name  = "root-network-${count.index + 1}"
+}
+
 resource "openstack_networking_subnet_v2" "manage" {
   name            = "manage"
   network_id      = openstack_networking_network_v2.manage_network.id
@@ -35,20 +40,14 @@ resource "openstack_networking_subnet_v2" "attacker_subnet" {
   dns_nameservers = ["8.8.8.8"]
 }
 
-# Root network
-resource "openstack_networking_network_v2" "root_network" {
-  name = "root_network"
-}
-
+# 1 subnet for each branch
 variable "subnet_cidr" { default = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24", "10.0.4.0/24"] }
-# Subnets for each branch (leaves)
 resource "openstack_networking_subnet_v2" "subnets" {
   count           = 4
   name            = "branch-subnet-${count.index + 1}"
-  network_id      = openstack_networking_network_v2.root_network.id
-  cidr            = var.subnet_cidr[count.index]
+  network_id      = openstack_networking_network_v2.root_network[count.index].id
+  cidr            = "10.0.${count.index + 1}.0/24"
   ip_version      = 4
-  gateway_ip      = "10.0.${count.index + 1}.1"
   dns_nameservers = ["8.8.8.8"]
 }
 
@@ -90,7 +89,7 @@ resource "openstack_compute_instance_v2" "br1_leaf_nodes" {
     fixed_ip_v4 = "10.0.1.${count.index + 10}"
   }
   security_groups = ["default", module.manage_rules.talk_to_manage_name]
-  depends_on      = [openstack_networking_subnet_v2.subnets[0]]
+  depends_on      = [openstack_networking_subnet_v2.subnets, openstack_networking_network_v2.root_network]
 }
 
 resource "openstack_compute_instance_v2" "br2_leaf_nodes" {
@@ -104,7 +103,7 @@ resource "openstack_compute_instance_v2" "br2_leaf_nodes" {
     fixed_ip_v4 = "10.0.2.${count.index + 10}"
   }
   security_groups = ["default", module.manage_rules.talk_to_manage_name]
-  depends_on      = [openstack_networking_subnet_v2.subnets[1], openstack_compute_instance_v2.br1_leaf_nodes]
+  depends_on      = [openstack_networking_subnet_v2.subnets, openstack_compute_instance_v2.br1_leaf_nodes, openstack_networking_network_v2.root_network]
 }
 
 resource "openstack_compute_instance_v2" "br3_leaf_nodes" {
@@ -118,7 +117,7 @@ resource "openstack_compute_instance_v2" "br3_leaf_nodes" {
     fixed_ip_v4 = "10.0.3.${count.index + 10}"
   }
   security_groups = ["default", module.manage_rules.talk_to_manage_name]
-  depends_on      = [openstack_networking_subnet_v2.subnets[2], openstack_compute_instance_v2.br2_leaf_nodes]
+  depends_on      = [openstack_networking_subnet_v2.subnets, openstack_networking_network_v2.root_network, openstack_compute_instance_v2.br2_leaf_nodes]
 }
 
 resource "openstack_compute_instance_v2" "br4_leaf_nodes" {
@@ -132,7 +131,7 @@ resource "openstack_compute_instance_v2" "br4_leaf_nodes" {
     fixed_ip_v4 = "10.0.4.${count.index + 10}"
   }
   security_groups = ["default", module.manage_rules.talk_to_manage_name]
-  depends_on      = [openstack_networking_subnet_v2.subnets[3], openstack_compute_instance_v2.br3_leaf_nodes]
+  depends_on      = [openstack_networking_subnet_v2.subnets, openstack_compute_instance_v2.br3_leaf_nodes, openstack_networking_network_v2.root_network]
 }
 
 resource "openstack_compute_instance_v2" "manage_host" {
