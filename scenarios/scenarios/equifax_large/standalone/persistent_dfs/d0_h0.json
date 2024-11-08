@@ -1,17 +1,17 @@
 {
-  "name": "baseline_standalone_d5_h0",
+  "name": "persistentdfs_standalone_d0_h0",
   "defender": {
     "telemetry": "NoTelemetry",
     "strategy": "StaticStandalone",
     "capabilities": {
-      "DeployDecoy": 5,
+      "DeployDecoy": 0,
       "HoneyService": 0,
       "RestoreServer": 0,
       "HoneyCredentials": 0
     }
   },
   "attacker": {
-    "name": "EquifaxBaselineAttacker"
+    "name": "persistent_dfs_planner"
   },
   "deployment_instance": {
     "name": "EquifaxLarge"
