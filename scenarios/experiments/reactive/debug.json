@@ -1,22 +1,22 @@
 [
   {
-    "name": "baseline_reactiveStandalone_d10_h50",
-    "trials": 11,
-    "scenario": "equifax_large/reactive/baseline_reactiveStandalone_d10_h50.json"
+    "name": "targeted_advancedReactive_d0_h50",
+    "trials": 5,
+    "scenario": "equifax_large/reactive/targeted/advanced_d0_d50.json"
   },
   {
-    "name": "baseline_reactiveLayered_d10_h50",
-    "trials": 0,
-    "scenario": "equifax_large/reactive/baseline_reactiveLayered_d10_h50.json"
+    "name": "targeted_advancedReactive_d10_h50",
+    "trials": 5,
+    "scenario": "equifax_large/reactive/targeted/advanced_d10_d50.json"
   },
   {
-    "name": "baseline_reactiveStandalone_d0_h50",
-    "trials": 0,
-    "scenario": "equifax_large/reactive/baseline_reactiveStandalone_d0_h50.json"
+    "name": "targeted_advancedReactive_d10_h0",
+    "trials": 5,
+    "scenario": "equifax_large/reactive/targeted/advanced_d10.json"
   },
   {
-    "name": "baseline_reactiveStandalone_d10_h0",
-    "trials": 0,
-    "scenario": "equifax_large/reactive/baseline_reactiveStandalone_d10_h0.json"
+    "name": "targeted_advancedReactive_layered_d10_h50",
+    "trials": 5,
+    "scenario": "equifax_large/reactive/targeted/advanced_layered_d10_d50.json"
   }
 ]

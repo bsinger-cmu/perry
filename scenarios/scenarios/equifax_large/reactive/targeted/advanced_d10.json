@@ -1,7 +1,7 @@
 {
-  "name": "targeted_reactiveSimple",
+  "name": "targeted_advancedReactive_d10_d0",
   "defender": {
-    "telemetry": "SimpleTelemetryAnalysis",
+    "telemetry": "ReactiveCredentials",
     "strategy": "ReactiveStandalone",
     "capabilities": {
       "DeployDecoy": 10,

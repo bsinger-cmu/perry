@@ -21,7 +21,7 @@
   },
   {
     "name": "targeted_standalone_d10_h0",
-    "trials": 1,
+    "trials": 0,
     "scenario": "equifax_large/standalone/targeted/d10_h0.json"
   }
 ]

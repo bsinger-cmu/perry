@@ -11,12 +11,12 @@
   },
   {
     "name": "darkside_layered_d10_h50",
-    "trials": 5,
+    "trials": 2,
     "scenario": "ics_inspired/layered/darkside/d10_h50.json"
   },
   {
     "name": "equifax_layered_d10_h50",
-    "trials": 1,
+    "trials": 0,
     "scenario": "ics_inspired/layered/equifax/d10_h50.json"
   },
   {
