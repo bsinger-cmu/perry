@@ -1,6 +1,6 @@
 {
     "scenario": {
-        "name": "equifax_reactiveSimple",
+        "name": "targeted_reactiveSimple",
         "defender": {
             "telemetry": "SimpleTelemetryAnalysis",
             "strategy": "ReactiveStandalone",

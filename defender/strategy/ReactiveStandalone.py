@@ -58,32 +58,21 @@ class ReactiveStandalone(Strategy):
                     [AddHoneyCredentials(deploy_host, target_host, 1, real=False)]
                 )
 
-        self.telemetry_service.subscribe(DecoyCredentialUsed, self.handle_interaction)
+        self.telemetry_service.subscribe(
+            DecoyCredentialUsed, self.handle_decoy_interaction
+        )
         self.telemetry_service.subscribe(
             DecoyHostInteraction, self.handle_decoy_interaction
         )
-        self.telemetry_service.subscribe(SSHEvent, self.handle_ssh_event)
+        self.telemetry_service.subscribe(SSHEvent, self.handle_decoy_interaction)
 
-    def handle_interaction(self, event: DecoyCredentialUsed):
-        # Restore host if attacker is detected
+    def handle_decoy_interaction(
+        self, event: SSHEvent | DecoyCredentialUsed | DecoyHostInteraction
+    ):
+        if not isinstance(event, DecoyCredentialUsed):
+            self.orchestrator.run([RestoreServer(event.target_ip)])
+
         self.orchestrator.run([RestoreServer(event.source_ip)])
-
-    def handle_decoy_interaction(self, event: DecoyHostInteraction):
-        self.orchestrator.run([RestoreServer(event.target_ip)])
-        self.orchestrator.run([RestoreServer(event.source_ip)])
-
-    def handle_ssh_event(self, event: SSHEvent):
-        actions = []
-        if self.network.is_ip_decoy(event.target_ip):
-            # Restore host if SSH connection is detected
-            restoreAction = RestoreServer(event.source_ip)
-            actions.append(restoreAction)
-
-            # Can restore decoy as many times as you want
-            restoreAction = RestoreServer(event.target_ip)
-            actions.append(restoreAction)
-
-        self.orchestrator.run(actions)
 
     # Run actions during the scenario
     def run(self):

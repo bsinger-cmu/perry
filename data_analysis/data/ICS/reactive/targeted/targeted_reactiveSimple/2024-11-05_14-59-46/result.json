@@ -1,1 +1,48 @@
-{"scenario": {"name": "equifax_reactiveSimple", "defender": {"telemetry": "SimpleTelemetryAnalysis", "strategy": "ReactiveStandalone", "capabilities": {"DeployDecoy": 10, "HoneyService": 0, "RestoreServer": 0, "HoneyCredentials": 0}}, "attacker": {"name": "targeted"}, "deployment_instance": {"name": "ICSEnvironment"}}, "experiment_time": 491.3215959072113, "execution_time": 187.13480973243713, "setup_time": 304.18678617477417, "flags_captured": [], "data_exfiltrated": [], "hosts_infected": [{"name": "manage-a-0", "time_infected": 45.17034673690796}, {"name": "decoy-8", "time_infected": 77.23342800140381}, {"name": "decoy-3", "time_infected": 134.30239391326904}], "operation_id": "2024-11-05_14-59-46", "defender_action_counts": {"shutdown_server": 0, "start_honey_service": 0, "deploy_decoy": 10, "restore_server": 4, "AddHoneyCredentials": 0}}
+{
+    "scenario": {
+        "name": "targeted_reactiveSimple",
+        "defender": {
+            "telemetry": "SimpleTelemetryAnalysis",
+            "strategy": "ReactiveStandalone",
+            "capabilities": {
+                "DeployDecoy": 10,
+                "HoneyService": 0,
+                "RestoreServer": 0,
+                "HoneyCredentials": 0
+            }
+        },
+        "attacker": {
+            "name": "targeted"
+        },
+        "deployment_instance": {
+            "name": "ICSEnvironment"
+        }
+    },
+    "experiment_time": 491.3215959072113,
+    "execution_time": 187.13480973243713,
+    "setup_time": 304.18678617477417,
+    "flags_captured": [],
+    "data_exfiltrated": [],
+    "hosts_infected": [
+        {
+            "name": "manage-a-0",
+            "time_infected": 45.17034673690796
+        },
+        {
+            "name": "decoy-8",
+            "time_infected": 77.23342800140381
+        },
+        {
+            "name": "decoy-3",
+            "time_infected": 134.30239391326904
+        }
+    ],
+    "operation_id": "2024-11-05_14-59-46",
+    "defender_action_counts": {
+        "shutdown_server": 0,
+        "start_honey_service": 0,
+        "deploy_decoy": 10,
+        "restore_server": 4,
+        "AddHoneyCredentials": 0
+    }
+}

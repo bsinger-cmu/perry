@@ -4,10 +4,7 @@ from defender.capabilities import (
     AddHoneyCredentials,
 )
 
-from defender.orchestrator.openstack_actuators import (
-    AddHoneyCredentials as AddHoneyCredentialsActuator,
-)
-from . import Strategy
+from defender.strategy import Strategy
 
 
 class StaticLayered(Strategy):
@@ -39,20 +36,15 @@ class StaticLayered(Strategy):
 
         # Split credentials between subnets
         credentials_per_subnet = int(num_honeycreds / len(self.network.subnets))
-        credentialActions = []
         for subnet in self.network.subnets:
             for i in range(0, credentials_per_subnet):
                 deploy_host = subnet.get_random_host()
                 target_host = self.network.get_random_decoy()
 
                 # Add fake credentials to decoy
-                credentialActions.append(
-                    AddHoneyCredentials(deploy_host, target_host, 1, real=True)
+                self.orchestrator.run(
+                    [AddHoneyCredentials(deploy_host, target_host, 1, real=True)]
                 )
-
-        AddHoneyCredentialsActuator.actuateMany(
-            credentialActions, self.orchestrator.ansible_runner
-        )
 
     # Run actions during the scenario
     def run(self):

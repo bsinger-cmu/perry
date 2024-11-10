@@ -80,6 +80,7 @@ def get_exfiltration_time_df(
     df = pd.DataFrame(
         columns=[
             "experiment",
+            "operation_id",
             "defender",
             "attacker",
             "experiment_num",
@@ -94,6 +95,7 @@ def get_exfiltration_time_df(
         if len(experiment_result.data_exfiltrated) == 0:
             df.loc[df.shape[0]] = [
                 experiment_result.scenario.name,
+                experiment_result.operation_id,
                 defender_name,
                 experiment_result.scenario.attacker.name,
                 experiment_num,
@@ -111,6 +113,7 @@ def get_exfiltration_time_df(
 
         df.loc[df.shape[0]] = [
             experiment_result.scenario.name,
+            experiment_result.operation_id,
             defender_name,
             experiment_result.scenario.attacker.name,
             experiment_num,
@@ -182,11 +185,14 @@ critical_hosts = [
 
 
 def total_control_host_capture_times(
-    data: dict[str, ExperimentResult], num_expected_files
+    data: dict[str, ExperimentResult],
+    defender="defender",
 ):
     df = pd.DataFrame(
         columns=[
             "experiment",
+            "defender",
+            "attacker",
             "experiment_num",
             "hosts_infected",
             "percent_hosts_infected",
@@ -206,6 +212,8 @@ def total_control_host_capture_times(
 
         df.loc[df.shape[0]] = [
             experiment_result.scenario.name,
+            defender,
+            experiment_result.scenario.attacker.name,
             experiment_num,
             hosts_infected,
             hosts_infected / len(critical_hosts) * 100,

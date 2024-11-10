@@ -1,6 +1,4 @@
-import inspect
 from rich import print
-import ast
 
 # Orchestrator actions
 from defender.orchestrator.openstack_actuators import (
@@ -27,7 +25,7 @@ from defender.strategy.StaticLayered import StaticLayered
 from defender.strategy.ReactiveLayered import ReactiveLayered
 from defender.strategy import ReactiveStandalone
 
-from loc.helpers import get_function_semantic_lines, count_low_level_action_lines
+from paper.loc.helpers import get_function_semantic_lines, count_low_level_action_lines
 
 
 def count_strategy_lines_without_perry(
