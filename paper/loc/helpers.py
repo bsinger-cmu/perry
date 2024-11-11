@@ -40,13 +40,20 @@ def get_ansible_semantic_lines(filepath: str):
         return semantic_lines
 
 
-def count_low_level_action_lines(low_level_action):
+def count_low_level_action_lines(low_level_action, function_line_map={}):
     lines = 0
     for function in low_level_action:
         # if function is string
         if isinstance(function, str):
             lines += len(get_ansible_semantic_lines(function))
         else:
-            lines += len(get_function_semantic_lines(function))
+            func_lines = get_function_semantic_lines(function)
+            for line in func_lines:
+                for key in function_line_map:
+                    if key in line:
+                        lines += function_line_map[key] - 1
+                        break
+
+            lines += len(func_lines)
 
     return lines

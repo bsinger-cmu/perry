@@ -10,7 +10,11 @@ from defender.orchestrator.openstack_actuators import (
 from openstack_helper_functions.server_helpers import find_server_by_ip
 
 # Telemetry
-from defender.telemetry import TelemetryAnalysis, SimpleTelemetryAnalysis
+from defender.telemetry import (
+    TelemetryAnalysis,
+    SimpleTelemetryAnalysis,
+    ReactiveCredentials,
+)
 
 # Symbolic reasoning
 from deployment_instance.network import Network, Subnet, Host
@@ -24,8 +28,30 @@ from defender.strategy.StaticStandalone import StaticStandalone
 from defender.strategy.StaticLayered import StaticLayered
 from defender.strategy.ReactiveLayered import ReactiveLayered
 from defender.strategy import ReactiveStandalone
+from defender.strategy.ICS.LayeredOT import LayeredOT
 
 from paper.loc.helpers import get_function_semantic_lines, count_low_level_action_lines
+
+
+def count_saved_lines(lines, func_line_map={}):
+    total_lines = 0
+    saved_lines = 0
+
+    func_calls = {}
+    for key, _ in func_line_map.items():
+        func_calls[key] = 0
+
+    for line in lines:
+        for key, value in func_line_map.items():
+            if (key) in line:
+                saved_lines += value
+                func_calls[key] += 1
+                break
+            else:
+                total_lines += 1
+
+    total_lines += saved_lines
+    return total_lines, saved_lines, func_calls
 
 
 def count_strategy_lines_without_perry(
@@ -89,6 +115,9 @@ if __name__ == "__main__":
             DeployDecoy.actuate,
             "ansible/defender/deploy_honey_service.yml",
             StartHoneyService.actuate,
+            "ansible/goals/data/addData.yml",
+            "ansible/deployment_instance/setup_server_ssh_keys/reset_ssh_config.yml",
+            "ansible/deployment_instance/check_if_host_up/check_if_host_up.yml",
         ],
         "AddHoneyCredentials(": [
             AddHoneyCredentials.actuateMany,
@@ -96,12 +125,13 @@ if __name__ == "__main__":
             "ansible/common/createUser/createUser.yml",
             "ansible/deployment_instance/setup_server_ssh_keys/setup_server_ssh_keys.yml",
             "ansible/deployment_instance/setup_server_ssh_keys/add_to_ssh_config.yml",
+            "ansible/goals/data/addData.yml",
         ],
         "RestoreServer(": [RestoreServer.actuate, find_server_by_ip],
     }
 
-    symbolic_reasoning_module = [Network, Subnet, Host]
-    symbolic_reasoning_functions = {
+    env_module = [Network, Subnet, Host]
+    env_function = {
         "subnet.get_random_host()": Subnet.get_random_host,
         "network.get_random_host()": Network.get_random_host,
         "network.get_subnet_by_name(": Network.get_subnet_by_name,
@@ -111,12 +141,19 @@ if __name__ == "__main__":
         " Subnet(": Subnet.__init__,
         " Network(": Network.__init__,
         "get_hosts_on_subnet(": get_hosts_on_subnet,
+        "get_random_decoy": Network.get_random_decoy,
+        "get_all_decoys": Network.get_all_decoys,
+        "get_all_decoy_users": Network.get_all_decoy_users,
     }
 
     telemetry = {
         "SimpleTelemetryAnalysis": [
             TelemetryAnalysis.get_new_telemetry,
             SimpleTelemetryAnalysis.process_low_level_events,
+        ],
+        "AdvancedTelemetryAnalysis": [
+            TelemetryAnalysis.get_new_telemetry,
+            ReactiveCredentials.process_low_level_events,
         ],
     }
 
@@ -127,6 +164,7 @@ if __name__ == "__main__":
         "StaticLayered": [StaticLayered],
         "ReactiveLayered": [ReactiveLayered],
         "ReactiveStandalone": [ReactiveStandalone],
+        "LayeredOT": [LayeredOT],
     }
     ## Hack
     # To get telemetry linesm, add "ReactiveStandalone": [ReactiveStandalone, EquifaxInstance.parse_network],
@@ -136,23 +174,19 @@ if __name__ == "__main__":
     for action, details in low_level_actions.items():
         low_level_action_lines[action] = count_low_level_action_lines(details)
 
-    symbolic_reasoning_module_lines = {}
-    for module, functions in symbolic_reasoning_functions.items():
-        symbolic_reasoning_module_lines[module] = len(
-            get_function_semantic_lines([functions])
-        )
+    env_line_map = {}
+    for module, functions in env_function.items():
+        env_line_map[module] = len(get_function_semantic_lines([functions]))
 
     # Count telemetry lines
     telemetry_lines = {}
     for analysis, details in telemetry.items():
-        telemetry_lines[analysis] = count_low_level_action_lines(details)
+        telemetry_lines[analysis] = count_low_level_action_lines(details, env_line_map)
 
     # Count symbolic reasoning module lines
-    symbolic_reasoning_module_total_lines = 0
-    for module in symbolic_reasoning_module:
-        symbolic_reasoning_module_total_lines += len(
-            get_function_semantic_lines(module)
-        )
+    env_total_lines = 0
+    for module in env_module:
+        env_total_lines += len(get_function_semantic_lines(module))
 
     # Count strategy lines
     strategy_lines = {}
@@ -166,8 +200,8 @@ if __name__ == "__main__":
         strategies["NaiveDecoyHost"],
         low_level_action_lines,
         0,
-        symbolic_reasoning_module_lines,
-        symbolic_reasoning_module_total_lines,
+        env_line_map,
+        env_total_lines,
     )
 
     strategy_lines_without_perry["NaiveDecoyCredential"] = (
@@ -175,8 +209,8 @@ if __name__ == "__main__":
             strategies["NaiveDecoyCredential"],
             low_level_action_lines,
             0,
-            symbolic_reasoning_module_lines,
-            symbolic_reasoning_module_total_lines,
+            env_line_map,
+            env_total_lines,
         )
     )
 
@@ -185,8 +219,8 @@ if __name__ == "__main__":
             strategies["StaticStandalone"],
             low_level_action_lines,
             0,
-            symbolic_reasoning_module_lines,
-            symbolic_reasoning_module_total_lines,
+            env_line_map,
+            env_total_lines,
         )
     )
 
@@ -194,8 +228,8 @@ if __name__ == "__main__":
         strategies["StaticLayered"],
         low_level_action_lines,
         0,
-        symbolic_reasoning_module_lines,
-        symbolic_reasoning_module_total_lines,
+        env_line_map,
+        env_total_lines,
     )
 
     strategy_lines_without_perry["ReactiveLayered"] = (
@@ -203,8 +237,8 @@ if __name__ == "__main__":
             strategies["ReactiveLayered"],
             low_level_action_lines,
             0,
-            symbolic_reasoning_module_lines,
-            symbolic_reasoning_module_total_lines,
+            env_line_map,
+            env_total_lines,
         )
     )
 
@@ -213,9 +247,17 @@ if __name__ == "__main__":
             strategies["ReactiveStandalone"],
             low_level_action_lines,
             0,
-            symbolic_reasoning_module_lines,
-            symbolic_reasoning_module_total_lines,
+            env_line_map,
+            env_total_lines,
         )
+    )
+
+    strategy_lines_without_perry["LayeredOT"] = count_strategy_lines_without_perry(
+        strategies["LayeredOT"],
+        low_level_action_lines,
+        0,
+        env_line_map,
+        env_total_lines,
     )
 
     print(low_level_action_lines)
