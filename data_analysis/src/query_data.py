@@ -74,6 +74,9 @@ def get_data_exfiltration_times(
     return df
 
 
+TIMEOUT = 75 * 60
+
+
 def get_exfiltration_time_df(
     data: dict[str, ExperimentResult], num_expected_files, defender_name="defender"
 ):
@@ -88,26 +91,42 @@ def get_exfiltration_time_df(
             "time_per_file",
             "files_exfiltrated",
             "percent_files_exfiltrated",
+            "execution_time",
+            "experiment_time",
+            "setup_time",
         ]
     )
 
+    defender_attacker_count = {}
+
     for experiment_num, experiment_result in enumerate(list(data.values())):
+        if experiment_result.scenario.attacker.name not in defender_attacker_count:
+            defender_attacker_count[experiment_result.scenario.attacker.name] = 0
+        defender_attacker_count[experiment_result.scenario.attacker.name] += 1
+
         if len(experiment_result.data_exfiltrated) == 0:
             df.loc[df.shape[0]] = [
                 experiment_result.scenario.name,
                 experiment_result.operation_id,
                 defender_name,
                 experiment_result.scenario.attacker.name,
-                experiment_num,
+                defender_attacker_count[experiment_result.scenario.attacker.name],
+                TIMEOUT / 60,
                 0,
                 0,
                 0,
-                0,
+                experiment_result.execution_time / 60,
+                experiment_result.experiment_time / 60,
+                experiment_result.setup_time / 60,
             ]
             continue
 
         files_exfiltrated = len(experiment_result.data_exfiltrated)
-        time_exfiltrated = experiment_result.data_exfiltrated[-1].time_exfiltrated
+        if files_exfiltrated < num_expected_files - 5:
+            time_exfiltrated = TIMEOUT
+        else:
+            time_exfiltrated = experiment_result.data_exfiltrated[-1].time_exfiltrated
+
         time_per_file = time_exfiltrated / files_exfiltrated
         percent_files = files_exfiltrated / num_expected_files
 
@@ -116,11 +135,14 @@ def get_exfiltration_time_df(
             experiment_result.operation_id,
             defender_name,
             experiment_result.scenario.attacker.name,
-            experiment_num,
+            defender_attacker_count[experiment_result.scenario.attacker.name],
             time_exfiltrated / 60,
             time_per_file / 60,
             files_exfiltrated,
             percent_files * 100,
+            experiment_result.execution_time / 60,
+            experiment_result.experiment_time / 60,
+            experiment_result.setup_time / 60,
         ]
 
     return df
@@ -191,6 +213,7 @@ def total_control_host_capture_times(
     df = pd.DataFrame(
         columns=[
             "experiment",
+            "operation_id",
             "defender",
             "attacker",
             "experiment_num",
@@ -198,27 +221,35 @@ def total_control_host_capture_times(
             "percent_hosts_infected",
             "time_taken",
             "time_per_host",
+            "execution_time",
         ]
     )
+    defender_attacker_count = {}
 
     for experiment_num, experiment_result in enumerate(list(data.values())):
+        if experiment_result.scenario.attacker.name not in defender_attacker_count:
+            defender_attacker_count[experiment_result.scenario.attacker.name] = 0
+        defender_attacker_count[experiment_result.scenario.attacker.name] += 1
+
         hosts_infected = get_num_critical_hosts_infected(experiment_result)
         avg_time_infected = get_avg_time_infected(experiment_result)
         time_taken = get_time_of_last_critical(experiment_result) / 60
-        if avg_time_infected is not None:
-            avg_time_infected = avg_time_infected / 60
+        if avg_time_infected is not None or hosts_infected == len(critical_hosts):
+            avg_time_infected = TIMEOUT / 60
         else:
             avg_time_infected = 0
 
         df.loc[df.shape[0]] = [
             experiment_result.scenario.name,
+            experiment_result.operation_id,
             defender,
             experiment_result.scenario.attacker.name,
-            experiment_num,
+            defender_attacker_count[experiment_result.scenario.attacker.name],
             hosts_infected,
             hosts_infected / len(critical_hosts) * 100,
             time_taken,
             avg_time_infected,
+            experiment_result.execution_time / 60,
         ]
 
     return df
