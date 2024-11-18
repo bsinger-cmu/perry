@@ -1,9 +1,9 @@
 import click
 import importlib
 
-from environment.DeploymentInstance import DeploymentInstance
+from environment.environment import Environment
 
-deployment_instance_module = importlib.import_module("deployment_instance")
+env_module = importlib.import_module("environment")
 
 
 @click.group()
@@ -11,8 +11,8 @@ deployment_instance_module = importlib.import_module("deployment_instance")
 @click.pass_context
 def env(ctx, type: str):
     # Deploy deployment instance
-    deployment_instance_ = getattr(deployment_instance_module, type)
-    environment: DeploymentInstance = deployment_instance_(
+    deployment_instance_ = getattr(env_module, type)
+    environment: Environment = deployment_instance_(
         ctx.obj.ansible_runner,
         ctx.obj.openstack_conn,
         ctx.obj.config.external_ip,

@@ -2,7 +2,7 @@ from openstack.connection import Connection
 
 from ansible.AnsibleRunner import AnsibleRunner
 from attacker.Attacker import Attacker
-from environment.DeploymentInstance import DeploymentInstance
+from environment.environment import Environment
 from config.Config import Config
 from emulator.emulator import Emulator
 
@@ -24,6 +24,6 @@ class PerryContext:
 
         # Set by cli modules
         self.emulator: Emulator | None = None
-        self.environment: DeploymentInstance | None = None
+        self.environment: Environment | None = None
         self.attacker: Attacker | None = None
         self.defender = None

@@ -12,7 +12,8 @@
     - name: Base dependencies
       apt:
         pkg:
-          - metasploit-framework
+          - kali-linux-headless
+          - net-tools
           - curl
           - wget
           - sshpass

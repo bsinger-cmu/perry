@@ -28,7 +28,7 @@ import importlib
 
 from defender.orchestrator import OpenstackOrchestrator
 
-deployment_instance_module = importlib.import_module("deployment_instance")
+deployment_instance_module = importlib.import_module("environment")
 defender_module = importlib.import_module("defender")
 strategy_module = importlib.import_module("defender.strategy")
 telemetry_module = importlib.import_module("defender.telemetry")
