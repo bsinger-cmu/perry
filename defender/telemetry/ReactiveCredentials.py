@@ -1,6 +1,6 @@
 from .TelemetryAnalysis import TelemetryAnalysis
 
-from .events import Event, SSHEvent, DecoyCredentialUsed
+from .events import Event, DecoyHostInteraction, DecoyCredentialUsed
 
 from utility.logging import PerryLogger
 
@@ -27,14 +27,29 @@ class ReactiveCredentials(TelemetryAnalysis):
                                 high_level_events.append(cred_event)
 
                 if alert_data["event"]["category"] == "network":
-                    # if destination in alert data
-                    if "destination" in alert_data:
-                        if alert_data["destination"]["port"] == 22:
-                            ssh_event = SSHEvent(
-                                alert_data["source"]["ip"],
-                                alert_data["destination"]["ip"],
-                                alert_data["destination"]["port"],
-                            )
-                            high_level_events.append(ssh_event)
+                    cmd_ln = alert_data["process"]["command_line"]
+                    dest_port = alert_data["destination"]["port"]
+                    dest_ip = alert_data["destination"]["ip"]
+
+                    if "destination" in alert_data and "process" in alert_data:
+                        # Net cat shell rule
+                        if self.network.is_ip_decoy(dest_ip):
+                            if (
+                                dest_port == 4444
+                                and "/usr/bin/ncat --no-shutdown -i" in cmd_ln
+                            ):
+                                attacker_on_host_event = DecoyHostInteraction(
+                                    alert_data["source"]["ip"],
+                                    alert_data["destination"]["ip"],
+                                )
+                                high_level_events.append(attacker_on_host_event)
+
+                        if self.network.is_ip_decoy(alert_data["host"]["ip"]):
+                            if dest_port == 8888 and "/usr/bin/curl" in cmd_ln:
+                                attacker_on_host_event = DecoyHostInteraction(
+                                    alert_data["source"]["ip"],
+                                    alert_data["destination"]["ip"],
+                                )
+                                high_level_events.append(attacker_on_host_event)
 
         return high_level_events

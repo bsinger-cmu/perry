@@ -1,0 +1,35 @@
+{
+    "scenario": {
+        "name": "equifax_standalone_d10_h0",
+        "defender": {
+            "telemetry": "NoTelemetry",
+            "strategy": "StaticStandalone",
+            "capabilities": {
+                "DeployDecoy": 10,
+                "HoneyService": 0,
+                "RestoreServer": 0,
+                "HoneyCredentials": 0
+            }
+        },
+        "attacker": {
+            "name": "equifax_baseline"
+        },
+        "deployment_instance": {
+            "name": "RingEnvironment"
+        }
+    },
+    "experiment_time": 260.8083381652832,
+    "execution_time": 7.477125406265259,
+    "setup_time": 253.33121275901794,
+    "flags_captured": [],
+    "data_exfiltrated": [],
+    "hosts_infected": [],
+    "operation_id": "2024-11-06_16-32-14",
+    "defender_action_counts": {
+        "shutdown_server": 0,
+        "start_honey_service": 0,
+        "deploy_decoy": 10,
+        "restore_server": 0,
+        "AddHoneyCredentials": 0
+    }
+}

@@ -1,0 +1,105 @@
+{
+    "scenario": {
+        "name": "targeted_advancedReactive_d10_d50",
+        "defender": {
+            "telemetry": "ReactiveCredentials",
+            "strategy": "ReactiveStandalone",
+            "capabilities": {
+                "DeployDecoy": 10,
+                "HoneyService": 0,
+                "RestoreServer": 0,
+                "HoneyCredentials": 50
+            }
+        },
+        "attacker": {
+            "name": "targeted"
+        },
+        "deployment_instance": {
+            "name": "EquifaxLarge"
+        }
+    },
+    "experiment_time": 1969.9418132305145,
+    "execution_time": 732.029759645462,
+    "setup_time": 1237.9120535850525,
+    "flags_captured": [],
+    "data_exfiltrated": [
+        {
+            "name": "data_database_28.json",
+            "time_exfiltrated": 267.7959318161011
+        },
+        {
+            "name": "data_database_21.json",
+            "time_exfiltrated": 305.7959318161011
+        },
+        {
+            "name": "data_database_32.json",
+            "time_exfiltrated": 367.7959318161011
+        },
+        {
+            "name": "data_database_31.json",
+            "time_exfiltrated": 415.7959318161011
+        }
+    ],
+    "hosts_infected": [
+        {
+            "name": "decoy-8",
+            "time_infected": 60.51637864112854
+        },
+        {
+            "name": "webserver-1",
+            "time_infected": 75.59550738334656
+        },
+        {
+            "name": "decoy-0",
+            "time_infected": 117.72631502151489
+        },
+        {
+            "name": "decoy-9",
+            "time_infected": 154.9116632938385
+        },
+        {
+            "name": "webserver-0",
+            "time_infected": 177.00526785850525
+        },
+        {
+            "name": "database-28",
+            "time_infected": 226.27996587753296
+        },
+        {
+            "name": "database-21",
+            "time_infected": 236.41762900352478
+        },
+        {
+            "name": "database-32",
+            "time_infected": 316.1046996116638
+        },
+        {
+            "name": "database-31",
+            "time_infected": 331.1695296764374
+        },
+        {
+            "name": "decoy-5",
+            "time_infected": 435.972695350647
+        },
+        {
+            "name": "decoy-2",
+            "time_infected": 493.1203336715698
+        },
+        {
+            "name": "decoy-7",
+            "time_infected": 550.2833511829376
+        },
+        {
+            "name": "decoy-6",
+            "time_infected": 607.4264237880707
+        }
+    ],
+    "operation_id": "2024-11-08_18-05-17",
+    "defender_action_counts": {
+        "shutdown_server": 0,
+        "start_honey_service": 0,
+        "deploy_decoy": 10,
+        "restore_server": 24,
+        "AddHoneyCredentials": 50
+    }
+}
