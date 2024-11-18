@@ -4,7 +4,7 @@ import time
 
 
 def deploy_network(name):
-    deployment_dir = os.path.join("deployment_instance/topologies", name)
+    deployment_dir = os.path.join("environment/topologies", name)
 
     print("Initializing Terraform directory...")
     result = subprocess.run(
@@ -27,7 +27,7 @@ def deploy_network(name):
 
 
 def destroy_network(name):
-    deployment_dir = os.path.join("deployment_instance/topologies", name)
+    deployment_dir = os.path.join("environment/topologies", name)
 
     print("Destroying network (might take a minute)...")
     process = subprocess.Popen(

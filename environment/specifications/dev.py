@@ -9,7 +9,7 @@ from ansible.deployment_instance import (
 )
 from ansible.common import CreateUser
 from ansible.caldera import InstallAttacker
-from ansible.defender import InstallSysFlow
+from ansible.vulnerabilities import SetupSudoEdit, SetupSudoBaron, SetupSudoBypass
 
 from environment.environment import Environment
 from environment.network import Network, Subnet
@@ -17,7 +17,7 @@ from environment.openstack.openstack_processor import get_hosts_on_subnet
 
 import config.Config as config
 
-NUMBER_RING_HOSTS = 5
+NUMBER_RING_HOSTS = 4
 
 
 class DevEnvironment(Environment):
@@ -39,13 +39,18 @@ class DevEnvironment(Environment):
             self.openstack_conn, "192.168.200.0/24", host_name_prefix="host"
         )
 
+        for host in self.hosts:
+            if host.name == "host_1":
+                self.privledge_box = host
+
         self.attacker_host = get_hosts_on_subnet(
             self.openstack_conn, "192.168.202.0/24", host_name_prefix="attacker"
         )[0]
 
-        ringSubnet = Subnet("ring_network", self.hosts, "dev_hosts")
+        dev_subnet = Subnet("dev_hosts", self.hosts, "dev_hosts")
+        attacker_subnet = Subnet("attacker", [self.attacker_host], "attacker")
 
-        self.network = Network("ring_network", [ringSubnet])
+        self.network = Network("ring_network", [dev_subnet, attacker_subnet])
         for host in self.network.get_all_hosts():
             username = host.name.replace("_", "")
             host.users.append(username)
@@ -63,16 +68,14 @@ class DevEnvironment(Environment):
         time.sleep(3)
 
         # Install all base packages
-        self.ansible_runner.run_playbook(
-            InstallBasePackages(
-                self.network.get_all_host_ips() + [self.attacker_host.ip]
-            )
-        )
+        # self.ansible_runner.run_playbook(
+        #     InstallBasePackages(
+        #         self.network.get_all_host_ips() + [self.attacker_host.ip]
+        #     )
+        # )
 
-        # Install sysflow on all hosts
-        self.ansible_runner.run_playbook(
-            InstallSysFlow(self.network.get_all_host_ips(), self.config)
-        )
+        # Setup sudo baron
+        self.ansible_runner.run_playbook(SetupSudoEdit(self.privledge_box.ip))
 
         # Setup users on all hosts
         for host in self.network.get_all_hosts():
