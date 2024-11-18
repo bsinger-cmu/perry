@@ -1,17 +1,13 @@
-import json
-import os
 import time
+
+import openstack.compute.v2.server
+import openstack.image.v2.image
 from environment.topology_orchestrator import deploy_network, destroy_network
-from environment.MasterOrchestrator import MasterOrchestrator
 from openstack_helper_functions import teardown_helper
-from colorama import Fore, Style
-from rich import print as rprint
 import openstack
 from openstack.connection import Connection
-from openstack.exceptions import SDKException
 from ansible.AnsibleRunner import AnsibleRunner
 import config.Config as Config
-from .openstack.openstack_processor import get_hosts_on_subnet
 
 from utility.logging import get_logger
 
@@ -40,7 +36,7 @@ def find_manage_server(conn, external_ip):
     return None, None
 
 
-class DeploymentInstance:
+class Environment:
     def __init__(
         self,
         ansible_runner: AnsibleRunner,
@@ -53,7 +49,6 @@ class DeploymentInstance:
         self.ssh_key_path = "./environment/ssh_keys/"
         self.caldera_ip = external_ip
         self.config = config
-        self.orchestrator = MasterOrchestrator(self.ansible_runner)
         self.all_instances = None
         self.topology = None
 
@@ -136,53 +131,47 @@ class DeploymentInstance:
         logger.debug(f"Found management server: {manage_ip}")
         self.ansible_runner.update_management_ip(manage_ip)
 
-    def _load_instances(self):
-        self.all_instances = self.openstack_conn.list_servers()
-
-    def save_snapshot(self, instance, snapshot_name):
+    def save_snapshot(self, host):
+        snapshot_name = host.name + "_image"
         image = self.openstack_conn.get_image(snapshot_name)
         if image:
             logger.debug(f"Image '{snapshot_name}' already exists. Deleting...")
             self.openstack_conn.delete_image(image.id, wait=True)  # type: ignore
 
-        logger.debug(f"Creating snapshot {snapshot_name} for instance {instance.id}...")
+        logger.debug(f"Creating snapshot {snapshot_name} for instance {host.id}...")
         image = self.openstack_conn.create_image_snapshot(
-            snapshot_name, instance.id, wait=True
+            snapshot_name, host.id, wait=True
         )
         return image.id
 
-    def load_snapshot(self, host_addr, snapshot_name, wait=False):
-        self._load_instances()
-        instance_iter = filter(lambda x: x.private_v4 == host_addr, self.all_instances)
-        instance = list(instance_iter)[0]
+    def load_snapshot(self, host, wait=False):
+        snapshot_name = host + "_image"
+        image: openstack.image.v2.image.Image = self.openstack_conn.get_image(
+            snapshot_name
+        )  # type: ignore
 
-        if instance:
-            image = self.openstack_conn.get_image(snapshot_name)
-            if image:
+        if image:
+            logger.debug(
+                f"Loading snapshot {snapshot_name} for instance {host.name}..."
+            )
+            self.openstack_conn.rebuild_server(
+                host.id, image.id, wait=wait, admin_pass=None
+            )
+            if wait:
                 logger.debug(
-                    f"Loading snapshot {snapshot_name} for instance {instance.name}..."
+                    f"Successfully loaded snapshot {snapshot_name} with id {image.id}"
                 )
-                self.openstack_conn.rebuild_server(
-                    instance.id, image.id, wait=wait, admin_pass=None
-                )
-                if wait:
-                    logger.debug(
-                        f"Successfully loaded snapshot {snapshot_name} with id {image.id}"
-                    )
-            return instance.id
 
     def save_all_snapshots(self, wait=True):
         logger.debug("Saving all snapshots...")
-        self._load_instances()
         images = []
-        for instance in self.all_instances:
-            image = self.save_snapshot(instance, instance.name + "_image")
+        for instance in self.openstack_conn.list_servers():
+            image = self.save_snapshot(instance)
             images.append(image)
 
     def load_all_snapshots(self, wait=True):
         logger.debug("Loading all snapshots...")
-        self._load_instances()
-        hosts = self.openstack_conn.list_servers()
+        hosts: openstack.compute.v2.server.Server = self.openstack_conn.list_servers()  # type: ignore
 
         # Check if all images exist
         for host in hosts:
@@ -201,7 +190,7 @@ class DeploymentInstance:
 
             # Start rebuilding all servers
             for host in hosts_to_restore:
-                self.load_snapshot(host.private_v4, host.name + "_image", wait=False)
+                self.load_snapshot(host.private_v4, wait=False)
 
             # Wait for rebuild to start
             time.sleep(5)
@@ -219,7 +208,7 @@ class DeploymentInstance:
         return
 
     def get_error_hosts(self):
-        hosts = self.openstack_conn.list_servers()
+        hosts: openstack.compute.v2.server.Server = self.openstack_conn.list_servers()  # type: ignore
         error_hosts = []
 
         for host in hosts:
@@ -232,7 +221,7 @@ class DeploymentInstance:
         error_hosts = self.get_error_hosts()
         for host in error_hosts:
             self.openstack_conn.delete_server(host.id, wait=True)
-            self.load_snapshot(host.private_v4, host.name + "_image", wait=True)
+            self.load_snapshot(host.private_v4, wait=True)
 
         error_hosts = self.get_error_hosts()
         if len(error_hosts) > 0:
