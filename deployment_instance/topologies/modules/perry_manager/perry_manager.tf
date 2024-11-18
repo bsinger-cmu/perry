@@ -1,3 +1,12 @@
+# External network is not managed by terraform, need to set as datasource
+data "openstack_networking_network_v2" "external_network" {
+  name = "external"
+}
+
+output "external_network_id" {
+  value = data.openstack_networking_network_v2.external_network.id
+}
+
 output "talk_to_manage_id" {
   value = openstack_networking_secgroup_v2.talk_to_manage.id
 }
@@ -11,6 +20,10 @@ output "manage_freedom_id" {
 }
 output "manage_freedom_name" {
   value = openstack_networking_secgroup_v2.manage_freedom.name
+}
+
+output "router_external_id" {
+  value = openstack_networking_router_v2.router_external.id
 }
 
 ### Management rules, all servers need SSH access from management network ###
@@ -126,4 +139,10 @@ resource "openstack_networking_secgroup_rule_v2" "manage_freedom_ssh_in" {
   port_range_max    = 22
   remote_ip_prefix  = "0.0.0.0/0"
   security_group_id = openstack_networking_secgroup_v2.manage_freedom.id
+}
+
+resource "openstack_networking_router_v2" "router_external" {
+  name                = "router_external"
+  admin_state_up      = true
+  external_network_id = data.openstack_networking_network_v2.external_network.id
 }

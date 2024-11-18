@@ -1,10 +1,12 @@
 ######### Setup Networking #########
-# External network is not managed by terraform, need to set as datasource
-data "openstack_networking_network_v2" "external_network" {
-  name = "external"
+module "perry_manager" {
+  source = "../modules/perry_manager"
 }
-module "manage_rules" {
-  source = "../modules/"
+
+module "attacker" {
+  source             = "../modules/attacker"
+  router_external_id = module.perry_manager.router_external_id
+  key_name           = var.perry_key_name
 }
 
 resource "openstack_networking_network_v2" "manage_network" {
@@ -22,12 +24,6 @@ resource "openstack_networking_network_v2" "critical_company_network" {
   name           = "critical_company_network"
   admin_state_up = "true"
   description    = "The corporate network with critical data"
-}
-
-resource "openstack_networking_network_v2" "attacker_network" {
-  name           = "attacker_network"
-  admin_state_up = "true"
-  description    = "The attacker network"
 }
 
 ### Subnets ###
@@ -55,19 +51,11 @@ resource "openstack_networking_subnet_v2" "critical_company_subnet" {
   dns_nameservers = ["8.8.8.8"]
 }
 
-resource "openstack_networking_subnet_v2" "attacker_subnet" {
-  name            = "attacker_network"
-  network_id      = openstack_networking_network_v2.attacker_network.id
-  cidr            = "192.168.202.0/24"
-  ip_version      = 4
-  dns_nameservers = ["8.8.8.8"]
-}
-
 ### Routers ###
 resource "openstack_networking_router_v2" "router_external" {
   name                = "router_external"
   admin_state_up      = true
-  external_network_id = data.openstack_networking_network_v2.external_network.id
+  external_network_id = module.perry_manager.external_network_id
 }
 
 resource "openstack_networking_router_interface_v2" "router_interface_manage_external" {
@@ -86,13 +74,7 @@ resource "openstack_networking_router_interface_v2" "router_interface_manage_dat
   subnet_id = openstack_networking_subnet_v2.critical_company_subnet.id
 }
 
-resource "openstack_networking_router_interface_v2" "router_interface_manage_attacker" {
-  router_id = openstack_networking_router_v2.router_external.id
-  subnet_id = openstack_networking_subnet_v2.attacker_subnet.id
-}
-
 ######### Setup Compute #########
-
 ### Management Host ###
 resource "openstack_compute_instance_v2" "manage_host" {
   name        = "manage_host"
@@ -100,8 +82,8 @@ resource "openstack_compute_instance_v2" "manage_host" {
   flavor_name = "m1.small"
   key_pair    = var.perry_key_name
   security_groups = [
-    module.manage_rules.talk_to_manage_name,
-    module.manage_rules.manage_freedom_name
+    module.perry_manager.talk_to_manage_name,
+    module.perry_manager.manage_freedom_name
   ]
 
   network {
@@ -127,7 +109,7 @@ resource "openstack_compute_instance_v2" "webserver" {
   flavor_name = "p2.tiny"
   key_pair    = var.perry_key_name
   security_groups = [
-    module.manage_rules.talk_to_manage_name,
+    module.perry_manager.talk_to_manage_name,
     openstack_networking_secgroup_v2.webserver.name
   ]
 
@@ -148,7 +130,7 @@ resource "openstack_compute_instance_v2" "employee" {
   flavor_name = "p2.tiny"
   key_pair    = var.perry_key_name
   security_groups = [
-    module.manage_rules.talk_to_manage_name,
+    module.perry_manager.talk_to_manage_name,
     openstack_networking_secgroup_v2.critical_company.name
   ]
 
@@ -167,7 +149,7 @@ resource "openstack_compute_instance_v2" "database" {
   flavor_name = "p2.tiny"
   key_pair    = var.perry_key_name
   security_groups = [
-    module.manage_rules.talk_to_manage_name,
+    module.perry_manager.talk_to_manage_name,
     openstack_networking_secgroup_v2.critical_company.name
   ]
 
@@ -179,20 +161,4 @@ resource "openstack_compute_instance_v2" "database" {
   depends_on = [openstack_networking_subnet_v2.critical_company_subnet]
 }
 
-### Attacker Subnet Hosts ###
-resource "openstack_compute_instance_v2" "attacker" {
-  name        = "attacker"
-  image_name  = "Ubuntu20"
-  flavor_name = "m1.small"
-  key_pair    = var.perry_key_name
-  security_groups = [
-    module.manage_rules.talk_to_manage_name,
-    openstack_networking_secgroup_v2.attacker.name
-  ]
 
-  network {
-    name = "attacker_network"
-  }
-
-  depends_on = [openstack_networking_subnet_v2.attacker_subnet]
-}
