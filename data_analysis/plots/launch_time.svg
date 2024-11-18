@@ -6,7 +6,7 @@
   <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-    <dc:date>2024-11-11T13:12:15.333205</dc:date>
+    <dc:date>2024-11-14T11:41:51.127240</dc:date>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <cc:Agent>
@@ -165,7 +165,7 @@ L 417.798125 7.2
    </g>
    <g id="PathCollection_1">
     <defs>
-     <path id="m6dd9ae05e8" d="M 0 2.5 
+     <path id="mbe5bfc7426" d="M 0 2.5 
 C 0.663008 2.5 1.29895 2.236584 1.767767 1.767767 
 C 2.236584 1.29895 2.5 0.663008 2.5 0 
 C 2.5 -0.663008 2.236584 -1.29895 1.767767 -1.767767 
@@ -177,63 +177,54 @@ C -1.29895 2.236584 -0.663008 2.5 0 2.5
 z
 "/>
     </defs>
-    <g clip-path="url(#pda137e0a01)">
-     <use xlink:href="#m6dd9ae05e8" x="57.937892" y="25.766897"/>
-     <use xlink:href="#m6dd9ae05e8" x="63.272607" y="17.270345"/>
-     <use xlink:href="#m6dd9ae05e8" x="65.627938" y="17.656552"/>
-     <use xlink:href="#m6dd9ae05e8" x="59.989166" y="14.76"/>
-     <use xlink:href="#m6dd9ae05e8" x="58.981523" y="21.634483"/>
+    <g clip-path="url(#p3ae5194dd2)">
+     <use xlink:href="#mbe5bfc7426" x="62.908213" y="25.766897"/>
+     <use xlink:href="#mbe5bfc7426" x="61.211233" y="17.270345"/>
+     <use xlink:href="#mbe5bfc7426" x="64.279397" y="17.656552"/>
+     <use xlink:href="#mbe5bfc7426" x="64.225979" y="14.76"/>
+     <use xlink:href="#mbe5bfc7426" x="73.729535" y="21.634483"/>
     </g>
    </g>
    <g id="PathCollection_2">
-    <g clip-path="url(#pda137e0a01)">
-     <use xlink:href="#m6dd9ae05e8" x="126.359769" y="130.158621"/>
-     <use xlink:href="#m6dd9ae05e8" x="130.359458" y="132.244138"/>
-     <use xlink:href="#m6dd9ae05e8" x="118.602693" y="131.278621"/>
-     <use xlink:href="#m6dd9ae05e8" x="119.0095" y="132.051034"/>
-     <use xlink:href="#m6dd9ae05e8" x="124.083364" y="130.622069"/>
+    <g clip-path="url(#p3ae5194dd2)">
+     <use xlink:href="#mbe5bfc7426" x="144.810472" y="130.158621"/>
+     <use xlink:href="#mbe5bfc7426" x="141.123186" y="132.244138"/>
+     <use xlink:href="#mbe5bfc7426" x="139.864407" y="131.278621"/>
+     <use xlink:href="#mbe5bfc7426" x="145.614675" y="132.051034"/>
+     <use xlink:href="#mbe5bfc7426" x="148.018116" y="130.622069"/>
     </g>
    </g>
    <g id="PathCollection_3">
-    <g clip-path="url(#pda137e0a01)">
-     <use xlink:href="#m6dd9ae05e8" x="188.273001" y="128.729655"/>
-     <use xlink:href="#m6dd9ae05e8" x="191.522054" y="134.291034"/>
-     <use xlink:href="#m6dd9ae05e8" x="185.834822" y="135.488276"/>
-     <use xlink:href="#m6dd9ae05e8" x="195.459364" y="132.012414"/>
-     <use xlink:href="#m6dd9ae05e8" x="190.724832" y="135.488276"/>
+    <g clip-path="url(#p3ae5194dd2)">
+     <use xlink:href="#mbe5bfc7426" x="217.227811" y="128.729655"/>
+     <use xlink:href="#mbe5bfc7426" x="225.054686" y="134.291034"/>
+     <use xlink:href="#mbe5bfc7426" x="226.085013" y="135.488276"/>
+     <use xlink:href="#mbe5bfc7426" x="214.75811" y="132.012414"/>
+     <use xlink:href="#mbe5bfc7426" x="222.183427" y="135.488276"/>
     </g>
    </g>
    <g id="PathCollection_4">
-    <g clip-path="url(#pda137e0a01)">
-     <use xlink:href="#m6dd9ae05e8" x="255.626447" y="104.321379"/>
-     <use xlink:href="#m6dd9ae05e8" x="250.85792" y="108.222069"/>
-     <use xlink:href="#m6dd9ae05e8" x="259.649233" y="104.668966"/>
-     <use xlink:href="#m6dd9ae05e8" x="254.894642" y="106.006036"/>
-     <use xlink:href="#m6dd9ae05e8" x="257.817676" y="107.181352"/>
+    <g clip-path="url(#p3ae5194dd2)">
+     <use xlink:href="#mbe5bfc7426" x="308.401931" y="104.321379"/>
+     <use xlink:href="#mbe5bfc7426" x="303.46372" y="108.222069"/>
+     <use xlink:href="#mbe5bfc7426" x="304.58559" y="104.668966"/>
+     <use xlink:href="#mbe5bfc7426" x="303.768486" y="106.006036"/>
+     <use xlink:href="#mbe5bfc7426" x="297.238999" y="107.181352"/>
     </g>
    </g>
    <g id="PathCollection_5">
-    <g clip-path="url(#pda137e0a01)">
-     <use xlink:href="#m6dd9ae05e8" x="319.761033" y="108.015295"/>
-     <use xlink:href="#m6dd9ae05e8" x="316.499419" y="119.499151"/>
-     <use xlink:href="#m6dd9ae05e8" x="326.338753" y="120.658342"/>
-     <use xlink:href="#m6dd9ae05e8" x="315.574626" y="121.2912"/>
-     <use xlink:href="#m6dd9ae05e8" x="313.871617" y="121.328768"/>
-    </g>
-   </g>
-   <g id="PathCollection_6">
-    <g clip-path="url(#pda137e0a01)">
-     <use xlink:href="#m6dd9ae05e8" x="381.174711" y="165.612414"/>
-     <use xlink:href="#m6dd9ae05e8" x="391.088899" y="165.96"/>
-     <use xlink:href="#m6dd9ae05e8" x="389.990563" y="165.759607"/>
-     <use xlink:href="#m6dd9ae05e8" x="386.818052" y="165.908714"/>
-     <use xlink:href="#m6dd9ae05e8" x="382.084004" y="165.630794"/>
+    <g clip-path="url(#p3ae5194dd2)">
+     <use xlink:href="#mbe5bfc7426" x="376.168214" y="165.612414"/>
+     <use xlink:href="#mbe5bfc7426" x="374.756128" y="165.96"/>
+     <use xlink:href="#mbe5bfc7426" x="385.26589" y="165.759607"/>
+     <use xlink:href="#mbe5bfc7426" x="375.93287" y="165.908714"/>
+     <use xlink:href="#mbe5bfc7426" x="374.853275" y="165.630794"/>
     </g>
    </g>
   </g>
  </g>
  <defs>
-  <clipPath id="pda137e0a01">
+  <clipPath id="p3ae5194dd2">
    <rect x="27.198125" y="7.2" width="390.6" height="166.32"/>
   </clipPath>
  </defs>

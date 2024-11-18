@@ -204,6 +204,7 @@ critical_hosts = [
     "control-host-3",
     "control-host-4",
 ]
+ICS_TIMEOUT = 24 * 60
 
 
 def total_control_host_capture_times(
@@ -233,11 +234,10 @@ def total_control_host_capture_times(
 
         hosts_infected = get_num_critical_hosts_infected(experiment_result)
         avg_time_infected = get_avg_time_infected(experiment_result)
-        time_taken = get_time_of_last_critical(experiment_result) / 60
-        if avg_time_infected is not None or hosts_infected == len(critical_hosts):
-            avg_time_infected = TIMEOUT / 60
+        if hosts_infected != len(critical_hosts):
+            time_taken = ICS_TIMEOUT / 60
         else:
-            avg_time_infected = 0
+            time_taken = get_time_of_last_critical(experiment_result) / 60
 
         df.loc[df.shape[0]] = [
             experiment_result.scenario.name,
