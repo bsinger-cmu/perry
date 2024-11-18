@@ -1,4 +1,4 @@
-from .EquifaxInstance import EquifaxInstance
+from .equifax_instance import EquifaxInstance
 from ansible.AnsibleRunner import AnsibleRunner
 
 

@@ -2,7 +2,7 @@ import time
 
 import openstack.compute.v2.server
 import openstack.image.v2.image
-from environment.topology_orchestrator import deploy_network, destroy_network
+from environment.terraform_helpers import deploy_network
 from openstack_helper_functions import teardown_helper
 import openstack
 from openstack.connection import Connection

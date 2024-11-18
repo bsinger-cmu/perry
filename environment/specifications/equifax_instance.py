@@ -1,9 +1,7 @@
-from environment import DeploymentInstance
 import time
 from utility.logging import log_event
 
 from ansible.AnsibleRunner import AnsibleRunner
-from ansible.AnsiblePlaybook import AnsiblePlaybook
 
 from ansible.deployment_instance import (
     InstallBasePackages,
@@ -17,8 +15,9 @@ from ansible.goals import AddData
 from ansible.caldera import InstallAttacker
 from ansible.defender import InstallSysFlow
 
-from .network import Network, Subnet
-from .openstack.openstack_processor import get_hosts_on_subnet
+from environment.environment import Environment
+from environment.network import Network, Subnet
+from environment.openstack.openstack_processor import get_hosts_on_subnet
 
 import config.Config as config
 
@@ -28,15 +27,15 @@ import random
 fake = Faker()
 
 
-class Enterprise(DeploymentInstance):
+class EquifaxInstance(Environment):
     def __init__(
         self,
         ansible_runner: AnsibleRunner,
         openstack_conn,
         caldera_ip,
         config: config.Config,
-        topology="enterprise",
-        number_of_hosts=20,
+        topology="equifax_small",
+        number_of_hosts=12,
     ):
         super().__init__(ansible_runner, openstack_conn, caldera_ip, config)
         self.topology = topology
@@ -45,42 +44,38 @@ class Enterprise(DeploymentInstance):
         self.number_of_hosts = number_of_hosts
 
     def parse_network(self):
-        self.branch_one = get_hosts_on_subnet(self.openstack_conn, "10.0.1.0/24")
-        self.branch_two = get_hosts_on_subnet(self.openstack_conn, "10.0.2.0/24")
-        self.branch_three = get_hosts_on_subnet(self.openstack_conn, "10.0.3.0/24")
-        self.branch_four = get_hosts_on_subnet(self.openstack_conn, "10.0.4.0/24")
-
-        for host in self.branch_one:
+        self.webservers = get_hosts_on_subnet(
+            self.openstack_conn, "192.168.200.0/24", host_name_prefix="webserver"
+        )
+        for host in self.webservers:
             host.users.append("tomcat")
 
-        for host in self.branch_two:
-            username = host.name.replace("_", "")
-            host.users.append(username)
+        self.attacker_host = get_hosts_on_subnet(
+            self.openstack_conn, "192.168.202.0/24", host_name_prefix="attacker"
+        )[0]
 
-        for host in self.branch_three:
-            username = host.name.replace("_", "")
-            host.users.append(username)
-
-        for host in self.branch_four:
-            username = host.name.replace("_", "")
-            host.users.append(username)
-
-        branch_one_subnet = Subnet("branch_one", self.branch_one, "talk_to_manage")
-        branch_two_subnet = Subnet("branch_two", self.branch_two, "talk_to_manage")
-        branch_three_subnet = Subnet(
-            "branch_three", self.branch_three, "talk_to_manage"
+        self.employee_hosts = get_hosts_on_subnet(
+            self.openstack_conn, "192.168.201.0/24", host_name_prefix="employee"
         )
-        branch_four_subnet = Subnet("branch_four", self.branch_four, "talk_to_manage")
+        for host in self.employee_hosts:
+            username = host.name.replace("_", "")
+            host.users.append(username)
 
-        self.network = Network(
-            "equifax_network",
-            [
-                branch_one_subnet,
-                branch_two_subnet,
-                branch_three_subnet,
-                branch_four_subnet,
-            ],
+        self.database_hosts = get_hosts_on_subnet(
+            self.openstack_conn, "192.168.201.0/24", host_name_prefix="database"
         )
+        for host in self.database_hosts:
+            username = host.name.replace("_", "")
+            host.users.append(username)
+
+        webserverSubnet = Subnet("webserver_network", self.webservers, "webserver")
+        corportateSubnet = Subnet(
+            "critical_company_network",
+            self.employee_hosts + self.database_hosts,
+            "critical_company",
+        )
+
+        self.network = Network("equifax_network", [webserverSubnet, corportateSubnet])
 
         if len(self.network.get_all_hosts()) != self.number_of_hosts:
             raise Exception(
@@ -92,12 +87,14 @@ class Enterprise(DeploymentInstance):
         self.find_management_server()
         self.parse_network()
 
-        self.ansible_runner.run_playbook(CheckIfHostUp(self.branch_one[0].ip))
+        self.ansible_runner.run_playbook(CheckIfHostUp(self.webservers[0].ip))
         time.sleep(3)
 
         # Install all base packages
         self.ansible_runner.run_playbook(
-            InstallBasePackages(self.network.get_all_host_ips())
+            InstallBasePackages(
+                self.network.get_all_host_ips() + [self.attacker_host.ip]
+            )
         )
 
         # Install sysflow on all hosts
@@ -106,35 +103,42 @@ class Enterprise(DeploymentInstance):
         )
 
         # Setup apache struts and vulnerability
-        webserver_ips = [host.ip for host in self.branch_one]
+        webserver_ips = [host.ip for host in self.webservers]
         self.ansible_runner.run_playbook(SetupStrutsVulnerability(webserver_ips))
 
         # Setup users on corporte hosts
-        for host in self.branch_two + self.branch_three + self.branch_four:
+        for host in self.employee_hosts + self.database_hosts:
             for user in host.users:
                 self.ansible_runner.run_playbook(CreateUser(host.ip, user, "ubuntu"))
 
-        webserver_with_creds = random.choice(self.branch_one)
-        for employee in self.branch_three + self.branch_four:
+        # Choose a random webserver to setup SSH keys to all databases and employees
+        webserver_with_creds = random.choice(self.webservers)
+        for employee in self.employee_hosts:
             self.ansible_runner.run_playbook(
                 SetupServerSSHKeys(
                     webserver_with_creds.ip, "tomcat", employee.ip, employee.users[0]
                 )
             )
+        for database in self.database_hosts:
+            self.ansible_runner.run_playbook(
+                SetupServerSSHKeys(
+                    webserver_with_creds.ip, "tomcat", database.ip, database.users[0]
+                )
+            )
 
         # Add data to database hosts
-        for database in self.branch_three + self.branch_four:
+        i = 0
+        for database in self.database_hosts:
             self.ansible_runner.run_playbook(
                 AddData(database.ip, database.users[0], f"~/data_{database.name}.json")
             )
 
     def runtime_setup(self):
-        return
         # Setup attacker
-        # self.ansible_runner.run_playbook(CheckIfHostUp(self.attacker_host.ip))
-        # time.sleep(3)
+        self.ansible_runner.run_playbook(CheckIfHostUp(self.attacker_host.ip))
+        time.sleep(3)
 
-        # self.ansible_runner.run_playbook(CreateSSHKey(self.attacker_host.ip, "root"))
-        # self.ansible_runner.run_playbook(
-        #     InstallAttacker(self.attacker_host.ip, "root", self.caldera_ip)
-        # )
+        self.ansible_runner.run_playbook(CreateSSHKey(self.attacker_host.ip, "root"))
+        self.ansible_runner.run_playbook(
+            InstallAttacker(self.attacker_host.ip, "root", self.caldera_ip)
+        )

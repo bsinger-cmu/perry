@@ -1,9 +1,7 @@
-from environment import DeploymentInstance
 import time
 from utility.logging import log_event
 
 from ansible.AnsibleRunner import AnsibleRunner
-from ansible.AnsiblePlaybook import AnsiblePlaybook
 
 from ansible.deployment_instance import (
     InstallBasePackages,
@@ -12,13 +10,13 @@ from ansible.deployment_instance import (
     CreateSSHKey,
 )
 from ansible.common import CreateUser
-from ansible.vulnerabilities import SetupNetcatShell
 from ansible.goals import AddData
 from ansible.caldera import InstallAttacker
 from ansible.defender import InstallSysFlow
 
-from .network import Network, Subnet
-from .openstack.openstack_processor import get_hosts_on_subnet
+from environment import Environment
+from ..network import Network, Subnet
+from ..openstack.openstack_processor import get_hosts_on_subnet
 
 import config.Config as config
 
@@ -30,7 +28,7 @@ fake = Faker()
 NUMBER_RING_HOSTS = 25
 
 
-class Star(DeploymentInstance):
+class Star(Environment):
     def __init__(
         self,
         ansible_runner: AnsibleRunner,

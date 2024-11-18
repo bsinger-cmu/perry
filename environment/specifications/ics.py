@@ -1,4 +1,3 @@
-from environment import DeploymentInstance
 import time
 from utility.logging import log_event
 
@@ -17,8 +16,9 @@ from ansible.goals import AddData
 from ansible.caldera import InstallAttacker
 from ansible.defender import InstallSysFlow
 
-from .network import Network, Subnet
-from .openstack.openstack_processor import get_hosts_on_subnet
+from environment.environment import Environment
+from environment.network import Network, Subnet
+from environment.openstack.openstack_processor import get_hosts_on_subnet
 
 import config.Config as config
 
@@ -30,7 +30,7 @@ fake = Faker()
 NUMBER_ICS_HOSTS = 47
 
 
-class ICSEnvironment(DeploymentInstance):
+class ICSEnvironment(Environment):
     def __init__(
         self,
         ansible_runner: AnsibleRunner,

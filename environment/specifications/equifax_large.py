@@ -1,8 +1,8 @@
-from .EquifaxInstance import EquifaxInstance
+from .equifax_instance import EquifaxInstance
 from ansible.AnsibleRunner import AnsibleRunner
 
 
-class EquifaxSmall(EquifaxInstance):
+class EquifaxLarge(EquifaxInstance):
     def __init__(
         self,
         ansible_runner: AnsibleRunner,
@@ -10,8 +10,8 @@ class EquifaxSmall(EquifaxInstance):
         caldera_ip,
         config,
     ):
-        topology = "equifax_small"
-        number_of_hosts = 14
+        topology = "equifax_large"
+        number_of_hosts = 50
         super().__init__(
             ansible_runner,
             openstack_conn,
