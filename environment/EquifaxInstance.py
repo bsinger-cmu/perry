@@ -1,4 +1,4 @@
-from deployment_instance import DeploymentInstance
+from environment import DeploymentInstance
 import time
 from utility.logging import log_event
 

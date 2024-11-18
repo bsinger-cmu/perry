@@ -1,7 +1,7 @@
 import pandas as pd
 from statistics import mean
 
-from deployment_instance.Result import (
+from environment.Result import (
     ExperimentResult,
     DataExfiltrated,
 )

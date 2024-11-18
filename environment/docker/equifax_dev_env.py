@@ -1,4 +1,4 @@
-from deployment_instance.docker_env import DockerEnv
+from environment.docker_env import DockerEnv
 
 from ansible.caldera.InstallAttacker import InstallAttacker
 

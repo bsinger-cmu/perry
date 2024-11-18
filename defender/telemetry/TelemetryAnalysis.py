@@ -1,6 +1,6 @@
 from .events import Event
 from elasticsearch import Elasticsearch
-from deployment_instance.network import Network
+from environment.network import Network
 
 from abc import ABC, abstractmethod
 
@@ -54,7 +54,9 @@ class TelemetryAnalysis(ABC):
         process_data = self.elasticsearch_conn.search(
             index="sysflow", query=ssh_process
         )
-        traces_data = self.elasticsearch_conn.search(index="sysflow", query=network_traces)
+        traces_data = self.elasticsearch_conn.search(
+            index="sysflow", query=network_traces
+        )
 
         # Get documents from query
         raw_telemetry = process_data["hits"]["hits"] + traces_data["hits"]["hits"]

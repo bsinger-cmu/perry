@@ -1,7 +1,7 @@
 import openstack.connection
 import ipaddress
 
-from deployment_instance.network import Host
+from environment.network import Host
 
 
 def addr_in_subnet(subnet, addr):

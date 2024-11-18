@@ -1,5 +1,5 @@
 from defender.arsenal import CountArsenal
-from deployment_instance.network import Network
+from environment.network import Network
 from defender.orchestrator import Orchestrator
 from utility.logging import get_logger
 from defender.telemetry.telemetry_service import TelemetryService

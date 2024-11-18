@@ -3,7 +3,7 @@ import random
 from defender.arsenal import CountArsenal
 from defender.capabilities import StartHoneyService, DeployDecoy, AddHoneyCredentials
 from defender.orchestrator import Orchestrator
-from deployment_instance.network import Network, Host
+from environment.network import Network, Host
 
 
 def randomly_place_deception(

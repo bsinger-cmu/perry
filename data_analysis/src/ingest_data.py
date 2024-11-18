@@ -2,7 +2,7 @@ import os
 import json
 import dateutil.parser as time_parser
 from collections import OrderedDict
-from deployment_instance import ExperimentResult
+from environment import ExperimentResult
 
 
 # merge json files in a directory into one object

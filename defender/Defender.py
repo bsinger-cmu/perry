@@ -3,7 +3,7 @@ from .arsenal import Arsenal
 from .strategy import Strategy
 from .telemetry.telemetry_service import TelemetryService
 
-from deployment_instance.network import Network
+from environment.network import Network
 
 from .telemetry.telemetry_service import TelemetryService
 

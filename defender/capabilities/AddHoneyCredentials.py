@@ -1,5 +1,5 @@
 from . import Action
-from deployment_instance.network import Host
+from environment.network import Host
 
 
 class AddHoneyCredentials(Action):

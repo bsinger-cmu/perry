@@ -1,8 +1,8 @@
 import click
-from deployment_instance.docker.image import Image
+from environment.docker.image import Image
 from ansible.ansible_local_runner import AnsibleLocalRunner
 from ansible.ansible_docker_runner import AnsibleDockerRunner
-from deployment_instance.docker.equifax_dev_env import EquifaxDevEnv
+from environment.docker.equifax_dev_env import EquifaxDevEnv
 import importlib
 
 # Load image classes from deployment_instance/docker

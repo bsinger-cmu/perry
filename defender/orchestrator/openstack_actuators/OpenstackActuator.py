@@ -1,6 +1,6 @@
 from ansible.AnsibleRunner import AnsibleRunner
 from config.Config import Config
-from deployment_instance.network import Network
+from environment.network import Network
 
 
 class OpenstackActuator:

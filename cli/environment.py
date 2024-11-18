@@ -1,7 +1,7 @@
 import click
 import importlib
 
-from deployment_instance.DeploymentInstance import DeploymentInstance
+from environment.DeploymentInstance import DeploymentInstance
 
 deployment_instance_module = importlib.import_module("deployment_instance")
 

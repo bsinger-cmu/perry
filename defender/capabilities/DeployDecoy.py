@@ -1,6 +1,6 @@
 from defender.capabilities import Action
 from openstack_helper_functions.server_helpers import shutdown_server_by_ip
-from deployment_instance.network import Host
+from environment.network import Host
 
 
 class DeployDecoy(Action):

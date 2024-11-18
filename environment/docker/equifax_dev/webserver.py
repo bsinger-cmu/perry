@@ -1,4 +1,4 @@
-from deployment_instance.docker.image import Image
+from environment.docker.image import Image
 from ansible.vulnerabilities import SetupStrutsVulnerability
 
 

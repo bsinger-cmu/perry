@@ -6,7 +6,7 @@ import os
 
 from config.Config import Config
 from ansible.AnsibleRunner import AnsibleRunner
-from deployment_instance import GoalKeeper
+from environment import GoalKeeper
 from defender.arsenal import CountArsenal
 from defender import Defender
 from defender.telemetry.telemetry_service import TelemetryService

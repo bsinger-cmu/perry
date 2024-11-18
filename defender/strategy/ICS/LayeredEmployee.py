@@ -1,4 +1,4 @@
-from deployment_instance.network import Host
+from environment.network import Host
 from defender.capabilities import (
     Action,
     StartHoneyService,

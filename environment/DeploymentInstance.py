@@ -1,8 +1,8 @@
 import json
 import os
 import time
-from deployment_instance.topology_orchestrator import deploy_network, destroy_network
-from deployment_instance.MasterOrchestrator import MasterOrchestrator
+from environment.topology_orchestrator import deploy_network, destroy_network
+from environment.MasterOrchestrator import MasterOrchestrator
 from openstack_helper_functions import teardown_helper
 from colorama import Fore, Style
 from rich import print as rprint

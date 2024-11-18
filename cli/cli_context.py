@@ -2,7 +2,7 @@ from openstack.connection import Connection
 
 from ansible.AnsibleRunner import AnsibleRunner
 from attacker.Attacker import Attacker
-from deployment_instance.DeploymentInstance import DeploymentInstance
+from environment.DeploymentInstance import DeploymentInstance
 from config.Config import Config
 from emulator.emulator import Emulator
 

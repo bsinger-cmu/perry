@@ -9,7 +9,7 @@ from .openstack_actuators import (
 from defender import capabilities
 from openstack.connection import Connection
 from config.Config import Config
-from deployment_instance.network import Network
+from environment.network import Network
 from ansible.AnsibleRunner import AnsibleRunner
 
 
