@@ -3,13 +3,11 @@ import time
 from ansible.AnsibleRunner import AnsibleRunner
 
 from ansible.deployment_instance import (
-    InstallBasePackages,
     CheckIfHostUp,
-    CreateSSHKey,
 )
 from ansible.common import CreateUser
 from ansible.caldera import InstallAttacker
-from ansible.vulnerabilities import SetupSudoEdit, SetupSudoBaron, SetupSudoBypass
+from ansible.vulnerabilities import SetupSudoEdit, SetupWriteablePasswd
 
 from environment.environment import Environment
 from environment.network import Network, Subnet
@@ -76,6 +74,7 @@ class DevEnvironment(Environment):
 
         # Setup sudo baron
         self.ansible_runner.run_playbook(SetupSudoEdit(self.privledge_box.ip))
+        self.ansible_runner.run_playbook(SetupWriteablePasswd(self.privledge_box.ip))
 
         # Setup users on all hosts
         for host in self.network.get_all_hosts():
@@ -84,8 +83,13 @@ class DevEnvironment(Environment):
 
     def runtime_setup(self):
         # Setup attacker
-        attacker_host = self.attacker_host
-        self.ansible_runner.run_playbook(CreateSSHKey(attacker_host.ip, "root"))
+        # attacker_host = self.attacker_host
+        # self.ansible_runner.run_playbook(CreateSSHKey(attacker_host.ip, "root"))
+        # self.ansible_runner.run_playbook(
+        #     InstallAttacker(attacker_host.ip, "root", self.caldera_ip)
+        # )
+
+        # Priv box host
         self.ansible_runner.run_playbook(
-            InstallAttacker(attacker_host.ip, "root", self.caldera_ip)
+            InstallAttacker(self.privledge_box.ip, "host1", self.caldera_ip)
         )
