@@ -3,17 +3,6 @@
   remote_user: root
 
   tasks:
-  # Add 'ALL ALL = (root) sudoedit /etc/hosts' to /etc/sudoers
-  # - name: Add specific rule for sudoedit in /etc/sudoers
-  #   ansible.builtin.lineinfile:
-  #     path: /etc/sudoers
-  #     line: 'ALL ALL = (root) NOPASSWD: sudoedit /etc/hosts'
-  #     state: present
-  #     mode: '0440'
-  #     owner: root
-  #     group: root
-  
-  # Add 'ALL ALL = (root) sudoedit /etc/hosts' to /etc/sudoers.d/sudoedit
   - name: Add rule to allow editing /etc/hosts as root using sudoedit
     copy:
       dest: /etc/sudoers.d/sudoedit_hosts
@@ -41,17 +30,6 @@
       owner: root
       group: root
       mode: '0440'
-    
-  # - name: Ensure sudo lecture is disabled
-  #   ansible.builtin.lineinfile:
-  #     path: /etc/sudoers
-  #     line: 'Defaults lecture=never'
-  #     state: present
-  #     mode: '0440'
-  #     owner: root
-  #     group: root
-
-
 
   - name: Copy sudo.deb
     copy:

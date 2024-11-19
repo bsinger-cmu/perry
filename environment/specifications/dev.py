@@ -7,7 +7,7 @@ from ansible.deployment_instance import (
 )
 from ansible.common import CreateUser
 from ansible.caldera import InstallAttacker
-from ansible.vulnerabilities import SetupSudoEdit, SetupWriteablePasswd
+from ansible.vulnerabilities import SetupSudoEdit, SetupWriteableSudoers
 
 from environment.environment import Environment
 from environment.network import Network, Subnet
@@ -72,9 +72,9 @@ class DevEnvironment(Environment):
         #     )
         # )
 
-        # Setup sudo baron
+        # Setup a privledge vulnerability
         self.ansible_runner.run_playbook(SetupSudoEdit(self.privledge_box.ip))
-        self.ansible_runner.run_playbook(SetupWriteablePasswd(self.privledge_box.ip))
+        # self.ansible_runner.run_playbook(SetupWriteableSudoers(self.privledge_box.ip))
 
         # Setup users on all hosts
         for host in self.network.get_all_hosts():

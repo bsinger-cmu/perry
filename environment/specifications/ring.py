@@ -92,12 +92,7 @@ class RingEnvironment(Environment):
         # Create ring of credentials
         for i, host in enumerate(self.ring_hosts):
             if i == len(self.ring_hosts) - 1:
-                action = SetupServerSSHKeys(
-                    host.ip,
-                    host.users[0],
-                    self.ring_hosts[0].ip,
-                    self.ring_hosts[0].users[0],
-                )
+                break
             else:
                 action = SetupServerSSHKeys(
                     host.ip,

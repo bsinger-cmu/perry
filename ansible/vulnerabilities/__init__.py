@@ -8,3 +8,6 @@ from .privledge_escalation.sudobaron.sudobaron import SetupSudoBaron
 from .privledge_escalation.sudoedit.sudoedit import SetupSudoEdit
 from .privledge_escalation.sudobypass.sudobypass import SetupSudoBypass
 from .privledge_escalation.writeablePasswd.writeable_passwd import SetupWriteablePasswd
+from .privledge_escalation.writeableSudoers.writeable_sudoers import (
+    SetupWriteableSudoers,
+)
