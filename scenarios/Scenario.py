@@ -1,7 +1,11 @@
 from pydantic import BaseModel
+from typing import Optional
+
+from attacker.config.attacker_config import AbstractionLevel
 
 
 class DefenderInformation(BaseModel):
+    name: str
     telemetry: str
     strategy: str
     capabilities: dict[str, int]
@@ -9,21 +13,20 @@ class DefenderInformation(BaseModel):
 
 class AttackerInformation(BaseModel):
     name: str
-
-
-class DeploymentInstanceInformation(BaseModel):
-    name: str
+    strategy: str
+    abstraction: Optional[AbstractionLevel] = AbstractionLevel.HIGH_LEVEL
 
 
 class Scenario(BaseModel):
-    name: str
-    defender: DefenderInformation
     attacker: AttackerInformation
-    deployment_instance: DeploymentInstanceInformation
+    defender: DefenderInformation
+    environment: str
+
+    def __str__(self):
+        return f"{self.attacker.name}-{self.defender.name}-{self.environment}"
 
 
 class Experiment(BaseModel):
-    name: str
+    scenario: Scenario
     trials: int
-    scenario: str
     timeout: int = 75

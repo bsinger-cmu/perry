@@ -28,7 +28,7 @@ resource "openstack_networking_router_interface_v2" "router_interface_manage_att
 ### Attacker Subnet Hosts ###
 resource "openstack_compute_instance_v2" "attacker" {
   name        = "attacker"
-  image_name  = "Ubuntu20"
+  image_name  = "Kali"
   flavor_name = "m1.small"
   key_pair    = var.key_name
   security_groups = [

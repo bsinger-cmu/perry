@@ -78,6 +78,8 @@ class DevEnvironment(Environment):
 
         # Setup users on all hosts
         for host in self.network.get_all_hosts():
+            if host.name == "attacker":
+                continue
             for user in host.users:
                 self.ansible_runner.run_playbook(CreateUser(host.ip, user, "ubuntu"))
 

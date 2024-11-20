@@ -5,6 +5,7 @@ from ansible.AnsibleRunner import AnsibleRunner
 
 from ansible.deployment_instance import (
     InstallBasePackages,
+    InstallKaliPackages,
     CheckIfHostUp,
     SetupServerSSHKeys,
     CreateSSHKey,
@@ -96,6 +97,7 @@ class EquifaxInstance(Environment):
                 self.network.get_all_host_ips() + [self.attacker_host.ip]
             )
         )
+        self.ansible_runner.run_playbook(InstallKaliPackages(self.attacker_host.ip))
 
         # Install sysflow on all hosts
         self.ansible_runner.run_playbook(

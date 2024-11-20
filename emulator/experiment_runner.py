@@ -39,23 +39,18 @@ class ExperimentRunner:
                 progress.update(experiment_task, advance=1)
 
     def run_experiment(self, experiment: Experiment, progress: Progress):
-        # Load scenario
-        with open(f"scenarios/scenarios/{experiment.scenario}", "r") as f:
-            scenario_data = json.load(f)
-            scenario_obj = Scenario(**scenario_data)
-
         # Set scenario
-        emulator = Emulator(self.config, scenario_obj)
+        emulator = Emulator(self.config, experiment.scenario)
 
         timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-        experiment_results_dir = f"output/{experiment.name}"
+        experiment_results_dir = f"output/{experiment.scenario}"
         # Check if experiment directory exists
         if not os.path.exists(experiment_results_dir):
             os.makedirs(experiment_results_dir)
 
         # Task to track progress of trials within the experiment
         trial_task = progress.add_task(
-            f"[green]{experiment.name} Trials", total=experiment.trials
+            f"[green]{experiment.scenario} Trials", total=experiment.trials
         )
 
         for trial in range(experiment.trials):

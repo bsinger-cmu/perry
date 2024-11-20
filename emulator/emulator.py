@@ -93,8 +93,8 @@ class Emulator:
         self.caldera_api_key = caldera_api_key
         attack_config = AttackerConfig(
             name=self.scenario.attacker.name,
-            strategy=self.scenario.attacker.name,
-            environment=self.scenario.deployment_instance.name,
+            strategy=self.scenario.attacker.strategy,
+            environment=self.scenario.environment,
         )
         self.attacker = Attacker(caldera_api_key, attack_config, experiment_id)
 
@@ -104,7 +104,7 @@ class Emulator:
 
         # Deploy deployment instance
         deployment_instance_ = getattr(
-            deployment_instance_module, self.scenario.deployment_instance.name
+            deployment_instance_module, self.scenario.environment
         )
         self.deployment_instance = deployment_instance_(
             ansible_runner, self.openstack_conn, self.config.external_ip, self.config

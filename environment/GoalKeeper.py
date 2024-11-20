@@ -57,7 +57,11 @@ class GoalKeeper:
                 return host
         return None
 
-    def calculate_metrics(self, scenario: Scenario, defender: Defender):
+    def calculate_metrics(
+        self,
+        scenario: Scenario,
+        defender: Defender,
+    ):
         # TODO: Make this an object
         self.operation_log = self.attacker.get_operation_details()
 
