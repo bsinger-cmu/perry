@@ -4,10 +4,14 @@ from ansible.AnsibleRunner import AnsibleRunner
 
 from ansible.deployment_instance import (
     CheckIfHostUp,
+    InstallBasePackages,
+    InstallKaliPackages,
+    SetupServerSSHKeys,
 )
 from ansible.common import CreateUser
 from ansible.caldera import InstallAttacker
 from ansible.vulnerabilities import SetupSudoEdit, SetupWriteableSudoers
+from ansible.goals import AddData
 
 from environment.environment import Environment
 from environment.network import Network, Subnet
@@ -15,7 +19,7 @@ from environment.openstack.openstack_processor import get_hosts_on_subnet
 
 import config.Config as config
 
-NUMBER_RING_HOSTS = 4
+NUMBER_RING_HOSTS = 3
 
 
 class DevEnvironment(Environment):
@@ -46,9 +50,8 @@ class DevEnvironment(Environment):
         )[0]
 
         dev_subnet = Subnet("dev_hosts", self.hosts, "dev_hosts")
-        attacker_subnet = Subnet("attacker", [self.attacker_host], "attacker")
 
-        self.network = Network("ring_network", [dev_subnet, attacker_subnet])
+        self.network = Network("ring_network", [dev_subnet])
         for host in self.network.get_all_hosts():
             username = host.name.replace("_", "")
             host.users.append(username)
@@ -66,32 +69,40 @@ class DevEnvironment(Environment):
         time.sleep(3)
 
         # Install all base packages
-        # self.ansible_runner.run_playbook(
-        #     InstallBasePackages(
-        #         self.network.get_all_host_ips() + [self.attacker_host.ip]
-        #     )
-        # )
+        self.ansible_runner.run_playbook(
+            InstallBasePackages(self.network.get_all_host_ips())
+        )
+
+        # Install kali packages
+        self.ansible_runner.run_playbook(InstallKaliPackages(self.attacker_host.ip))
+
+        # Setup users on all hosts
+        for host in self.network.get_all_hosts():
+            for user in host.users:
+                self.ansible_runner.run_playbook(CreateUser(host.ip, user, "ubuntu"))
+
+        ### Privledge escalation box setup ###
+        self.ansible_runner.run_playbook(
+            SetupServerSSHKeys(
+                self.attacker_host.ip, "root", self.privledge_box.ip, "host1"
+            )
+        )
 
         # Setup a privledge vulnerability
         self.ansible_runner.run_playbook(SetupSudoEdit(self.privledge_box.ip))
         # self.ansible_runner.run_playbook(SetupWriteableSudoers(self.privledge_box.ip))
 
-        # Setup users on all hosts
-        for host in self.network.get_all_hosts():
-            if host.name == "attacker":
-                continue
-            for user in host.users:
-                self.ansible_runner.run_playbook(CreateUser(host.ip, user, "ubuntu"))
+        self.ansible_runner.run_playbook(
+            AddData(self.privledge_box.ip, "root", "~/data1.json")
+        )
 
     def runtime_setup(self):
         # Setup attacker
-        # attacker_host = self.attacker_host
-        # self.ansible_runner.run_playbook(CreateSSHKey(attacker_host.ip, "root"))
-        # self.ansible_runner.run_playbook(
-        #     InstallAttacker(attacker_host.ip, "root", self.caldera_ip)
-        # )
+        self.ansible_runner.run_playbook(
+            InstallAttacker(self.attacker_host.ip, "root", self.caldera_ip)
+        )
 
         # Priv box host
-        self.ansible_runner.run_playbook(
-            InstallAttacker(self.privledge_box.ip, "host1", self.caldera_ip)
-        )
+        # self.ansible_runner.run_playbook(
+        #     InstallAttacker(self.privledge_box.ip, "host1", self.caldera_ip)
+        # )

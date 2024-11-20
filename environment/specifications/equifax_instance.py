@@ -93,9 +93,7 @@ class EquifaxInstance(Environment):
 
         # Install all base packages
         self.ansible_runner.run_playbook(
-            InstallBasePackages(
-                self.network.get_all_host_ips() + [self.attacker_host.ip]
-            )
+            InstallBasePackages(self.network.get_all_host_ips())
         )
         self.ansible_runner.run_playbook(InstallKaliPackages(self.attacker_host.ip))
 
@@ -140,7 +138,6 @@ class EquifaxInstance(Environment):
         self.ansible_runner.run_playbook(CheckIfHostUp(self.attacker_host.ip))
         time.sleep(3)
 
-        self.ansible_runner.run_playbook(CreateSSHKey(self.attacker_host.ip, "root"))
         self.ansible_runner.run_playbook(
             InstallAttacker(self.attacker_host.ip, "root", self.caldera_ip)
         )
