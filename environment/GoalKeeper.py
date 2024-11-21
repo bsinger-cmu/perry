@@ -22,7 +22,6 @@ class GoalKeeper:
         self.flags = {}
         self.root_flags = {}
         self.operation_id = ""
-        self.operation_log = None
         self.output_dir = output_dir
 
     def start_setup_timer(self):
@@ -62,9 +61,6 @@ class GoalKeeper:
         scenario: Scenario,
         defender: Defender,
     ):
-        # TODO: Make this an object
-        self.operation_log = self.attacker.get_operation_details()
-
         # Calculate time elapsed
         execution_time = self.execution_stop_time - self.execution_start_time
         setup_time = self.setup_stop_time - self.setup_start_time
@@ -141,17 +137,11 @@ class GoalKeeper:
         result_file = "result.json"
         result_file = os.path.join(self.output_dir, result_file)
 
-        operation_log_file_name = "operation_log.json"
-        operation_log_file = os.path.join(self.output_dir, operation_log_file_name)
-
         log_event("GoalKeeper", f"Saving results to file: {result_file}")
-        log_event("GoalKeeper", f"Saving operations to file: {operation_log_file}")
 
         with open(result_file, "w") as f:
             result_data = self.results.model_dump()
             json.dump(result_data, f)
-        with open(operation_log_file, "w") as f:
-            json.dump(self.operation_log, f)
 
     def print_metrics(self):
         print("Metrics:")

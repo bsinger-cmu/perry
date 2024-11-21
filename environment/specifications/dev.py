@@ -98,11 +98,12 @@ class DevEnvironment(Environment):
 
     def runtime_setup(self):
         # Setup attacker
+        self.ansible_runner.run_playbook(CheckIfHostUp(self.attacker_host.ip))
         self.ansible_runner.run_playbook(
             InstallAttacker(self.attacker_host.ip, "root", self.caldera_ip)
         )
 
         # Priv box host
         # self.ansible_runner.run_playbook(
-        #     InstallAttacker(self.privledge_box.ip, "host1", self.caldera_ip)
+        #     InstallAttacker(self.privledge_box.ip, "root", self.caldera_ip)
         # )

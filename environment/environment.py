@@ -145,7 +145,7 @@ class Environment:
         return image.id
 
     def load_snapshot(self, host, wait=False):
-        snapshot_name = host + "_image"
+        snapshot_name = host.name + "_image"
         image: openstack.image.v2.image.Image = self.openstack_conn.get_image(
             snapshot_name
         )  # type: ignore
@@ -190,7 +190,7 @@ class Environment:
 
             # Start rebuilding all servers
             for host in hosts_to_restore:
-                self.load_snapshot(host.private_v4, wait=False)
+                self.load_snapshot(host, wait=False)
 
             # Wait for rebuild to start
             time.sleep(5)
@@ -205,6 +205,13 @@ class Environment:
                         waiting_for_rebuild = True
 
                 time.sleep(1)
+
+        for host in hosts:
+            if "attacker" in host.name:
+                # Weird bug in Kali where after rebuilding sometimes needs to be rebooted
+                time.sleep(10)
+                self.openstack_conn.compute.reboot_server(host.id, reboot_type="HARD")  # type: ignore
+                time.sleep(5)
         return
 
     def get_error_hosts(self):
