@@ -98,6 +98,7 @@ class DevEnvironment(Environment):
 
     def runtime_setup(self):
         # Setup attacker
+        self.ansible_runner.run_playbook(CheckIfHostUp(self.attacker_host.ip))
         self.ansible_runner.run_playbook(
             InstallAttacker(self.attacker_host.ip, "root", self.caldera_ip)
         )
