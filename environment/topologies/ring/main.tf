@@ -42,7 +42,7 @@ resource "openstack_compute_instance_v2" "ring_host" {
   flavor_name = "p2.tiny"
   key_pair    = var.perry_key_name
   security_groups = [
-    module.manage_rules.talk_to_manage_name,
+    module.perry_manager.talk_to_manage_name,
     openstack_networking_secgroup_v2.employee_one_group.name
   ]
 
