@@ -19,11 +19,6 @@ IMAGE_FORMAT="qcow2"
 ADMIN_USER="admin"
 ROLE_NAME="admin" # Change if you want to use a different role for the admin user in the project
 
-FLAVOR_NAME="p2.tiny"
-FLAVOR_CPU=1
-FLAVOR_RAM=1024 # In MB
-FLAVOR_DISK=5   # In GB
-
 # Source the OpenStack credentials
 source /etc/kolla/admin-openrc.sh
 
@@ -58,6 +53,18 @@ openstack keypair create --public-key "$KEY_FILE" "$KEY_NAME"
 echo "Added SSH key '$KEY_NAME' from file '$KEY_FILE'."
 
 # Create p1.tiny flavor
+FLAVOR_NAME="p2.tiny"
+FLAVOR_CPU=1
+FLAVOR_RAM=1024 # In MB
+FLAVOR_DISK=5   # In GB
+openstack flavor create "$FLAVOR_NAME" --vcpus "$FLAVOR_CPU" --ram "$FLAVOR_RAM" --disk "$FLAVOR_DISK"
+echo "Created flavor '$FLAVOR_NAME' with $FLAVOR_CPU CPU, $FLAVOR_RAM MB RAM, and $FLAVOR_DISK GB disk."
+
+# m1.small flavor
+FLAVOR_NAME="m1.small"
+FLAVOR_CPU=1
+FLAVOR_RAM=2048 # In MB
+FLAVOR_DISK=20  # In GB
 openstack flavor create "$FLAVOR_NAME" --vcpus "$FLAVOR_CPU" --ram "$FLAVOR_RAM" --disk "$FLAVOR_DISK"
 echo "Created flavor '$FLAVOR_NAME' with $FLAVOR_CPU CPU, $FLAVOR_RAM MB RAM, and $FLAVOR_DISK GB disk."
 
