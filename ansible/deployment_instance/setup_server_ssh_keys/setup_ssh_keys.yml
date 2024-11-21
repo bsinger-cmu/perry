@@ -16,6 +16,16 @@
         src: "ssh_keys/id_rsa"
         dest: "~/.ssh/id_rsa"
         mode: "0600"
+        force: yes
+
+    - name: copy public key
+      become: true
+      become_user: "{{ host_user }}"
+      copy:
+        src: "ssh_keys/id_rsa.pub"
+        dest: "~/.ssh/id_rsa.pub"
+        mode: "0600"
+        force: yes
 
     - name: add to ssh config
       become: true

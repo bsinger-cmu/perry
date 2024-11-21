@@ -104,5 +104,5 @@ class DevEnvironment(Environment):
 
         # Priv box host
         # self.ansible_runner.run_playbook(
-        #     InstallAttacker(self.privledge_box.ip, "host1", self.caldera_ip)
+        #     InstallAttacker(self.privledge_box.ip, "root", self.caldera_ip)
         # )

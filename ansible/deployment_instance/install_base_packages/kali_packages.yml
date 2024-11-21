@@ -4,6 +4,20 @@
 
   # 
   tasks:
+    - name: create .ssh directory
+      become: true
+      file:
+        path: "~/.ssh"
+        state: directory
+        mode: "0700"
+
+    - name: generate key pair
+      become: true
+      shell:
+        cmd: ssh-keygen -b 2048 -t rsa -f '.ssh/id_rsa' -q -N ""
+        creates: "~/.ssh/id_rsa"
+        chdir: "~"
+
     - name: Remove automatic updates
       apt:
         name: unattended-upgrades
@@ -12,7 +26,9 @@
     - name: Base dependencies
       apt:
         pkg:
-          - kali-linux-headless
+          - kali-tools-top10
+          - gobuster
+          - wordlists
           - net-tools
           - curl
           - wget
@@ -23,8 +39,4 @@
           - python3-pip
         state: present
         update_cache: yes
-
-    - name: Install stormssh
-      ansible.builtin.pip:
-        name: stormssh
-        extra_args: --break-system-packages
+        

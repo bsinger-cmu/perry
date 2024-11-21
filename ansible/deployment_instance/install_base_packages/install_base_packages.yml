@@ -19,13 +19,3 @@
           - net-tools
         state: present
         update_cache: yes
-
-    # Depedency for stormssh (for parsing ssh configs)
-    - name: Upgrade pyopenssl
-      ansible.builtin.pip:
-        name: pyopenssl
-        extra_args: --upgrade
-
-    - name: Install stormssh
-      ansible.builtin.pip:
-        name: stormssh
