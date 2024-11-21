@@ -24,7 +24,7 @@ FLAVOR_DISK=5   # In GB
 
 
 # Source the OpenStack credentials
-source ~/Downloads/admin-openrc.sh
+source ~/admin-openrc.sh
 
 # Create a project named "perry" with 100 CPU and 100GB RAM quota
 openstack project create --description "Project Perry" "$PROJECT_NAME"

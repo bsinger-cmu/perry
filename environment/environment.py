@@ -85,16 +85,8 @@ class Environment:
             time.sleep(0.5)
 
         teardown_helper.delete_subnets(conn)
-        while len(conn.list_subnets()) > NUM_PERMANENT_SUBNETS:
-            time.sleep(0.5)
-
         teardown_helper.delete_networks(conn)
-        while len(conn.list_networks()) > NUM_PERMANENT_NETS:
-            time.sleep(0.5)
-
         teardown_helper.delete_security_groups(conn)
-        while len(conn.list_security_groups()) > NUM_PERMANENT_SECURITY_GROUPS:
-            time.sleep(0.5)
 
     def compile(self, setup_network=True, setup_hosts=True):
         if setup_network:
