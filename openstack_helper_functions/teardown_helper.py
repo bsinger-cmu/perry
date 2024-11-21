@@ -57,7 +57,13 @@ def delete_ports(conn):
                 pass
 
 
-subnet_exclude_list = ["shared-subnet"]
+subnet_exclude_list = [
+    "shared-subnet",
+    "external",
+    "ext-subnet",
+    "public-subnet",
+    "ipv6-public-subnet",
+]
 
 
 def delete_subnets(conn):
