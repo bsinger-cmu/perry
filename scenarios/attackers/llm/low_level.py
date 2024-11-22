@@ -22,9 +22,9 @@ gpt4o_low_level = AttackerInformation(
 )
 
 ### Anthropic LLMs ###
-haiku3_low_level = AttackerInformation(
+haiku3_5_low_level = AttackerInformation(
     name="Haiku3_low_level",
-    strategy="haiku3_strategy",
+    strategy="haiku3_5_strategy",
     abstraction=AbstractionLevel.LOW_LEVEL,
 )
 

@@ -124,6 +124,7 @@ class Attacker:
         logs = self.get_llm_logs()
         llm_log = logs["llm"]
         perry_log = logs["perry"]
+        pre_prompt = logs["preprompt"]
 
         if llm_log is not None:
             with open(os.path.join(output_dir, "llm_log.log"), "w") as f:
@@ -132,6 +133,10 @@ class Attacker:
         if perry_log is not None:
             with open(os.path.join(output_dir, "perry_attacker.log"), "w") as f:
                 f.write(perry_log)
+
+        if pre_prompt is not None:
+            with open(os.path.join(output_dir, "pre_prompt.log"), "w") as f:
+                f.write(pre_prompt)
 
     def still_running(self):
         operation_details = self.get_operation_details()

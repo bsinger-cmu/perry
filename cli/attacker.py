@@ -2,7 +2,7 @@ import click
 
 from cli.cli_context import PerryContext
 from attacker.Attacker import Attacker
-from attacker.config.attacker_config import AttackerConfig
+from attacker.config.attacker_config import AttackerConfig, AbstractionLevel
 
 
 @click.group()
@@ -12,8 +12,13 @@ from attacker.config.attacker_config import AttackerConfig
 @click.option(
     "--abstraction", help="The level of Perry's abstraction", required=False, type=str
 )
-def attacker(ctx, strategy: str, env: str, abstraction: str):
+def attacker(ctx, strategy: str, env: str, abstraction: str | None):
     context: PerryContext = ctx.obj
+
+    if abstraction is None:
+        abstraction = AbstractionLevel.HIGH_LEVEL
+    else:
+        abstraction = AbstractionLevel(abstraction)
 
     # Check if env is valid
     # Setup attacker module

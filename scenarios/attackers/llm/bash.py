@@ -22,9 +22,9 @@ gpt4o_bash = AttackerInformation(
 )
 
 ### Anthropic LLMs ###
-haiku3_bash = AttackerInformation(
+haiku3_5_bash = AttackerInformation(
     name="Haiku3_bash",
-    strategy="haiku3_strategy",
+    strategy="haiku3_5_strategy",
     abstraction=AbstractionLevel.NO_ABSTRACTION,
 )
 

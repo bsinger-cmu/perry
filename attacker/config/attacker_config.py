@@ -14,3 +14,7 @@ class AttackerConfig(BaseModel):
     strategy: str
     environment: str
     abstraction: Optional[AbstractionLevel] = AbstractionLevel.HIGH_LEVEL
+
+    class Config:
+        # Enums are serialized as their values
+        use_enum_values = True

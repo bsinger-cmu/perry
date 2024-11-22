@@ -22,9 +22,9 @@ gpt4o_perry = AttackerInformation(
 )
 
 ### Anthropic LLMs ###
-haiku3_perry = AttackerInformation(
+haiku3_5_perry = AttackerInformation(
     name="Haiku3_perry",
-    strategy="haiku3_strategy",
+    strategy="haiku3_5_strategy",
     abstraction=AbstractionLevel.HIGH_LEVEL,
 )
 
