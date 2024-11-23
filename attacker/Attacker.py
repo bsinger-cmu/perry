@@ -138,11 +138,11 @@ class Attacker:
                 f.write(perry_log)
 
         if low_level_action_log is not None:
-            with open(os.path.join(output_dir, "low_level_action.log"), "w") as f:
+            with open(os.path.join(output_dir, "low_level_action.json"), "w") as f:
                 f.write(low_level_action_log)
 
         if high_level_action_log is not None:
-            with open(os.path.join(output_dir, "high_level_action.log"), "w") as f:
+            with open(os.path.join(output_dir, "high_level_action.json"), "w") as f:
                 f.write(high_level_action_log)
 
         if pre_prompt is not None:
