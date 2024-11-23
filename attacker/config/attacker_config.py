@@ -7,6 +7,7 @@ class AbstractionLevel(str, Enum):
     HIGH_LEVEL = "high"
     LOW_LEVEL = "low"
     NO_ABSTRACTION = "none"
+    NO_SERVICES = "no_services"
 
 
 class AttackerConfig(BaseModel):

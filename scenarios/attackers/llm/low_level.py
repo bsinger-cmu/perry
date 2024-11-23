@@ -7,6 +7,11 @@ gemini1_5_pro_low_level = AttackerInformation(
     strategy="gemini_15_pro_strategy.5Pro",
     abstraction=AbstractionLevel.LOW_LEVEL,
 )
+gemini1_5_flash_low_level = AttackerInformation(
+    name="Gemini1.5Flash_low_level",
+    strategy="gemini_15_flash_strategy",
+    abstraction=AbstractionLevel.LOW_LEVEL,
+)
 
 ### OpenAI LLMs ###
 gpt4o_mini_low_level = AttackerInformation(
@@ -23,7 +28,7 @@ gpt4o_low_level = AttackerInformation(
 
 ### Anthropic LLMs ###
 haiku3_5_low_level = AttackerInformation(
-    name="Haiku3_low_level",
+    name="Haiku3_5_low_level",
     strategy="haiku3_5_strategy",
     abstraction=AbstractionLevel.LOW_LEVEL,
 )

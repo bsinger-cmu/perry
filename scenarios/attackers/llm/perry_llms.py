@@ -7,6 +7,11 @@ gemini1_5_pro_perry = AttackerInformation(
     strategy="gemini_15_pro_strategy.5Pro",
     abstraction=AbstractionLevel.HIGH_LEVEL,
 )
+gemini1_5_flash_perry = AttackerInformation(
+    name="Gemini1.5Flash_perry",
+    strategy="gemini_15_flash_strategy",
+    abstraction=AbstractionLevel.HIGH_LEVEL,
+)
 
 ### OpenAI LLMs ###
 gpt4o_mini_perry = AttackerInformation(
@@ -23,7 +28,7 @@ gpt4o_perry = AttackerInformation(
 
 ### Anthropic LLMs ###
 haiku3_5_perry = AttackerInformation(
-    name="Haiku3_perry",
+    name="Haiku3_5_perry",
     strategy="haiku3_5_strategy",
     abstraction=AbstractionLevel.HIGH_LEVEL,
 )

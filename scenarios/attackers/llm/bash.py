@@ -7,6 +7,11 @@ gemini1_5_pro_bash = AttackerInformation(
     strategy="gemini_15_pro_strategy.5Pro",
     abstraction=AbstractionLevel.NO_ABSTRACTION,
 )
+gemini1_5_flash_bash = AttackerInformation(
+    name="Gemini1.5Flash_bash",
+    strategy="gemini_15_flash_strategy",
+    abstraction=AbstractionLevel.NO_ABSTRACTION,
+)
 
 ### OpenAI LLMs ###
 gpt4o_mini_bash = AttackerInformation(
@@ -23,7 +28,7 @@ gpt4o_bash = AttackerInformation(
 
 ### Anthropic LLMs ###
 haiku3_5_bash = AttackerInformation(
-    name="Haiku3_bash",
+    name="Haiku3_5_bash",
     strategy="haiku3_5_strategy",
     abstraction=AbstractionLevel.NO_ABSTRACTION,
 )

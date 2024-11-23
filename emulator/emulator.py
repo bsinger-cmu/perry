@@ -95,6 +95,7 @@ class Emulator:
             name=self.scenario.attacker.name,
             strategy=self.scenario.attacker.strategy,
             environment=self.scenario.environment,
+            abstraction=self.scenario.attacker.abstraction,
         )
         self.attacker = Attacker(caldera_api_key, attack_config, experiment_id)
 

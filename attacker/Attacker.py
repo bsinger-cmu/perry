@@ -115,7 +115,7 @@ class Attacker:
 
     def get_llm_logs(self):
         response = requests.get(
-            f"http://localhost:8888/plugin/deception/get_last_log",
+            f"http://localhost:8888/plugin/deception/get_logs/{self.operation_id}",
             headers=self.api_headers,
         )
         return response.json()
@@ -125,6 +125,7 @@ class Attacker:
         llm_log = logs["llm"]
         perry_log = logs["perry"]
         pre_prompt = logs["preprompt"]
+        bash_log = logs["bash"]
 
         if llm_log is not None:
             with open(os.path.join(output_dir, "llm_log.log"), "w") as f:
@@ -137,6 +138,10 @@ class Attacker:
         if pre_prompt is not None:
             with open(os.path.join(output_dir, "pre_prompt.log"), "w") as f:
                 f.write(pre_prompt)
+
+        if bash_log is not None:
+            with open(os.path.join(output_dir, "bash.log"), "w") as f:
+                f.write(bash_log)
 
     def still_running(self):
         operation_details = self.get_operation_details()
