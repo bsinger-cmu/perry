@@ -124,6 +124,8 @@ class Attacker:
         logs = self.get_llm_logs()
         llm_log = logs["llm"]
         perry_log = logs["perry"]
+        low_level_action_log = logs["low_level_action"]
+        high_level_action_log = logs["high_level_action"]
         pre_prompt = logs["preprompt"]
         bash_log = logs["bash"]
 
@@ -134,6 +136,14 @@ class Attacker:
         if perry_log is not None:
             with open(os.path.join(output_dir, "perry_attacker.log"), "w") as f:
                 f.write(perry_log)
+
+        if low_level_action_log is not None:
+            with open(os.path.join(output_dir, "low_level_action.log"), "w") as f:
+                f.write(low_level_action_log)
+
+        if high_level_action_log is not None:
+            with open(os.path.join(output_dir, "high_level_action.log"), "w") as f:
+                f.write(high_level_action_log)
 
         if pre_prompt is not None:
             with open(os.path.join(output_dir, "pre_prompt.log"), "w") as f:
