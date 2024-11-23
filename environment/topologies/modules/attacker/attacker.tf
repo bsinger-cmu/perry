@@ -34,9 +34,9 @@ resource "openstack_compute_instance_v2" "attacker" {
   security_groups = [
     openstack_networking_secgroup_v2.attacker.name
   ]
-
   network {
-    name = "attacker_network"
+    name        = "attacker_network"
+    fixed_ip_v4 = "192.168.202.100"
   }
 
   depends_on = [openstack_networking_subnet_v2.attacker_subnet]

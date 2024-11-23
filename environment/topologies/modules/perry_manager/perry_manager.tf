@@ -67,7 +67,8 @@ resource "openstack_compute_instance_v2" "manage_host" {
   ]
 
   network {
-    name = "manage_network"
+    name        = "manage_network"
+    fixed_ip_v4 = "192.168.198.14"
   }
   depends_on = [openstack_networking_subnet_v2.manage]
 }
