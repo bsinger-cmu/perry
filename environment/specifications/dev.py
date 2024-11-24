@@ -10,7 +10,11 @@ from ansible.deployment_instance import (
 )
 from ansible.common import CreateUser
 from ansible.caldera import InstallAttacker
-from ansible.vulnerabilities import SetupSudoEdit, SetupWriteableSudoers
+from ansible.vulnerabilities import (
+    SetupSudoEdit,
+    SetupWriteableSudoers,
+    SetupNetcatShell,
+)
 from ansible.goals import AddData
 
 from environment.environment import Environment
@@ -44,6 +48,8 @@ class DevEnvironment(Environment):
         for host in self.hosts:
             if host.name == "host_1":
                 self.privledge_box = host
+            if host.name == "host_2":
+                self.nc_box = host
 
         self.attacker_host = get_hosts_on_subnet(
             self.openstack_conn, "192.168.202.0/24", host_name_prefix="attacker"
@@ -80,6 +86,13 @@ class DevEnvironment(Environment):
         for host in self.network.get_all_hosts():
             for user in host.users:
                 self.ansible_runner.run_playbook(CreateUser(host.ip, user, "ubuntu"))
+
+        ### NC Box setup ###
+        self.ansible_runner.run_playbook(SetupNetcatShell(self.nc_box.ip, "host2"))
+        self.ansible_runner.run_playbook(SetupSudoEdit(self.nc_box.ip))
+        self.ansible_runner.run_playbook(
+            AddData(self.nc_box.ip, "root", "~/data_nc_box.json")
+        )
 
         ### Privledge escalation box setup ###
         self.ansible_runner.run_playbook(
