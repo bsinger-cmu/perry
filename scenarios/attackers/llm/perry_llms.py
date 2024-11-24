@@ -4,7 +4,7 @@ from scenarios.Scenario import AttackerInformation
 ### Google LLMs ###
 gemini1_5_pro_perry = AttackerInformation(
     name="Gemini1.5Pro_perry",
-    strategy="gemini_15_pro_strategy.5Pro",
+    strategy="gemini_15_pro_strategy",
     abstraction=AbstractionLevel.HIGH_LEVEL,
 )
 gemini1_5_flash_perry = AttackerInformation(

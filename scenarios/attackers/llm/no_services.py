@@ -4,7 +4,7 @@ from scenarios.Scenario import AttackerInformation
 ### Google LLMs ###
 gemini1_5_pro_no_services = AttackerInformation(
     name="Gemini1.5Pro_no_services",
-    strategy="gemini_15_pro_strategy.5Pro",
+    strategy="gemini_15_pro_strategy",
     abstraction=AbstractionLevel.NO_SERVICES,
 )
 gemini1_5_flash_no_services = AttackerInformation(
