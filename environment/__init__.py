@@ -12,3 +12,4 @@ from .specifications.dev import DevEnvironment
 from .specifications.star import Star
 from .specifications.dumbbell import Dumbbell
 from .specifications.enterprise import Enterprise
+from .specifications.PEchain import PEChainEnvironment
