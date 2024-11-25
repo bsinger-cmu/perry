@@ -5,13 +5,14 @@ from rich.progress import (
     TimeElapsedColumn,
     TimeRemainingColumn,
 )
-import json
 import os
 from datetime import datetime
 
 from emulator.emulator import Emulator
 from config.Config import Config
-from scenarios.Scenario import Experiment, Scenario
+from scenarios.Scenario import Experiment
+
+from attacker.exceptions import NoAttackerAgentsError
 
 
 class ExperimentRunner:
@@ -56,7 +57,12 @@ class ExperimentRunner:
         for trial in range(experiment.trials):
             timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
             experiment_dir = os.path.join(experiment_results_dir, timestamp)
-            emulator.run_trial(experiment_dir, timestamp, experiment.timeout)
+            try:
+                emulator.run_trial(experiment_dir, timestamp, experiment.timeout)
+            except NoAttackerAgentsError as error:
+                print(error)
+                # Rerun the trial
+                trial -= 1
             progress.update(trial_task, advance=1)
 
         progress.remove_task(trial_task)

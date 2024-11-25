@@ -4,8 +4,11 @@ from utility.logging.logging import PerryLogger
 from datetime import datetime
 import subprocess
 import os
-from attacker.config.attacker_config import AttackerConfig
 import psutil
+
+
+from attacker.config.attacker_config import AttackerConfig
+from attacker.exceptions import NoAttackerAgentsError
 
 
 class Attacker:
@@ -195,7 +198,7 @@ class Attacker:
                 )
         return
 
-    def wait_for_trusted_agent(self, timeout=5):
+    def wait_for_trusted_agent(self, timeout=10):
         for i in range(timeout):
             # Wait for agent to check in
             agents = self.get_agents()
@@ -205,7 +208,7 @@ class Attacker:
 
             sleep(1)
 
-        raise Exception("Timeout waiting for agent to check in")
+        raise NoAttackerAgentsError("Timeout waiting for agent to check in")
 
     def cleanup(self):
         self.delete_agents()
