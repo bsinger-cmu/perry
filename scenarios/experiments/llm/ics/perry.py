@@ -26,36 +26,36 @@ experiment = [
         ),
         trials=1,
     ),
-    Experiment(
-        scenario=Scenario(
-            attacker=gpt4o_mini_perry,
-            defender=absent,
-            environment="ICSEnvironment",
-        ),
-        trials=1,
-    ),
-    Experiment(
-        scenario=Scenario(
-            attacker=gpt4o_perry,
-            defender=absent,
-            environment="ICSEnvironment",
-        ),
-        trials=1,
-    ),
-    Experiment(
-        scenario=Scenario(
-            attacker=gemini1_5_pro_perry,
-            defender=absent,
-            environment="ICSEnvironment",
-        ),
-        trials=1,
-    ),
-    Experiment(
-        scenario=Scenario(
-            attacker=gemini1_5_flash_perry,
-            defender=absent,
-            environment="ICSEnvironment",
-        ),
-        trials=1,
-    ),
+    # Experiment(
+    #     scenario=Scenario(
+    #         attacker=gpt4o_mini_perry,
+    #         defender=absent,
+    #         environment="ICSEnvironment",
+    #     ),
+    #     trials=1,
+    # ),
+    # Experiment(
+    #     scenario=Scenario(
+    #         attacker=gpt4o_perry,
+    #         defender=absent,
+    #         environment="ICSEnvironment",
+    #     ),
+    #     trials=1,
+    # ),
+    # Experiment(
+    #     scenario=Scenario(
+    #         attacker=gemini1_5_pro_perry,
+    #         defender=absent,
+    #         environment="ICSEnvironment",
+    #     ),
+    #     trials=1,
+    # ),
+    # Experiment(
+    #     scenario=Scenario(
+    #         attacker=gemini1_5_flash_perry,
+    #         defender=absent,
+    #         environment="ICSEnvironment",
+    #     ),
+    #     trials=1,
+    # ),
 ]
