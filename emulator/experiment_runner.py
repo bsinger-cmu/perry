@@ -12,7 +12,7 @@ from emulator.emulator import Emulator
 from config.Config import Config
 from scenarios.Scenario import Experiment
 
-from attacker.exceptions import NoAttackerAgentsError
+from attacker.exceptions import NoAttackerAgentsError, AttackerServerDownError
 
 
 class ExperimentRunner:
@@ -60,6 +60,10 @@ class ExperimentRunner:
             try:
                 emulator.run_trial(experiment_dir, timestamp, experiment.timeout)
             except NoAttackerAgentsError as error:
+                print(error)
+                # Rerun the trial
+                trial -= 1
+            except AttackerServerDownError as error:
                 print(error)
                 # Rerun the trial
                 trial -= 1

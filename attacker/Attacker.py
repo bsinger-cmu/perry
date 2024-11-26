@@ -8,7 +8,7 @@ import psutil
 
 
 from attacker.config.attacker_config import AttackerConfig
-from attacker.exceptions import NoAttackerAgentsError
+from attacker.exceptions import NoAttackerAgentsError, AttackerServerDownError
 
 
 class Attacker:
@@ -197,6 +197,13 @@ class Attacker:
                     headers=self.api_headers,
                 )
         return
+
+    def start(self):
+        try:
+            self.delete_agents()
+            self.start_operation()
+        except requests.exceptions.ConnectionError:
+            raise AttackerServerDownError("Caldera server is down")
 
     def wait_for_trusted_agent(self, timeout=10):
         for i in range(timeout):

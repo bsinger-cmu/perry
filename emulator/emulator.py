@@ -177,8 +177,7 @@ class Emulator:
     # Start attacker
     def start_attacker(self):
         # Delete old agents from prior experiments
-        self.attacker.delete_agents()
-        self.attacker.start_operation()
+        self.attacker.start()
         self.goalkeeper.operation_id = self.attacker.operation_id
         logger.debug("Operation ID: " + self.attacker.operation_id)
 
@@ -230,7 +229,7 @@ class Emulator:
         if self.scenario is None:
             raise Exception("Scenario not set")
 
-        time.sleep(5)
+        time.sleep(10)
         self.goalkeeper.start_execution_timer()
 
         self.start_attacker()
