@@ -29,7 +29,7 @@ import random
 fake = Faker()
 
 
-class Dumbbell(Environment):
+class DumbbellPE(Environment):
     def __init__(
         self,
         ansible_runner: AnsibleRunner,
@@ -100,6 +100,17 @@ class Dumbbell(Environment):
         webserver_ips = [host.ip for host in self.webservers]
         self.ansible_runner.run_playbook(SetupStrutsVulnerability(webserver_ips))
 
+        # Setup privledge escalation vulnerabilities
+        # even hosts SetupWriteableSudoers
+        # odd hosts SetupSudoEdit
+        for i in range(len(webserver_ips)):
+            if i % 2:
+                self.ansible_runner.run_playbook(SetupSudoEdit(webserver_ips[i]))
+            else:
+                self.ansible_runner.run_playbook(
+                    SetupWriteableSudoers(webserver_ips[i])
+                )
+
         # Setup users on corporte hosts
         for host in self.database_hosts:
             for user in host.users:
@@ -108,16 +119,24 @@ class Dumbbell(Environment):
         for i, webserver in enumerate(self.webservers):
             database = self.database_hosts[i]
             self.ansible_runner.run_playbook(
-                SetupServerSSHKeys(
-                    webserver.ip, webserver.users[0], database.ip, database.users[0]
-                )
+                SetupServerSSHKeys(webserver.ip, "root", database.ip, database.users[0])
             )
 
         # Add data to database hosts
         for database in self.database_hosts:
             self.ansible_runner.run_playbook(
-                AddData(database.ip, database.users[0], f"~/data_{database.name}.json")
+                AddData(database.ip, "root", f"~/data_{database.name}.json")
             )
+
+        # Setup privledge escalation vulnerabilities on databases
+        # even hosts SetupWriteableSudoers
+        # odd hosts SetupSudoEdit
+        database_ips = [host.ip for host in self.database_hosts]
+        for i in range(len(database_ips)):
+            if i % 2:
+                self.ansible_runner.run_playbook(SetupSudoEdit(database_ips[i]))
+            else:
+                self.ansible_runner.run_playbook(SetupWriteableSudoers(database_ips[i]))
 
     def runtime_setup(self):
         # Setup attacker

@@ -13,5 +13,6 @@ from .specifications.dev import DevEnvironment
 from .specifications.star import Star
 from .specifications.star_pe import StarPE
 from .specifications.dumbbell import Dumbbell
+from .specifications.dumbbell_pe import DumbbellPE
 from .specifications.enterprise import Enterprise
 
