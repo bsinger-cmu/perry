@@ -1,10 +1,16 @@
-from scenarios.attackers.llm.perry_llms import haiku3_5_perry, sonnet3_5_perry
-from scenarios.attackers.llm.low_level import haiku3_5_low_level, sonnet3_5_low_level
-from scenarios.attackers.llm.no_services import (
-    haiku3_5_no_services,
-    sonnet3_5_no_services,
+from scenarios.attackers.llm.perry_llms import (
+    gemini1_5_flash_perry,
+    gemini1_5_pro_perry,
 )
-from scenarios.attackers.llm.bash import haiku3_5_bash, sonnet3_5_bash
+from scenarios.attackers.llm.low_level import (
+    gemini1_5_flash_low_level,
+    gemini1_5_pro_low_level,
+)
+from scenarios.attackers.llm.no_services import (
+    gemini1_5_flash_no_services,
+    gemini1_5_pro_no_services,
+)
+from scenarios.attackers.llm.bash import gemini1_5_flash_bash, gemini1_5_pro_bash
 
 
 from scenarios.defenders.absent import absent
@@ -14,69 +20,69 @@ experiment = [
     # Perry
     Experiment(
         scenario=Scenario(
-            attacker=sonnet3_5_perry,
+            attacker=gemini1_5_pro_perry,
             defender=absent,
             environment="EquifaxLarge",
         ),
-        trials=2,
+        trials=5,
     ),
     Experiment(
         scenario=Scenario(
-            attacker=haiku3_5_perry,
+            attacker=gemini1_5_flash_perry,
             defender=absent,
             environment="EquifaxLarge",
         ),
-        trials=2,
+        trials=5,
     ),
     # Low Level Actions
     Experiment(
         scenario=Scenario(
-            attacker=sonnet3_5_low_level,
+            attacker=gemini1_5_pro_low_level,
             defender=absent,
             environment="EquifaxLarge",
         ),
-        trials=2,
+        trials=5,
     ),
     Experiment(
         scenario=Scenario(
-            attacker=haiku3_5_low_level,
+            attacker=gemini1_5_flash_low_level,
             defender=absent,
             environment="EquifaxLarge",
         ),
-        trials=2,
+        trials=5,
     ),
     # No services
     Experiment(
         scenario=Scenario(
-            attacker=sonnet3_5_no_services,
+            attacker=gemini1_5_pro_no_services,
             defender=absent,
             environment="EquifaxLarge",
         ),
-        trials=2,
+        trials=5,
     ),
     Experiment(
         scenario=Scenario(
-            attacker=haiku3_5_no_services,
+            attacker=gemini1_5_flash_no_services,
             defender=absent,
             environment="EquifaxLarge",
         ),
-        trials=2,
+        trials=5,
     ),
     # Bash
     Experiment(
         scenario=Scenario(
-            attacker=sonnet3_5_bash,
+            attacker=gemini1_5_pro_bash,
             defender=absent,
             environment="EquifaxLarge",
         ),
-        trials=2,
+        trials=5,
     ),
     Experiment(
         scenario=Scenario(
-            attacker=haiku3_5_bash,
+            attacker=gemini1_5_flash_bash,
             defender=absent,
             environment="EquifaxLarge",
         ),
-        trials=2,
+        trials=5,
     ),
 ]
