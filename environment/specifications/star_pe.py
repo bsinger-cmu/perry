@@ -51,8 +51,6 @@ class StarPE(Environment):
 
         # Distribute hosts into 3 categories
         self.webservers = self.star_hosts[: len(self.star_hosts) // 3]
-        for host in self.webservers:
-            host.users.append("tomcat")
 
         self.nc_hosts = self.star_hosts[
             len(self.star_hosts) // 3 : 2 * len(self.star_hosts) // 3
@@ -66,9 +64,14 @@ class StarPE(Environment):
         self.attacker_host.users.append("root")
 
         ringSubnet = Subnet("ring_network", self.star_hosts, "employee_one_group")
-
         self.network = Network("ring_network", [ringSubnet])
-        for host in self.network.get_all_hosts():
+
+        # Setup tomcat users on all webservers
+        for host in self.webservers:
+            host.users.append("tomcat")
+
+        # Setup normal users on all hosts
+        for host in self.nc_hosts + self.ssh_hosts:
             username = host.name.replace("_", "")
             host.users.append(username)
 

@@ -13,6 +13,7 @@ from ansible.common import CreateUser
 from ansible.goals import AddData
 from ansible.caldera import InstallAttacker
 from ansible.defender import InstallSysFlow
+from ansible.vulnerabilities import SetupNetcatShell, SetupStrutsVulnerability
 
 from environment import Environment
 from ..network import Network, Subnet
@@ -47,6 +48,15 @@ class Star(Environment):
             self.openstack_conn, "192.168.200.0/24", host_name_prefix="host"
         )
 
+        # Distribute hosts into 3 categories
+        self.webservers = self.star_hosts[: len(self.star_hosts) // 3]
+
+        self.nc_hosts = self.star_hosts[
+            len(self.star_hosts) // 3 : 2 * len(self.star_hosts) // 3
+        ]
+
+        self.ssh_hosts = self.star_hosts[2 * len(self.star_hosts) // 3 :]
+
         self.attacker_host = get_hosts_on_subnet(
             self.openstack_conn, "192.168.202.0/24", host_name_prefix="attacker"
         )[0]
@@ -55,7 +65,13 @@ class Star(Environment):
         ringSubnet = Subnet("ring_network", self.star_hosts, "employee_one_group")
 
         self.network = Network("ring_network", [ringSubnet])
-        for host in self.network.get_all_hosts():
+
+        # Setup tomcat users on all webservers
+        for host in self.webservers:
+            host.users.append("tomcat")
+
+        # Setup normal users on all hosts
+        for host in self.nc_hosts + self.ssh_hosts:
             username = host.name.replace("_", "")
             host.users.append(username)
 
@@ -69,7 +85,7 @@ class Star(Environment):
         self.find_management_server()
         self.parse_network()
 
-        self.ansible_runner.run_playbook(CheckIfHostUp(self.star_hosts[0].ip))
+        self.ansible_runner.run_playbook(CheckIfHostUp(self.attacker_host.ip))
         time.sleep(3)
 
         # Install all base packages
@@ -84,13 +100,21 @@ class Star(Environment):
             InstallSysFlow(self.network.get_all_host_ips(), self.config)
         )
 
-        # Setup users on all hosts
+        # Setup other users on all hosts
         for host in self.network.get_all_hosts():
             for user in host.users:
                 self.ansible_runner.run_playbook(CreateUser(host.ip, user, "ubuntu"))
 
+        # Setup apache struts vulnerabilities
+        for host in self.webservers:
+            self.ansible_runner.run_playbook(SetupStrutsVulnerability(host.ip))
+
+        # Setup netcat shell
+        for host in self.nc_hosts:
+            self.ansible_runner.run_playbook(SetupNetcatShell(host.ip, host.users[0]))
+
         # Attacker host has all credentials
-        for i, host in enumerate(self.star_hosts):
+        for i, host in enumerate(self.ssh_hosts):
             action = SetupServerSSHKeys(
                 self.attacker_host.ip,
                 self.attacker_host.users[0],
@@ -106,17 +130,6 @@ class Star(Environment):
             )
 
     def runtime_setup(self):
-        # Randomly choose 1 ring to have attacker
-        initial_access = random.choice(self.star_hosts)
-
-        # Setup attacker
-
         self.ansible_runner.run_playbook(
-            InstallAttacker(initial_access.ip, initial_access.users[0], self.caldera_ip)
-        )
-
-        attacker_host = self.attacker_host
-        self.ansible_runner.run_playbook(CreateSSHKey(attacker_host.ip, "root"))
-        self.ansible_runner.run_playbook(
-            InstallAttacker(attacker_host.ip, "root", self.caldera_ip)
+            InstallAttacker(self.attacker_host.ip, "root", self.caldera_ip)
         )
