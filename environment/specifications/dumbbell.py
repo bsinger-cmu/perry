@@ -8,6 +8,7 @@ from ansible.deployment_instance import (
     CheckIfHostUp,
     SetupServerSSHKeys,
     CreateSSHKey,
+    InstallKaliPackages,
 )
 from ansible.common import CreateUser
 from ansible.vulnerabilities import SetupStrutsVulnerability
@@ -93,9 +94,10 @@ class Dumbbell(Environment):
         # Install all base packages
         self.ansible_runner.run_playbook(
             InstallBasePackages(
-                self.network.get_all_host_ips() + [self.attacker_host.ip]
+                self.network.get_all_host_ips()
             )
         )
+        self.ansible_runner.run_playbook(InstallKaliPackages(self.attacker_host.ip))
 
         # Install sysflow on all hosts
         self.ansible_runner.run_playbook(

@@ -8,6 +8,7 @@ from ansible.deployment_instance import (
     CheckIfHostUp,
     SetupServerSSHKeys,
     CreateSSHKey,
+    InstallKaliPackages,
 )
 from ansible.common import CreateUser
 from ansible.goals import AddData
@@ -91,9 +92,10 @@ class StarPE(Environment):
         # Install all base packages
         self.ansible_runner.run_playbook(
             InstallBasePackages(
-                self.network.get_all_host_ips() + [self.attacker_host.ip]
+                self.network.get_all_host_ips()
             )
         )
+        self.ansible_runner.run_playbook(InstallKaliPackages(self.attacker_host.ip))
 
         # Install sysflow on all hosts
         self.ansible_runner.run_playbook(
@@ -108,8 +110,9 @@ class StarPE(Environment):
         # Setup privilege escalation vulnerabilities on all hosts
         for i in range(0, len(self.star_hosts), 2):
             self.ansible_runner.run_playbook(SetupSudoEdit(self.star_hosts[i].ip))
+        for i in range(1, len(self.star_hosts), 2):
             self.ansible_runner.run_playbook(
-                SetupWriteableSudoers(self.star_hosts[i + 1].ip)
+                SetupWriteableSudoers(self.star_hosts[i].ip)
             )
 
         # Setup apache struts vulnerabilities
