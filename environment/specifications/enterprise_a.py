@@ -12,7 +12,7 @@ from ansible.deployment_instance import (
     InstallKaliPackages,
 )
 from ansible.common import CreateUser
-from ansible.vulnerabilities import SetupStrutsVulnerability
+from ansible.vulnerabilities import SetupStrutsVulnerability, SetupNetcatShell
 from ansible.goals import AddData
 from ansible.defender import InstallSysFlow
 from ansible.caldera import InstallAttacker
@@ -29,15 +29,15 @@ import random
 fake = Faker()
 
 
-class Enterprise(Environment):
+class EnterpriseA(Environment):
     def __init__(
         self,
         ansible_runner: AnsibleRunner,
         openstack_conn,
         caldera_ip,
         config: config.Config,
-        topology="enterprise",
-        number_of_hosts=20,
+        topology="enterprise_a",
+        number_of_hosts=30,
     ):
         super().__init__(ansible_runner, openstack_conn, caldera_ip, config)
         self.topology = topology
@@ -47,22 +47,22 @@ class Enterprise(Environment):
 
     def parse_network(self):
         self.webservers = get_hosts_on_subnet(
-            self.openstack_conn, "10.0.1.0/24", host_name_prefix="webserver"
+            self.openstack_conn, "192.168.200.0/24", host_name_prefix="webserver"
         )
-        self.employees = get_hosts_on_subnet(
-            self.openstack_conn, "10.0.2.0/24", host_name_prefix="employee"
+        self.employee_a_hosts = get_hosts_on_subnet(
+            self.openstack_conn, "192.168.201.0", host_name_prefix="employee_a"
         )
         self.databases = get_hosts_on_subnet(
-            self.openstack_conn, "10.0.3.0/24", host_name_prefix="database"
+            self.openstack_conn, "192.168.203.0/24", host_name_prefix="database"
         )
         self.attacker_host = get_hosts_on_subnet(
-            self.openstack_conn, "10.0.4.0/24", host_name_prefix="attacker"
+            self.openstack_conn, "192.168.202.0/24", host_name_prefix="attacker"
         )[0]
 
         for host in self.webservers:
             host.users.append("tomcat")
 
-        for host in self.employees:
+        for host in self.employee_a_hosts:
             username = host.name.replace("_", "")
             host.users.append(username)
 
@@ -70,12 +70,11 @@ class Enterprise(Environment):
             username = host.name.replace("_", "")
             host.users.append(username)
 
-        self.attacker_host.users.append("root")
-
         branch_one_subnet = Subnet("branch_one", self.webservers, "talk_to_manage")
-        branch_two_subnet = Subnet("branch_two", self.employees, "talk_to_manage")
+        branch_two_subnet = Subnet(
+            "branch_two", self.employee_a_hosts, "talk_to_manage"
+        )
         branch_three_subnet = Subnet("branch_three", self.databases, "talk_to_manage")
-        branch_four_subnet = Subnet("branch_four", self.attacker_host, "talk_to_manage")
 
         self.network = Network(
             "equifax_network",
@@ -83,7 +82,6 @@ class Enterprise(Environment):
                 branch_one_subnet,
                 branch_two_subnet,
                 branch_three_subnet,
-                branch_four_subnet,
             ],
         )
 
@@ -120,37 +118,37 @@ class Enterprise(Environment):
         webserver_ips = [host.ip for host in self.webservers]
         self.ansible_runner.run_playbook(SetupStrutsVulnerability(webserver_ips))
 
-        # Choose a random employee to have access to all webservers
-        webserver_admin = random.choice(self.employees)
-        for webserver in self.webservers:
+        # A third of web servers have access to a random employee host
+        random_access_hosts = random.sample(
+            self.employee_a_hosts, len(self.webservers) // 3
+        )
+        random_webservers = random.sample(self.webservers, len(self.webservers) // 3)
+        for i in range(len(random_webservers)):
             self.ansible_runner.run_playbook(
                 SetupServerSSHKeys(
-                    webserver_admin.ip,
-                    webserver_admin.users[0],
-                    webserver.ip,
-                    webserver.users[0],
+                    random_webservers[i].ip,
+                    random_webservers[i].users[0],
+                    random_access_hosts[i].ip,
+                    random_access_hosts[i].users[0],
                 )
             )
 
-        # Choose a random employee to have access to all databases
-        db_admin = random.choice(self.employees)
+        # Create management database host
+        management_database = random.choice(self.databases)
+        self.ansible_runner.run_playbook(
+            SetupNetcatShell(
+                management_database.ip,
+                management_database.users[0],
+            )
+        )
+
+        # management database has access to all other databases
         for db in self.databases:
-            self.ansible_runner.run_playbook(
-                SetupServerSSHKeys(
-                    db_admin.ip,
-                    db_admin.users[0],
-                    db.ip,
-                    db.users[0],
-                )
-            )
-
-        # Half the webservers have credentials to all databases
-        for i in range(len(self.webservers), 2):
-            for db in self.databases:
+            if db.ip != management_database.ip:
                 self.ansible_runner.run_playbook(
                     SetupServerSSHKeys(
-                        self.webservers[i].ip,
-                        self.webservers[i].users[0],
+                        management_database.ip,
+                        management_database.users[0],
                         db.ip,
                         db.users[0],
                     )
@@ -158,16 +156,14 @@ class Enterprise(Environment):
 
         # Add data to database hosts
         for database in self.databases:
+            if database.ip == management_database.ip:
+                continue
+
             self.ansible_runner.run_playbook(
                 AddData(database.ip, database.users[0], f"~/data_{database.name}.json")
             )
 
     def runtime_setup(self):
-        # Setup attacker
-        # self.ansible_runner.run_playbook(CheckIfHostUp(self.attacker_host.ip))
-        # time.sleep(3)
-
-        # self.ansible_runner.run_playbook(CreateSSHKey(self.attacker_host.ip, "root"))
         self.ansible_runner.run_playbook(
             InstallAttacker(self.attacker_host.ip, "root", self.caldera_ip)
         )
