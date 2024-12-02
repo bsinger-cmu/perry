@@ -50,7 +50,7 @@ class EnterpriseA(Environment):
             self.openstack_conn, "192.168.200.0/24", host_name_prefix="webserver"
         )
         self.employee_a_hosts = get_hosts_on_subnet(
-            self.openstack_conn, "192.168.201.0", host_name_prefix="employee_a"
+            self.openstack_conn, "192.168.201.0/24", host_name_prefix="employee_a"
         )
         self.databases = get_hosts_on_subnet(
             self.openstack_conn, "192.168.203.0/24", host_name_prefix="database"
