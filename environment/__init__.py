@@ -15,3 +15,4 @@ from .specifications.star_pe import StarPE
 from .specifications.dumbbell import Dumbbell
 from .specifications.dumbbell_pe import DumbbellPE
 from .specifications.enterprise_a import EnterpriseA
+from .specifications.enterprise_b import EnterpriseB

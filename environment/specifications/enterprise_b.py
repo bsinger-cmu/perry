@@ -12,7 +12,7 @@ from ansible.deployment_instance import (
     InstallKaliPackages,
 )
 from ansible.common import CreateUser
-from ansible.vulnerabilities import SetupStrutsVulnerability, SetupNetcatShell
+from ansible.vulnerabilities import SetupStrutsVulnerability, SetupSudoEdit
 from ansible.goals import AddData
 from ansible.defender import InstallSysFlow
 from ansible.caldera import InstallAttacker
@@ -29,15 +29,15 @@ import random
 fake = Faker()
 
 
-class EnterpriseA(Environment):
+class EnterpriseB(Environment):
     def __init__(
         self,
         ansible_runner: AnsibleRunner,
         openstack_conn,
         caldera_ip,
         config: config.Config,
-        topology="enterprise_a",
-        number_of_hosts=30,
+        topology="enterprise_b",
+        number_of_hosts=40,
     ):
         super().__init__(ansible_runner, openstack_conn, caldera_ip, config)
         self.topology = topology
@@ -52,6 +52,10 @@ class EnterpriseA(Environment):
         self.employee_a_hosts = get_hosts_on_subnet(
             self.openstack_conn, "192.168.201.0/24", host_name_prefix="employee_a"
         )
+        self.employee_b_hosts = get_hosts_on_subnet(
+            self.openstack_conn, "192.168.204.0/24", host_name_prefix="employee_b"
+        )
+        self.employee_hosts = self.employee_a_hosts + self.employee_b_hosts
         self.databases = get_hosts_on_subnet(
             self.openstack_conn, "192.168.203.0/24", host_name_prefix="database"
         )
@@ -62,7 +66,7 @@ class EnterpriseA(Environment):
         for host in self.webservers:
             host.users.append("tomcat")
 
-        for host in self.employee_a_hosts:
+        for host in self.employee_hosts:
             username = host.name.replace("_", "")
             host.users.append(username)
 
@@ -75,13 +79,17 @@ class EnterpriseA(Environment):
             "branch_two", self.employee_a_hosts, "talk_to_manage"
         )
         branch_three_subnet = Subnet("branch_three", self.databases, "talk_to_manage")
+        employee_b_subnet = Subnet(
+            "employee_b", self.employee_b_hosts, "talk_to_manage"
+        )
 
         self.network = Network(
-            "equifax_network",
+            "enterprise_b_network",
             [
                 branch_one_subnet,
                 branch_two_subnet,
                 branch_three_subnet,
+                employee_b_subnet,
             ],
         )
 
@@ -119,44 +127,33 @@ class EnterpriseA(Environment):
         self.ansible_runner.run_playbook(SetupStrutsVulnerability(webserver_ips))
 
         # Each web server has access to a random employee host
-        random_access_hosts = random.sample(self.employee_a_hosts, len(self.webservers))
-        random_webservers = random.sample(self.webservers, len(self.webservers))
-        for i in range(len(random_webservers)):
+        random_access_hosts = random.sample(self.employee_hosts, len(self.webservers))
+        for i in range(len(self.webservers)):
             self.ansible_runner.run_playbook(
                 SetupServerSSHKeys(
-                    random_webservers[i].ip,
-                    random_webservers[i].users[0],
+                    self.webservers[i].ip,
+                    self.webservers[i].users[0],
                     random_access_hosts[i].ip,
                     random_access_hosts[i].users[0],
                 )
             )
 
-        # Create management database host
-        management_database = random.choice(self.databases)
-        self.ansible_runner.run_playbook(
-            SetupNetcatShell(
-                management_database.ip,
-                management_database.users[0],
-            )
-        )
-
-        # management database has access to all other databases
+        # A random employee host has access to all databases
+        random_employee_host = random.choice(self.employee_hosts)
         for db in self.databases:
-            if db.ip != management_database.ip:
-                self.ansible_runner.run_playbook(
-                    SetupServerSSHKeys(
-                        management_database.ip,
-                        management_database.users[0],
-                        db.ip,
-                        db.users[0],
-                    )
+            self.ansible_runner.run_playbook(
+                SetupServerSSHKeys(
+                    random_employee_host.ip,
+                    "root",
+                    db.ip,
+                    db.users[0],
                 )
+            )
+        employee_host_ips = [host.ip for host in self.employee_hosts]
+        self.ansible_runner.run_playbook(SetupSudoEdit(employee_host_ips))
 
         # Add data to database hosts
         for database in self.databases:
-            if database.ip == management_database.ip:
-                continue
-
             self.ansible_runner.run_playbook(
                 AddData(database.ip, database.users[0], f"~/data_{database.name}.json")
             )
