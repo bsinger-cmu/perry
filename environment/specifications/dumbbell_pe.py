@@ -122,24 +122,16 @@ class DumbbellPE(Environment):
         for i, webserver in enumerate(self.webservers):
             database = self.database_hosts[i]
             self.ansible_runner.run_playbook(
-                SetupServerSSHKeys(webserver.ip, "root", database.ip, database.users[0])
+                SetupServerSSHKeys(
+                    webserver.ip, "root", database.ip, database.users[0]
+                )
             )
 
         # Add data to database hosts
         for database in self.database_hosts:
             self.ansible_runner.run_playbook(
-                AddData(database.ip, "root", f"~/data_{database.name}.json")
+                AddData(database.ip, database.users[0], f"~/data_{database.name}.json")
             )
-
-        # Setup privledge escalation vulnerabilities on databases
-        # even hosts SetupWriteableSudoers
-        # odd hosts SetupSudoEdit
-        database_ips = [host.ip for host in self.database_hosts]
-        for i in range(len(database_ips)):
-            if i % 2:
-                self.ansible_runner.run_playbook(SetupSudoEdit(database_ips[i]))
-            else:
-                self.ansible_runner.run_playbook(SetupWriteableSudoers(database_ips[i]))
 
     def runtime_setup(self):
         # Setup attacker
