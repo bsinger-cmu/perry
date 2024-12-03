@@ -110,6 +110,8 @@ class EquifaxInstance(Environment):
         for host in self.employee_hosts + self.database_hosts:
             for user in host.users:
                 self.ansible_runner.run_playbook(CreateUser(host.ip, user, "ubuntu"))
+        for host in self.webservers:
+            self.ansible_runner.run_playbook(CreateSSHKey(host.ip, host.users[0]))
 
         # Choose a random webserver to setup SSH keys to all databases and employees
         webserver_with_creds = random.choice(self.webservers)

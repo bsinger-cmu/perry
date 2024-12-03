@@ -91,9 +91,7 @@ class StarPE(Environment):
 
         # Install all base packages
         self.ansible_runner.run_playbook(
-            InstallBasePackages(
-                self.network.get_all_host_ips()
-            )
+            InstallBasePackages(self.network.get_all_host_ips())
         )
         self.ansible_runner.run_playbook(InstallKaliPackages(self.attacker_host.ip))
 
@@ -106,6 +104,8 @@ class StarPE(Environment):
         for host in self.network.get_all_hosts():
             for user in host.users:
                 self.ansible_runner.run_playbook(CreateUser(host.ip, user, "ubuntu"))
+        for host in self.webservers:
+            self.ansible_runner.run_playbook(CreateSSHKey(host.ip, host.users[0]))
 
         # Setup privilege escalation vulnerabilities on all hosts
         for i in range(0, len(self.star_hosts), 2):

@@ -101,9 +101,12 @@ class Dumbbell(Environment):
         self.ansible_runner.run_playbook(SetupStrutsVulnerability(webserver_ips))
 
         # Setup users on corporte hosts
-        for host in self.database_hosts:
+        for host in self.network.get_all_hosts():
             for user in host.users:
                 self.ansible_runner.run_playbook(CreateUser(host.ip, user, "ubuntu"))
+
+        for host in self.webservers:
+            self.ansible_runner.run_playbook(CreateSSHKey(host.ip, host.users[0]))
 
         for i, webserver in enumerate(self.webservers):
             database = self.database_hosts[i]

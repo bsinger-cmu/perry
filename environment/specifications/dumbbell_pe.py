@@ -96,6 +96,14 @@ class DumbbellPE(Environment):
             InstallSysFlow(self.network.get_all_host_ips(), self.config)
         )
 
+        # Setup users on corporte hosts
+        for host in self.network.get_all_hosts():
+            for user in host.users:
+                self.ansible_runner.run_playbook(CreateUser(host.ip, user, "ubuntu"))
+
+        for host in self.webservers:
+            self.ansible_runner.run_playbook(CreateSSHKey(host.ip, host.users[0]))
+
         # Setup apache struts and vulnerability
         webserver_ips = [host.ip for host in self.webservers]
         self.ansible_runner.run_playbook(SetupStrutsVulnerability(webserver_ips))
@@ -110,11 +118,6 @@ class DumbbellPE(Environment):
                 self.ansible_runner.run_playbook(
                     SetupWriteableSudoers(webserver_ips[i])
                 )
-
-        # Setup users on corporte hosts
-        for host in self.database_hosts:
-            for user in host.users:
-                self.ansible_runner.run_playbook(CreateUser(host.ip, user, "ubuntu"))
 
         for i, webserver in enumerate(self.webservers):
             database = self.database_hosts[i]
