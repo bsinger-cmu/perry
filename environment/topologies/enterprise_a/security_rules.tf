@@ -54,7 +54,7 @@ resource "openstack_networking_secgroup_v2" "database_secgroup" {
 }
 
 resource "openstack_networking_secgroup_rule_v2" "database_ingress_rules" {
-  for_each          = toset(["192.168.201.0/24", "192.168.203.0/24"])
+  for_each          = toset(["192.168.200.0/24", "192.168.201.0/24", "192.168.203.0/24"])
   direction         = "ingress"
   ethertype         = "IPv4"
   remote_ip_prefix  = each.value
@@ -62,7 +62,7 @@ resource "openstack_networking_secgroup_rule_v2" "database_ingress_rules" {
 }
 
 resource "openstack_networking_secgroup_rule_v2" "database_egress_rules" {
-  for_each          = toset(["192.168.201.0/24", "192.168.203.0/24"])
+  for_each          = toset(["192.168.200.0/24", "192.168.201.0/24", "192.168.203.0/24"])
   direction         = "egress"
   ethertype         = "IPv4"
   remote_ip_prefix  = each.value
