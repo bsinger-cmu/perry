@@ -1,17 +1,24 @@
-# Setup platform
+# Perry a high-level framework for accelerating security experimentation
+
+🚧🚧🚧 Warning: Documentation is under construction 🚧🚧🚧
+
+## Setup Openstack
+
+Perry requires a local Openstack cloud to run security experiments.
 
 ## Setup python environment
 
-1. Install conda (if not already installed)
+1. Install poetry
 
-2. Create environment: `conda env create -f environment.yml`
+2. Create environment: `poetry install`
 
-3. Activate environment: `conda activate openstack`
+3. Activate environment: `poetry shell`
+
+## Perry CLI
+
+🚧🚧🚧 TODO 🚧🚧🚧
 
 ## Start an elasticsearch database
-
-We already have an elasticsearch database running, please skip this section
-and ask for the credentials :)
 
 1. Run `docker pull docker.elastic.co/elasticsearch/elasticsearch:8.6.2`
 
@@ -39,54 +46,14 @@ In a new terminal window:
 
    - `cd caldera/plugins`
    - `mkdir deception`
-   - `git clone git@github.com:DeceptionProjects/DeceptionCalderaPlugin.git deception/`
+   - `git clone git@github.com:bsinger-cmu/perry-caldera.git deception/`
 
 3. Create another Conda environment for caldera:
 
-   - `cd ..`
-   - `conda create --name caldera python=3.10`
-   - `conda activate caldera`
+   - Create venv
+   - `pip install -r caldera/plugins/deception/requirements.txt`
 
-4. Install caldera required packages
-
-   - `pip3 install -r requirements.txt`
-   - `pip3 install docker`
-
-5. Run caldera: `python3 server.py --insecure --fresh`
+4. Run caldera: `python3 server.py --insecure --fresh`
    - Default ports can be changed by modifying the config file at `conf/default.yml`
    - Check if caldera is running by going to: localhost:8888
    - The credentials for logging in can be found in the configuration file: https://github.com/bsinger98/caldera/blob/master/conf/default.yml
-
-## Running demo code
-
-1. Create a `clouds.yaml` file for your configuration (look at `clouds_example.yaml` for a reference). Take note of username, password, and project name fields.
-
-2. In `deployment_instance/` create a `credentials.tfvars` (an example is in `credentials_example.tfvars`). Note that you will need to replace the openstack username, password, and project name to match other configs.
-
-3. In `config/` create a configuration file (an example is in `config/config_example.yml`). Note that you will need to add the caldera API key and the Elasticsearch user's password.
-
-4. To run, see section "Running the Emulator".
-
-# GUI locations
-
-There are three GUIs that are useful: Openstack, Elasticsearch, and Caldera
-
-- Openstack: 10.20.20.1:443
-- Elasticsearch: localhost:5601
-- Caldera: localhost:8888
-
-If you are remote, I recommend using SSH tunnels: `ssh gromit.andrew.cmu.edu -L localhost:8000:10.20.20.1:443` (forwards Openstack dashboard to localhost 8000)
-
-Full command with all three tunnels open `ssh <USERNAME>@gromit.andrew.cmu.edu -L localhost:8000:10.20.20.1:443 -L localhost:5601:localhost:5601 -L localhost:8888:localhost:8888`
-
-# Saving Openstack Instances as Images
-
-You can also use the openstack UI and create a snapshot
-
-- `openstack server image create INSTANCE_ID --name IMAGE_NAME`
-
-## Updating conda environment file
-
-To update `environment.yml` file run: `conda env export > environment.yml`
-
-`sudo systemctl restart devstack@*`
