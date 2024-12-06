@@ -1,31 +1,28 @@
 ---
 - hosts: "{{ host }}"
   tasks:
-    - name: create .ssh directory
+    - name: Check if SSH private key exists
       become: true
       become_user: "{{ host_user }}"
-      file:
-        path: "~/.ssh"
-        state: directory
-        mode: "0700"
+      stat:
+        path: "~/.ssh/id_rsa"
+      register: ssh_key_check
 
-    - name: copy key bair
-      become: true
-      become_user: "{{ host_user }}"
-      copy:
-        src: "ssh_keys/id_rsa"
-        dest: "~/.ssh/id_rsa"
-        mode: "0600"
-        force: yes
+    - name: Fail if SSH private key does not exist
+      fail:
+        msg: "The SSH private key at ~/.ssh/id_rsa does not exist. Please ensure it is created or present before running this playbook."
+      when: not ssh_key_check.stat.exists
 
-    - name: copy public key
+    - name: Read SSH key
       become: true
       become_user: "{{ host_user }}"
-      copy:
-        src: "ssh_keys/id_rsa.pub"
-        dest: "~/.ssh/id_rsa.pub"
-        mode: "0600"
-        force: yes
+      ansible.builtin.slurp:
+        src: "~/.ssh/id_rsa.pub"
+      register: leader_ssh_key
+
+    - name: Save the public key for use
+      set_fact:
+        public_key: "{{ leader_ssh_key['content'] | b64decode }}"
 
     - name: add to ssh config
       become: true
@@ -45,7 +42,7 @@
 
 - hosts: "{{ follower }}"
   tasks:
-    - name: add leader public key to followers
+    - name: Add public SSH key to authorized keys
       authorized_key:
         user: "{{ follower_user }}"
-        key: "{{ lookup('file', 'ssh_keys/id_rsa.pub') }}"
+        key: "{{ hostvars[host]['public_key'] }}"

@@ -138,9 +138,13 @@ class Environment:
 
     def load_snapshot(self, host, wait=False):
         snapshot_name = host.name + "_image"
-        image: openstack.image.v2.image.Image = self.openstack_conn.get_image(
-            snapshot_name
-        )  # type: ignore
+        try:
+            image: openstack.image.v2.image.Image = self.openstack_conn.get_image(
+                snapshot_name
+            )  # type: ignore
+        except AttributeError as e:
+            print(f"No image for host {snapshot_name}")
+            raise e
 
         if image:
             logger.debug(
