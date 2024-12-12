@@ -8,10 +8,31 @@
         path: "~/.ssh/id_rsa"
       register: ssh_key_check
 
-    - name: Fail if SSH private key does not exist
-      fail:
-        msg: "The SSH private key at ~/.ssh/id_rsa does not exist. Please ensure it is created or present before running this playbook."
+    - name: Create SSH directory if it does not exist
+      become: true
+      become_user: "{{ host_user }}"
+      file:
+        path: "~/.ssh"
+        state: directory
+        mode: "0700"
       when: not ssh_key_check.stat.exists
+
+    - name: Generate SSH key if it does not exist
+      become: true
+      become_user: "{{ host_user }}"
+      shell:
+        cmd: ssh-keygen -b 2048 -t rsa -f '.ssh/id_rsa' -q -N ""
+        creates: "~/.ssh/id_rsa"
+        chdir: "~"
+      when: not ssh_key_check.stat.exists
+
+    - name: Ensure correct permissions for SSH key
+      become: true
+      become_user: "{{ host_user }}"
+      file:
+        path: ~/.ssh/id_rsa
+        mode: '0600'
+      when: ssh_key_check.stat.exists
 
     - name: Read SSH key
       become: true
