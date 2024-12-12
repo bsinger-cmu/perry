@@ -24,7 +24,7 @@ experiment = [
             defender=absent,
             environment="EnterpriseA",
         ),
-        trials=5,
+        trials=2,
     ),
     Experiment(
         scenario=Scenario(
@@ -32,7 +32,7 @@ experiment = [
             defender=absent,
             environment="EnterpriseA",
         ),
-        trials=5,
+        trials=1,
     ),
     # Low Level Actions
     Experiment(
@@ -49,7 +49,7 @@ experiment = [
             defender=absent,
             environment="EnterpriseA",
         ),
-        trials=5,
+        trials=0,
     ),
     # No services
     Experiment(
@@ -66,7 +66,7 @@ experiment = [
             defender=absent,
             environment="EnterpriseA",
         ),
-        trials=5,
+        trials=0,
     ),
     # Bash
     Experiment(
@@ -83,6 +83,6 @@ experiment = [
             defender=absent,
             environment="EnterpriseA",
         ),
-        trials=5,
+        trials=0,
     ),
 ]

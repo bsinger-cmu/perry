@@ -12,6 +12,11 @@ gemini1_5_flash_bash = AttackerInformation(
     strategy="gemini_15_flash_strategy",
     abstraction=AbstractionLevel.NO_ABSTRACTION,
 )
+gemini2_flash_bash = AttackerInformation(
+    name="Gemini2Flash_bash",
+    strategy="gemini_2_flash_strategy",
+    abstraction=AbstractionLevel.NO_ABSTRACTION,
+)
 
 ### OpenAI LLMs ###
 gpt4o_mini_bash = AttackerInformation(
@@ -23,6 +28,12 @@ gpt4o_mini_bash = AttackerInformation(
 gpt4o_bash = AttackerInformation(
     name="GPT4o_bash",
     strategy="gpt4o_strategy",
+    abstraction=AbstractionLevel.NO_ABSTRACTION,
+)
+
+gpto1_bash = AttackerInformation(
+    name="GPTo1_bash",
+    strategy="gpto1_strategy",
     abstraction=AbstractionLevel.NO_ABSTRACTION,
 )
 

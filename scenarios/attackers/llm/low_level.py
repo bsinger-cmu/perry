@@ -12,6 +12,11 @@ gemini1_5_flash_low_level = AttackerInformation(
     strategy="gemini_15_flash_strategy",
     abstraction=AbstractionLevel.LOW_LEVEL,
 )
+gemini2_flash_low_level = AttackerInformation(
+    name="Gemini2Flash_low_level",
+    strategy="gemini_2_flash_strategy",
+    abstraction=AbstractionLevel.LOW_LEVEL,
+)
 
 ### OpenAI LLMs ###
 gpt4o_mini_low_level = AttackerInformation(
