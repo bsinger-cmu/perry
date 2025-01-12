@@ -1,0 +1,40 @@
+{
+    "scenario": {
+        "name": "targeted_reactiveSimple",
+        "defender": {
+            "telemetry": "SimpleTelemetryAnalysis",
+            "strategy": "ReactiveStandalone",
+            "capabilities": {
+                "DeployDecoy": 10,
+                "HoneyService": 0,
+                "RestoreServer": 0,
+                "HoneyCredentials": 0
+            }
+        },
+        "attacker": {
+            "name": "targeted"
+        },
+        "deployment_instance": {
+            "name": "ICSEnvironment"
+        }
+    },
+    "experiment_time": 407.8642554283142,
+    "execution_time": 94.44449400901794,
+    "setup_time": 313.41976141929626,
+    "flags_captured": [],
+    "data_exfiltrated": [],
+    "hosts_infected": [
+        {
+            "name": "decoy-3",
+            "time_infected": 45.17378640174866
+        }
+    ],
+    "operation_id": "2024-11-05_14-38-23",
+    "defender_action_counts": {
+        "shutdown_server": 0,
+        "start_honey_service": 0,
+        "deploy_decoy": 10,
+        "restore_server": 2,
+        "AddHoneyCredentials": 0
+    }
+}

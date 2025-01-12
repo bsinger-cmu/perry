@@ -12,6 +12,11 @@ gemini1_5_flash_no_services = AttackerInformation(
     strategy="gemini_15_flash_strategy",
     abstraction=AbstractionLevel.NO_SERVICES,
 )
+gemini2_flash_no_services = AttackerInformation(
+    name="Gemini2Flash_no_services",
+    strategy="gemini_2_flash_strategy",
+    abstraction=AbstractionLevel.NO_SERVICES,
+)
 
 ### OpenAI LLMs ###
 gpt4o_mini_no_services = AttackerInformation(

@@ -1,0 +1,55 @@
+{
+  "scenario": {
+    "name": "bfs_standalone_d2_h50",
+    "defender": {
+      "telemetry": "NoTelemetry",
+      "strategy": "StaticStandalone",
+      "capabilities": {
+        "DeployDecoy": 2,
+        "HoneyService": 0,
+        "RestoreServer": 0,
+        "HoneyCredentials": 50
+      }
+    },
+    "attacker": { "name": "BFSAttacker" },
+    "deployment_instance": { "name": "EquifaxSmall" }
+  },
+  "experiment_time": 2212.5058987140656,
+  "execution_time": 1666.2932436466217,
+  "setup_time": 546.2126550674438,
+  "flags_captured": [],
+  "data_exfiltrated": [
+    { "name": "data_database_8.json", "time_exfiltrated": 200.37834477424622 },
+    { "name": "data_database_11.json", "time_exfiltrated": 335.3783447742462 },
+    { "name": "data_database_10.json", "time_exfiltrated": 451.3783447742462 },
+    { "name": "data_database_6.json", "time_exfiltrated": 567.3783447742462 },
+    { "name": "data_database_1.json", "time_exfiltrated": 732.3783447742462 },
+    { "name": "data_database_7.json", "time_exfiltrated": 868.3783447742462 },
+    { "name": "data_database_2.json", "time_exfiltrated": 958.3783447742462 },
+    { "name": "data_database_0.json", "time_exfiltrated": 1119.3783447742462 },
+    { "name": "data_database_3.json", "time_exfiltrated": 1219.3783447742462 },
+    { "name": "data_database_5.json", "time_exfiltrated": 1340.3783447742462 }
+  ],
+  "hosts_infected": [
+    "attacker",
+    "webserver-0",
+    "database-8",
+    "database-11",
+    "database-10",
+    "database-6",
+    "database-1",
+    "database-7",
+    "database-2",
+    "database-0",
+    "database-3",
+    "database-5"
+  ],
+  "operation_id": "06401c67-c36c-43ae-80f5-d61cbf9dcfed",
+  "defender_action_counts": {
+    "shutdown_server": 0,
+    "start_honey_service": 0,
+    "deploy_decoy": 2,
+    "restore_server": 0,
+    "AddHoneyCredentials": 50
+  }
+}

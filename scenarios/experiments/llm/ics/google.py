@@ -24,7 +24,11 @@ experiment = [
             defender=absent,
             environment="ICSEnvironment",
         ),
+<<<<<<< HEAD
         trials=5,
+=======
+        trials=4,
+>>>>>>> main
     ),
     Experiment(
         scenario=Scenario(
@@ -32,7 +36,11 @@ experiment = [
             defender=absent,
             environment="ICSEnvironment",
         ),
+<<<<<<< HEAD
         trials=5,
+=======
+        trials=0,
+>>>>>>> main
     ),
     # Low Level Actions
     Experiment(
@@ -49,7 +57,11 @@ experiment = [
             defender=absent,
             environment="ICSEnvironment",
         ),
+<<<<<<< HEAD
         trials=5,
+=======
+        trials=0,
+>>>>>>> main
     ),
     # No services
     Experiment(
@@ -66,7 +78,11 @@ experiment = [
             defender=absent,
             environment="ICSEnvironment",
         ),
+<<<<<<< HEAD
         trials=5,
+=======
+        trials=0,
+>>>>>>> main
     ),
     # Bash
     Experiment(
@@ -83,6 +99,10 @@ experiment = [
             defender=absent,
             environment="ICSEnvironment",
         ),
+<<<<<<< HEAD
         trials=5,
+=======
+        trials=0,
+>>>>>>> main
     ),
 ]

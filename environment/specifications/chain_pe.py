@@ -80,7 +80,9 @@ class PEChainEnvironment(Environment):
             InstallBasePackages(self.network.get_all_host_ips())
         )
 
+        # Setup attacker
         self.ansible_runner.run_playbook(InstallKaliPackages(self.attacker_host.ip))
+        self.ansible_runner.run_playbook(CreateSSHKey(self.attacker_host.ip, "root"))
 
         # Install sysflow on all hosts
         self.ansible_runner.run_playbook(
@@ -103,6 +105,7 @@ class PEChainEnvironment(Environment):
         for host in self.network.get_all_hosts():
             for user in host.users:
                 self.ansible_runner.run_playbook(CreateUser(host.ip, user, "ubuntu"))
+                self.ansible_runner.run_playbook(CreateSSHKey(host.ip, user))
 
         action = SetupServerSSHKeys(
             self.attacker_host.ip,

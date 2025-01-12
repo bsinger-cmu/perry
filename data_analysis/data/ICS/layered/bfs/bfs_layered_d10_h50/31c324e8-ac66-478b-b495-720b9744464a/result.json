@@ -1,0 +1,232 @@
+{
+    "scenario": {
+        "name": "Baseline",
+        "defender": {
+            "telemetry": "NoTelemetry",
+            "strategy": "StaticLayered",
+            "capabilities": {
+                "DeployDecoy": 10,
+                "HoneyService": 0,
+                "RestoreServer": 0,
+                "HoneyCredentials": 50
+            }
+        },
+        "attacker": {
+            "name": "BFSAttacker"
+        },
+        "deployment_instance": {
+            "name": "ICSEnvironment"
+        }
+    },
+    "experiment_time": 2971.05256319046,
+    "execution_time": 1605.9592742919922,
+    "setup_time": 1365.093288898468,
+    "flags_captured": [],
+    "data_exfiltrated": [],
+    "hosts_infected": [
+        {
+            "name": "decoy-9",
+            "time_infected": 50.1966917514801
+        },
+        {
+            "name": "decoy-6",
+            "time_infected": 87.33371257781982
+        },
+        {
+            "name": "decoy-1",
+            "time_infected": 114.49905276298523
+        },
+        {
+            "name": "decoy-2",
+            "time_infected": 134.54079604148865
+        },
+        {
+            "name": "employee-b-0",
+            "time_infected": 171.69729161262512
+        },
+        {
+            "name": "decoy-4",
+            "time_infected": 198.88446831703186
+        },
+        {
+            "name": "decoy-7",
+            "time_infected": 253.23510360717773
+        },
+        {
+            "name": "sensor-12",
+            "time_infected": 280.5553684234619
+        },
+        {
+            "name": "sensor-17",
+            "time_infected": 290.61602687835693
+        },
+        {
+            "name": "decoy-9",
+            "time_infected": 322.7810173034668
+        },
+        {
+            "name": "sensor-4",
+            "time_infected": 354.93623328208923
+        },
+        {
+            "name": "sensor-10",
+            "time_infected": 394.26567482948303
+        },
+        {
+            "name": "sensor-1",
+            "time_infected": 404.32850527763367
+        },
+        {
+            "name": "sensor-13",
+            "time_infected": 448.5789604187012
+        },
+        {
+            "name": "sensor-8",
+            "time_infected": 475.73661041259766
+        },
+        {
+            "name": "sensor-2",
+            "time_infected": 485.79831767082214
+        },
+        {
+            "name": "sensor-14",
+            "time_infected": 518.049521446228
+        },
+        {
+            "name": "sensor-16",
+            "time_infected": 562.3126356601715
+        },
+        {
+            "name": "sensor-9",
+            "time_infected": 594.4360694885254
+        },
+        {
+            "name": "sensor-3",
+            "time_infected": 621.5810720920563
+        },
+        {
+            "name": "sensor-18",
+            "time_infected": 648.7713947296143
+        },
+        {
+            "name": "sensor-11",
+            "time_infected": 658.8024325370789
+        },
+        {
+            "name": "sensor-6",
+            "time_infected": 708.0612332820892
+        },
+        {
+            "name": "sensor-15",
+            "time_infected": 718.119871377945
+        },
+        {
+            "name": "sensor-5",
+            "time_infected": 767.4132373332977
+        },
+        {
+            "name": "sensor-19",
+            "time_infected": 799.7159035205841
+        },
+        {
+            "name": "sensor-0",
+            "time_infected": 809.7735240459442
+        },
+        {
+            "name": "sensor-7",
+            "time_infected": 837.0639827251434
+        },
+        {
+            "name": "control-host-3",
+            "time_infected": 881.4422454833984
+        },
+        {
+            "name": "decoy-1",
+            "time_infected": 908.7436697483063
+        },
+        {
+            "name": "control-host-4",
+            "time_infected": 940.9304916858673
+        },
+        {
+            "name": "decoy-0",
+            "time_infected": 963.1728813648224
+        },
+        {
+            "name": "decoy-4",
+            "time_infected": 990.508218050003
+        },
+        {
+            "name": "decoy-9",
+            "time_infected": 1022.818080663681
+        },
+        {
+            "name": "decoy-9",
+            "time_infected": 1060.326810836792
+        },
+        {
+            "name": "decoy-3",
+            "time_infected": 1107.7955167293549
+        },
+        {
+            "name": "decoy-1",
+            "time_infected": 1140.018884420395
+        },
+        {
+            "name": "decoy-4",
+            "time_infected": 1150.083268404007
+        },
+        {
+            "name": "control-host-1",
+            "time_infected": 1229.7951860427856
+        },
+        {
+            "name": "control-host-2",
+            "time_infected": 1262.043513059616
+        },
+        {
+            "name": "decoy-9",
+            "time_infected": 1289.512733221054
+        },
+        {
+            "name": "decoy-4",
+            "time_infected": 1342.256083726883
+        },
+        {
+            "name": "decoy-4",
+            "time_infected": 1389.7130222320557
+        },
+        {
+            "name": "decoy-7",
+            "time_infected": 1442.2437899112701
+        },
+        {
+            "name": "decoy-5",
+            "time_infected": 1469.6129577159882
+        },
+        {
+            "name": "control-host-0",
+            "time_infected": 1501.790236711502
+        },
+        {
+            "name": "decoy-0",
+            "time_infected": 1523.9814541339874
+        },
+        {
+            "name": "decoy-6",
+            "time_infected": 1551.9380362033844
+        },
+        {
+            "name": "decoy-5",
+            "time_infected": 1584.4851186275482
+        }
+    ],
+    "operation_id": "31c324e8-ac66-478b-b495-720b9744464a",
+    "defender_action_counts": {
+        "shutdown_server": 0,
+        "start_honey_service": 0,
+        "deploy_decoy": 10,
+        "restore_server": 0,
+        "AddHoneyCredentials": 0
+    }
+}

@@ -1,0 +1,85 @@
+{
+    "scenario": {
+        "name": "dfs_layered_d10_h50",
+        "defender": {
+            "telemetry": "NoTelemetry",
+            "strategy": "StaticLayered",
+            "capabilities": {
+                "DeployDecoy": 10,
+                "HoneyService": 0,
+                "RestoreServer": 0,
+                "HoneyCredentials": 50
+            }
+        },
+        "attacker": {
+            "name": "RingDFSAttacker"
+        },
+        "deployment_instance": {
+            "name": "RingEnvironment"
+        }
+    },
+    "experiment_time": 1439.330335855484,
+    "execution_time": 460.0525541305542,
+    "setup_time": 979.2777817249298,
+    "flags_captured": [],
+    "data_exfiltrated": [
+        {
+            "name": "data_host_12.json",
+            "time_exfiltrated": 72.13251423835754
+        }
+    ],
+    "hosts_infected": [
+        {
+            "name": "decoy-7",
+            "time_infected": 87.40759706497192
+        },
+        {
+            "name": "decoy-2",
+            "time_infected": 119.53422212600708
+        },
+        {
+            "name": "decoy-9",
+            "time_infected": 161.72110772132874
+        },
+        {
+            "name": "decoy-4",
+            "time_infected": 193.93018865585327
+        },
+        {
+            "name": "decoy-1",
+            "time_infected": 226.14703559875488
+        },
+        {
+            "name": "decoy-6",
+            "time_infected": 241.2090084552765
+        },
+        {
+            "name": "decoy-8",
+            "time_infected": 290.43006587028503
+        },
+        {
+            "name": "decoy-0",
+            "time_infected": 327.6083860397339
+        },
+        {
+            "name": "decoy-5",
+            "time_infected": 359.7168200016022
+        },
+        {
+            "name": "decoy-3",
+            "time_infected": 396.8593440055847
+        },
+        {
+            "name": "decoy-2",
+            "time_infected": 419.59621143341064
+        }
+    ],
+    "operation_id": "839a8241-5ead-4285-82f5-ae0e97edbf4e",
+    "defender_action_counts": {
+        "shutdown_server": 0,
+        "start_honey_service": 0,
+        "deploy_decoy": 10,
+        "restore_server": 0,
+        "AddHoneyCredentials": 0
+    }
+}

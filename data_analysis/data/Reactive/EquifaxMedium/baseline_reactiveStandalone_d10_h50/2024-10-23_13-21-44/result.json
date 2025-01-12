@@ -1,0 +1,53 @@
+{
+    "scenario": {
+        "name": "baseline_reactiveStandalone_d10_h50",
+        "defender": {
+            "telemetry": "ReactiveCredentials",
+            "strategy": "ReactiveStandalone",
+            "capabilities": {
+                "DeployDecoy": 10,
+                "HoneyService": 0,
+                "RestoreServer": -1,
+                "HoneyCredentials": 50
+            }
+        },
+        "attacker": {
+            "name": "equifax_baseline"
+        },
+        "deployment_instance": {
+            "name": "EquifaxMedium"
+        }
+    },
+    "experiment_time": 1337.1224682331085,
+    "execution_time": 477.65704584121704,
+    "setup_time": 859.4654223918915,
+    "flags_captured": [],
+    "data_exfiltrated": [
+        {
+            "name": "data_database_15.json",
+            "time_exfiltrated": 109.71726489067078
+        }
+    ],
+    "hosts_infected": [
+        {
+            "name": "webserver-0",
+            "time_infected": 50.36734127998352
+        },
+        {
+            "name": "database-15",
+            "time_infected": 82.51234269142151
+        },
+        {
+            "name": "webserver-1",
+            "time_infected": 355.6505732536316
+        }
+    ],
+    "operation_id": "2024-10-23_13-21-44",
+    "defender_action_counts": {
+        "shutdown_server": 0,
+        "start_honey_service": 0,
+        "deploy_decoy": 10,
+        "restore_server": 14,
+        "AddHoneyCredentials": 50
+    }
+}
